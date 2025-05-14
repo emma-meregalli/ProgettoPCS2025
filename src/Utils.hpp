@@ -8,6 +8,8 @@ using namespace std;
 namespace PolyhedralLibrary
 {
 
+std::vector<int> ComputeVEF(unsigned int q, int b, int c)
+
 bool ExportTetrahedron(PolyhedralMesh& mesh);
 
 bool ExportCube(PolyhedralMesh& mesh);
