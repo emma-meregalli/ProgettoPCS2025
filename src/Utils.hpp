@@ -8,18 +8,14 @@ using namespace std;
 namespace PolyhedralLibrary
 {
 
-bool ImportMesh(PolyhedralMesh& mesh);
+bool ExportTetrahedron(PolyhedralMesh& mesh);
 
-bool ImportCell0Ds(PolyhedralMesh& mesh);
+bool ExportCube(PolyhedralMesh& mesh);
 
-bool ImportCell1Ds(PolyhedralMesh& mesh);
+bool ExportOctahedron(PolyhedralMesh& mesh);
 
-bool ImportCell2Ds(PolyhedralMesh& mesh);
+bool ExportDodecahedron(PolyhedralMesh& mesh);
 
-bool CheckMarkers(const PolyhedralMesh& mesh);
-
-bool CheckEdges(const PolyhedralMesh& mesh);
-
-bool CheckAreas(const PolyhedralMesh& mesh);
+bool ExportIcosahedron(PolyhedralMesh& mesh);
 
 }
