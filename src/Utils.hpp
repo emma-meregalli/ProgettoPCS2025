@@ -5,21 +5,21 @@
 
 using namespace std;
 
-namespace PolygonalLibrary
+namespace PolyhedralLibrary
 {
 
-bool ImportMesh(PolygonalMesh& mesh);
+bool ImportMesh(PolyhedralMesh& mesh);
 
-bool ImportCell0Ds(PolygonalMesh& mesh);
+bool ImportCell0Ds(PolyhedralMesh& mesh);
 
-bool ImportCell1Ds(PolygonalMesh& mesh);
+bool ImportCell1Ds(PolyhedralMesh& mesh);
 
-bool ImportCell2Ds(PolygonalMesh& mesh);
+bool ImportCell2Ds(PolyhedralMesh& mesh);
 
-bool CheckMarkers(const PolygonalMesh& mesh);
+bool CheckMarkers(const PolyhedralMesh& mesh);
 
-bool CheckEdges(const PolygonalMesh& mesh);
+bool CheckEdges(const PolyhedralMesh& mesh);
 
-bool CheckAreas(const PolygonalMesh& mesh);
+bool CheckAreas(const PolyhedralMesh& mesh);
 
 }

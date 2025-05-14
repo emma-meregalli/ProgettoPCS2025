@@ -2,10 +2,21 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <Eigen/Eigen>
+using namespace std;
+using namespace Eigen;
 
-namespace PolygonalLibrary
+namespace PolyhedralLibrary
 {
-bool ImportMesh(PolygonalMesh& mesh)
+bool 
+}
+
+
+
+
+namespace PolyhedralLibrary
+{
+bool ImportMesh(PolyhedralMesh& mesh)
 {
 
     if(!ImportCell0Ds(mesh))
@@ -21,7 +32,7 @@ bool ImportMesh(PolygonalMesh& mesh)
 
 }
 // ***************************************************************************
-bool ImportCell0Ds(PolygonalMesh& mesh)
+bool ImportCell0Ds(PolyhedralMesh& mesh)
 {
     ifstream file("./Cell0Ds.csv");
 
@@ -52,39 +63,23 @@ bool ImportCell0Ds(PolygonalMesh& mesh)
 
     for (string& line : listLines)
     {
-        replace(line.begin(), line.end(), ';', ' ');
+        //replace(line.begin(), line.end(), ';', ' ');
 
         istringstream converter(line);
 
         unsigned int id;
-        unsigned int marker;
-        Vector2d coord;
+        Vector3d coord;
 
-        converter >>  id >> marker >> mesh.Cell0DsCoordinates(0, id) >> mesh.Cell0DsCoordinates(1, id);
+        converter >>  id >> mesh.Cell0DsCoordinates(0, id) >> mesh.Cell0DsCoordinates(1, id) >> mesh.Cell0DsCoordinates(2, id);
 
         mesh.Cell0DsId.push_back(id);
-
-        /// Memorizza i marker
-        if(marker != 0)
-        {
-            const auto it = mesh.MarkerCell0Ds.find(marker);
-            if(it == mesh.MarkerCell0Ds.end())
-            {
-                mesh.MarkerCell0Ds.insert({marker, {id}});
-            }
-            else
-            {
-                // mesh.MarkerCell0Ds[marker].push_back(id);
-                it->second.push_back(id);
-            }
-        }
 
     }
 
     return true;
 }
 // ***************************************************************************
-bool ImportCell1Ds(PolygonalMesh& mesh)
+bool ImportCell1Ds(PolyghedralMesh& mesh)
 {
     ifstream file("./Cell1Ds.csv");
 
@@ -115,37 +110,21 @@ bool ImportCell1Ds(PolygonalMesh& mesh)
 
     for (string& line : listLines)
     {
-        replace(line.begin(), line.end(), ';', ' ');
+        //replace(line.begin(), line.end(), ';', ' ');
 
         istringstream converter(line);
 
         unsigned int id;
-        unsigned int marker;
         Vector2i extrema;
 
-        converter >>  id >> marker >>  mesh.Cell1DsExtrema(0, id) >>  mesh.Cell1DsExtrema(1, id);
+        converter >>  id >>  mesh.Cell1DsExtrema(0, id) >>  mesh.Cell1DsExtrema(1, id);
         mesh.Cell1DsId.push_back(id);
-
-        /// Memorizza i marker
-        if(marker != 0)
-        {
-            const auto it = mesh.MarkerCell1Ds.find(marker);
-            if(it == mesh.MarkerCell1Ds.end())
-            {
-                mesh.MarkerCell1Ds.insert({marker, {id}});
-            }
-            else
-            {
-                // mesh.MarkerCell1Ds[marker].push_back(id);
-                it->second.push_back(id);
-            }
-        }
     }
 
     return true;
 }
 // ***************************************************************************
-bool ImportCell2Ds(PolygonalMesh& mesh)
+bool ImportCell2Ds(PolyghedralMesh& mesh)
 {
     ifstream file;
     file.open("./Cell2Ds.csv");
@@ -180,69 +159,127 @@ bool ImportCell2Ds(PolygonalMesh& mesh)
 
     for (string& line : listLines)
     {
-        replace(line.begin(), line.end(), ';', ' ');
+        //replace(line.begin(), line.end(), ';', ' ');
 
         istringstream converter(line);
 
         unsigned int id;
-        unsigned int marker;
         unsigned int numVertices;
         unsigned int numEdges;
 
-        converter >>  id >> marker >> numVertices;
+        converter >>  id >> numVertices >>  numEdges;
         vector<unsigned int> vertices(numVertices);
         for(unsigned int i=0; i<numVertices; i++)
             converter >> vertices[i];
-        converter >> numEdges;
+        
         vector<unsigned int> edges(numEdges);
         for(unsigned int i = 0; i<numEdges; i++)
             converter >> edges[i];
 
+        bool oriented = true;
+        for (unsigned int e = 0; e < numEdges; e++) 
+        {
+            unsigned int currentEdge = edges[e];
+            unsigned int nextEdge = edges[(e + 1) % numEdges];
+        
+            unsigned int nextEdgeOrigin = mesh.Cell1DsExtrema(0, nextEdge);
+            unsigned int currentEdgeEnd = mesh.Cell1DsExtrema(1, currentEdge);
+            unsigned int currentVertex = vertices[e];
+            unsigned int currentEdgeOrigin = mesh.Cell1DsExtrema(0, currentEdge);
+
+            // Controlla se il lato corrente finisce dove inizia il lato successivo
+            if (currentEdgeEnd != nextEdgeOrigin || currentVertex != currentEdgeOrigin)
+            {
+                oriented = false;
+                break;
+            }
+        }
+        
+        // Se l'orientamento non è corretto, prova a invertirlo
+        if (!oriented) {
+            reverse(vertices.begin(), vertices.end());
+            reverse(edges.begin(), edges.end());
+        }
+        
         mesh.Cell2DsId.push_back(id);
         mesh.Cell2DsNumVertices.push_back(numVertices);
         mesh.Cell2DsVertices.push_back(vertices);
         mesh.Cell2DsNumEdges.push_back(numEdges);
         mesh.Cell2DsEdges.push_back(edges);
+    }
 
-        /// Memorizza i marker
-        if(marker != 0)
-        {
-            const auto it = mesh.MarkerCell2Ds.find(marker);
-            if(it == mesh.MarkerCell2Ds.end())
-            {
-                mesh.MarkerCell2Ds.insert({marker, {id}});
-            }
-            else
-            {
-                // mesh.MarkerCell2Ds[marker].push_back(id);
-                it->second.push_back(id);
-            }
-        }
+    return true;
+}
+
+bool ImportCell3Ds(PolyhedralMesh& mesh)
+{
+    ifstream file;
+    file.open("./Cell3Ds.csv");
+
+    if(file.fail())
+        return false;
+
+    list<string> listLines;
+    string line;
+    
+    while (getline(file, line))
+        listLines.push_back(line);
+
+    file.close();
+
+    // remove header
+    listLines.pop_front();
+
+    mesh.NumCell3Ds = listLines.size();
+
+    if (mesh.NumCell3Ds == 0)
+    {
+        cerr << "There is no cell 3D" << endl;
+        return false;
+    }
+
+    mesh.Cell3DsId.reserve(mesh.NumCell3Ds);
+    mesh.Cell3DsNumVertices.reserve(mesh.NumCell3Ds);
+    mesh.Cell3DsVertices.reserve(mesh.NumCell3Ds);
+    mesh.Cell3DsNumEdges.reserve(mesh.NumCell3Ds);
+    mesh.Cell3DsEdges.reserve(mesh.NumCell3Ds);
+    mesh.Cell3DsNumFaces.reserve(mesh.NumCell3Ds);
+    mesh.Cell3DsFaces.reserve(mesh.NumCell3Ds);
+
+    for (string& line : listLines)
+    {
+        //replace(line.begin(), line.end(), ';', ' ');
+
+        istringstream converter(line);
+
+        unsigned int id;
+        unsigned int numVertices;
+        unsigned int numEdges;
+        unsigned int numFaces;
+
+        converter >>  id >> numVertices >>  numEdges >> numFaces;
+        vector<unsigned int> vertices(numVertices);
+        for(unsigned int i=0; i<numVertices; i++)
+            converter >> vertices[i];
+        vector<unsigned int> edges(numEdges);
+        for(unsigned int i = 0; i<numEdges; i++)
+            converter >> edges[i];
+        vector<unsigned int> faces(numFaces);
+        for(unsigned int i = 0; i<numFaces; i++)
+            converter >> faces[i];
+
+        mesh.Cell3DsId.push_back(id);
+        mesh.Cell3DsNumVertices.push_back(numVertices);
+        mesh.Cell3DsVertices.push_back(vertices);
+        mesh.Cell3DsNumEdges.push_back(numEdges);
+        mesh.Cell3DsEdges.push_back(edges);
+        mesh.Cell3DsNumFaces.push_back(numFaces);
+        mesh.Cell3DsFaces.push_back(faces);
     }
     return true;
 }
 
-bool CheckMarkers(const PolygonalMesh& mesh)
-{
-    for (const auto& [marker, ids] : mesh.MarkerCell0Ds)
-        for (const auto id : ids)
-            if (std::find(mesh.Cell0DsId.begin(), mesh.Cell0DsId.end(), id) == mesh.Cell0DsId.end())
-                return false;
-
-    for (const auto& [marker, ids] : mesh.MarkerCell1Ds)
-        for (const auto id : ids)
-            if (std::find(mesh.Cell1DsId.begin(), mesh.Cell1DsId.end(), id) == mesh.Cell1DsId.end())
-                return false;
-
-    for (const auto& [marker, ids] : mesh.MarkerCell2Ds)
-        for (const auto id : ids)
-            if (std::find(mesh.Cell2DsId.begin(), mesh.Cell2DsId.end(), id) == mesh.Cell2DsId.end())
-                return false;
-
-    return true;
-}
-
-bool CheckEdges(const PolygonalMesh& mesh)
+bool CheckEdges(const PolyghedralMesh& mesh)
 {
     for (unsigned int i = 0; i < mesh.NumCell1Ds; i++)
     {
@@ -263,7 +300,7 @@ bool CheckEdges(const PolygonalMesh& mesh)
     return true;
 }
 
-bool CheckAreas(const PolygonalMesh& mesh)
+bool CheckAreas(const PolyghedralMesh& mesh)
 {
     for (unsigned int i = 0; i < mesh.NumCell2Ds; i++)
     {
