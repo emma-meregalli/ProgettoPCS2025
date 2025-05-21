@@ -12,14 +12,16 @@ namespace PolyhedralLibrary {
 struct PolyhedralMesh
 {
     // Vertici
-    unsigned int NumCell0Ds = 0;    // number of Cell0D
-    std::vector<unsigned int> Cell0DsId = {};   // Cell0D id
-    Eigen::MatrixXd Cell0DsCoordinates = {};    // Cell0D coordinates
+    unsigned int NumCell0Ds = 0;    // number of Cell0Ds
+    std::vector<unsigned int> Cell0DsId = {};   // Cell0Ds id
+    Eigen::MatrixXd Cell0DsCoordinates = {};    // Cell0Ds coordinates
+    vector<vector<unsigned int>> Cell0DsFlag = {}; // Cell0Ds flags
 
     // Spigoli
-    unsigned int NumCell1Ds = 0;    // number of Cell1D
-    std::vector<unsigned int> Cell1DsId = {};   // Cell1D id
-    Eigen::MatrixXi Cell1DsExtrema = {};    // Cell1D vertices id (start, end)
+    unsigned int NumCell1Ds = 0;    // number of Cell1Ds
+    std::vector<unsigned int> Cell1DsId = {};   // Cell1Ds id
+    Eigen::MatrixXi Cell1DsExtrema = {};    // Cell1Ds vertices id (start, end)
+    vector<vector<unsigned int>> Cell01sFlag = {}; // Cell1Ds flags
 
     //Facce
     unsigned int NumCell2Ds = 0;    // number of Cell2D
