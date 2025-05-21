@@ -1,7 +1,8 @@
-#include "Utils.hpp"
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include "Utils.hpp"
+#include "PolyhedralMesh.hpp"
 
 using namespace std;
 using namespace Eigen;
@@ -131,8 +132,13 @@ bool ExportTetrahedron(PolyhedralMesh& mesh) {
     mesh.Cell2DsId.reserve(4);
     mesh.Cell2DsId = {0, 1, 2, 3};
     
-    mesh.Cell2DsVertices.reserve(4,3);
-    mesh.Cell2DsEdges.reserve(4,3);
+    mesh.Cell2DsVertices.resize(4);
+	for (auto& v : mesh.Cell2DsVertices)
+		v.reserve(3);
+	
+	mesh.Cell2DsEdges.resize(4);
+	for (auto& e : mesh.Cell2DsEdges)
+		e.reserve(3);
 
     mesh.Cell2DsVertices = {
         {0, 1, 2}, 
@@ -187,7 +193,7 @@ bool ExportCube(PolyhedralMesh& mesh) {
     mesh.Cell1DsId.reserve(12);
     Cell1DsId = {0,1,2,3,4,5,6,7,8,9,10,11};
 
-    mesh.Cell1DsExtrema.resize(12, 2);
+    mesh.Cell1DsExtrema = MatrixXi::Zero(12, 2);
 	mesh.Cell1DsExtrema <<
 		0, 1,  // Lato 0
 		1, 2,  // Lato 1
@@ -206,8 +212,13 @@ bool ExportCube(PolyhedralMesh& mesh) {
 	mesh.Cell2DsId.reserve(6); 
 	mesh.Cell2DsId = {0, 1, 2, 3, 4, 5};
 	
-	mesh.Cell2DsVertices.reserve(6, 4);
-	mesh.Cell2DsEdges.reserve(6, 4); 
+	mesh.Cell2DsVertices.resize(6);
+	for (auto& v : mesh.Cell2DsVertices)
+		v.reserve(4);
+		
+	mesh.Cell2DsEdges.resize(6);
+	for (auto& e : mesh.Cell2DsEdges)
+		e.reserve(4);
 	
 	mesh.Cell2DsVertices = {
 		{0, 1, 2, 3},  
@@ -248,7 +259,7 @@ bool ExportOctahedron(PolyhedralMesh& mesh) {
     // Vertici
     double r = 1.0; 
 
-    mesh.Cell0DsCoordinates.reserve(6, 3);
+    mesh.Cell0DsCoordinates = MatrixXd::Zero(6, 3);
     mesh.Cell0DsId.reserve(6);
 
     mesh.Cell0DsCoordinates(0, 0) = r;   mesh.Cell0DsCoordinates(1, 0) = 0.0;  mesh.Cell0DsCoordinates(2, 0) = 0.0;  
@@ -264,48 +275,54 @@ bool ExportOctahedron(PolyhedralMesh& mesh) {
     mesh.Cell1DsId.reserve(12);
     Cell1DsId = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
 
-    mesh.Cell1DsExtrema.resize(12, 2);
+    mesh.Cell1DsExtrema = MatrixXi::Zero(12, 2);
     mesh.Cell1DsExtrema <<
-        0, 1,  // Lato 0
-        0, 3,  // Lato 1
-        0, 2,  // Lato 2
-        0, 4,  // Lato 3
-        5, 4,  // Lato 4
-        2, 5,  // Lato 5
-        3, 5,  // Lato 6
-        1, 5,  // Lato 7
-        1, 3,  // Lato 8
-        1, 2,  // Lato 9
-        4, 2,  // Lato 10
-        4, 3;  // Lato 11
-
+        0, 2,  // Lato 0
+		2, 1,  // Lato 1
+		1, 3,  // Lato 2
+		3, 0,  // Lato 3
+		0, 4,  // Lato 4
+		2, 4,  // Lato 5
+		4, 1,  // Lato 6
+		4, 3,  // Lato 7
+		1, 5,  // Lato 8
+		3, 5,  // Lato 9
+		0, 5,  // Lato 10
+		2, 5;  // Lato 11
+	
     // Facce
     mesh.Cell2DsId.reserve(8);
     mesh.Cell2DsId = {0, 1, 2, 3, 4, 5, 6, 7};
 
-    mesh.Cell2DsVertices.reserve(8, 3);
-    mesh.Cell2DsEdges.reserve(8, 3);
+    mesh.Cell2DsVertices.resize(8);
+	for (auto& v : mesh.Cell2DsVertices)
+		v.reserve(3);
+		
+	mesh.Cell2DsEdges.resize(8);
+	for (auto& e : mesh.Cell2DsEdges)
+		e.reserve(3);
+	
 
     mesh.Cell2DsVertices = {
-        {0, 1, 3},  // Faccia 0
-        {0, 1, 2},  // Faccia 1
-        {0, 2, 4},  // Faccia 2
-        {0, 3, 4},  // Faccia 3
-        {2, 5, 4},  // Faccia 4
-        {2, 5, 1},  // Faccia 5
-        {1, 3, 5},  // Faccia 6
-        {3, 5, 4}   // Faccia 7
+        {0, 2, 4},  // Faccia 0
+		{0, 4, 3},  // Faccia 1
+		{3, 4, 1},  // Faccia 2
+		{1, 2, 4},  // Faccia 3
+		{2, 5, 0},  // Faccia 4
+		{2, 1, 5},  // Faccia 5
+		{1, 5, 3},  // Faccia 6
+		{0, 3, 5}   // Faccia 7
     };
 
     mesh.Cell2DsEdges = {
-        {0, 8, 1},  // Faccia 0
-        {0, 9, 2},  // Faccia 1
-        {2, 10, 3}, // Faccia 2
-        {1, 11, 3},  // Faccia 3
-        {5, 4, 10}, // Faccia 4
-        {5, 7, 9}, // Faccia 5
-        {8, 6, 7},  // Faccia 6
-        {6, 4, 11}  // Faccia 7
+        {0, 5, 4},  // Faccia 0
+		{4, 7, 3},  // Faccia 1
+		{7, 6, 2}, // Faccia 2
+		{1, 5, 6},  // Faccia 3
+		{11, 10, 0}, // Faccia 4
+		{1, 8 , 11}, // Faccia 5
+		{8, 9, 2},  // Faccia 6
+		{3, 9, 10}  // Faccia 7
     };
 
     // Poliedro
@@ -330,7 +347,7 @@ bool ExportDodecahedron(PolyhedralMesh& mesh) {
     double r = 1.0;
     double phi = (1.0 + sqrt(5.0)) / 2.0;
 
-    mesh.Cell0DsCoordinates.reserve(20, 3);
+    mesh.Cell0DsCoordinates = MatrixXd::Zero(20, 3);
     mesh.Cell0DsId.reserve(20);
     double norm = sqrt(3.0);
     
@@ -364,7 +381,7 @@ bool ExportDodecahedron(PolyhedralMesh& mesh) {
     Cell1DsId = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
                  20, 21, 22, 23, 24, 25, 26, 27, 28, 29};
 
-    mesh.Cell1DsExtrema.resize(30, 2);
+    mesh.Cell1DsExtrema = MatrixXi::Zero(30, 2);
     mesh.Cell1DsExtrema <<
         0, 1,  // Lato 0
         1, 2,  // Lato 1
@@ -401,8 +418,13 @@ bool ExportDodecahedron(PolyhedralMesh& mesh) {
     mesh.Cell2DsId.reserve(12);
     mesh.Cell2DsId = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
     
-    mesh.Cell2DsVertices.reserve(12, 5);
-    mesh.Cell2DsEdges.reserve(12, 5);
+    mesh.Cell2DsVertices.resize(12);
+	for (auto& v : mesh.Cell2DsVertices)
+		v.reserve(5);
+		
+	mesh.Cell2DsEdges.resize(12);
+	for (auto& e : mesh.Cell2DsEdges)
+		e.reserve(5);
 
      mesh.Cell2DsVertices = {
         {0, 1, 2, 3, 4},  // Faccia 0
@@ -441,10 +463,8 @@ bool ExportDodecahedron(PolyhedralMesh& mesh) {
     mesh.Cell3DsFaces.reserve(12);
     
     mesh.Cell3DsId = {0};
-    mesh.Cell3DsVertices = {0, 1, 2, 3, 4, 5,6 ,7 ,8, 9, 
-	    10, 11, 12, 13, 14, 15, 16, 17, 18, 19};
-    mesh.Cell3DsEdges = {0, 1, 2, 3,  4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 
-	    16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29};
+    mesh.Cell3DsVertices = {0, 1, 2, 3, 4, 5,6 ,7 ,8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19};
+    mesh.Cell3DsEdges = {0, 1, 2, 3,  4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29};
     mesh.Cell3DsFaces = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
 
     CreateTxtFiles(const PolyhedralMesh& mesh);
@@ -458,7 +478,7 @@ bool ExportIcosahedron(PolyhedralMesh& mesh) {
     double r = 1.0;
     double phi = (1.0 + sqrt(5.0)) / 2.0;
 
-    mesh.Cell0DsCoordinates.reserve(12, 3);
+    mesh.Cell0DsCoordinates = MatrixXd::Zero(12, 3);
     mesh.Cell0DsId.reserve(12);
 	
 	double norm = sqrt(10.0+2.0*sqrt(5.0))/2.0;
@@ -480,7 +500,9 @@ bool ExportIcosahedron(PolyhedralMesh& mesh) {
 
     // Lati
     mesh.Cell1DsId.reserve(30);
-    mesh.Cell1DsExtrema.resize(30, 2);
+    mesh.Cell1DsId = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29};
+
+    mesh.Cell1DsExtrema = matrixXi::Zero(30, 2);
     mesh.Cell1DsExtrema <<
     	0, 1,  // Lato 0
         1, 2,  // Lato 1
@@ -517,7 +539,14 @@ bool ExportIcosahedron(PolyhedralMesh& mesh) {
 	mesh.Cell2DsId.reserve(20);
 	mesh.Cell2DsId = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19};
 	
-	mesh.Cell2DsVertices.reserve(20, 3);
+	mesh.Cell2DsVertices.resize(20);
+	for (auto& v : mesh.Cell2DsVertices)
+		v.reserve(3);
+		
+	mesh.Cell2DsEdges.resize(20);
+	for (auto& e : mesh.Cell2DsEdges)
+		e.reserve(3);
+
 	mesh.Cell2DsVertices = {
 		{0, 1, 2},  // Faccia 0
         {0, 2, 3},  // Faccia 1
@@ -577,7 +606,7 @@ bool ExportIcosahedron(PolyhedralMesh& mesh) {
     mesh.Cell3DsFaces = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19};
 
     CreateTxtFiles(const PolyhedralMesh& mesh);
-    
+      
     return true;
 }
  
