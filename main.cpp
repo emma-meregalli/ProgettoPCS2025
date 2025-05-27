@@ -59,11 +59,11 @@ int main()
         if (q==3){
             switch (p){
                 case 3 : //genera il tetraedro se p=3,q=3
-                    ExportTetrahedronDual(mesh);
+                    ExportTetrahedron(mesh);
                 case 4 : //genera il tetraedro se p=4,q=3
-                    ExportCubeDual(mesh);
+                    ExportCube(mesh);
                 case 5 : //genera il tetraedro se p=5,q=3
-                    ExportDodecahedronDual(mesh);
+                    ExportDodecahedron(mesh);
             }
         }
         }

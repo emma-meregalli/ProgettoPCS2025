@@ -37,6 +37,164 @@ vector<int> ComputeVEF(unsigned int q, int b, int c)
     return VEF;  // Mi viene restituito il vettore con i valori di V, E, F
 }
 
+void CreateTxtFiles(const PolyhedralMesh& mesh) {
+    // Creazione Cell0Ds.txt
+    ofstream Cell0Ds("Cell0Ds.txt");
+    out0 << "ID;x;y;z\n";
+    for (size_t i = 0; i < mesh.Cell0DsId.size(); i++) {
+        Cell0Ds << mesh.Cell0DsId[i] << ";" << mesh.Cell0DsCoordinates(0, i) << ";" << mesh.Cell0DsCoordinates(1, i) << ";" << mesh.Cell0DsCoordinates(2, i) << "\n";
+    }
+    Cell0Ds.close();
+
+    // Creazione Cell1Ds.txt 
+    ofstream Cell1Ds("Cell1Ds.txt");
+    Cell1Ds << "ID;Origin;End\n";
+    for (size_t i = 0; i < mesh.Cell1DsId.size(); i++) {
+        Cell1Ds << mesh.Cell1DsId[i] << ";"
+             << mesh.Cell1DsExtrema(0, i) << ";"
+             << mesh.Cell1DsExtrema(1, i) << "\n";
+    }
+    Cell1Ds.close();
+
+    // Creazione Cell2Ds.txt 
+    ofstream Cell2Ds("Cell2Ds.txt");
+    Cell2Ds << "ID;NumVertices;NumEdges;Vertices;Edges\n";
+    for (size_t i = 0; i < mesh.Cell2DsId.size(); i++) {
+        Cell2Ds << mesh.Cell2DsId[i] << ";"
+             << mesh.Cell2DsVertices[i].size() << ";"
+             << mesh.Cell2DsEdges[i].size();
+
+        // Vertici
+        for (unsigned int v : mesh.Cell2DsVertices[i])
+            Cell2Ds << ";" << v;
+
+        // Lati
+        for (unsigned int e : mesh.Cell2DsEdges[i])
+            Cell2Ds << ";" << e;
+
+        Cell2Ds << "\n";
+    }
+    Cell2Ds.close();
+
+    // Creazione Cell3Ds.txt
+    ofstream Cell3Ds("Cell3Ds.txt");
+    Cell3Ds << "ID;Vertices;Edges;Faces\n";
+    for (size_t i = 0; i < mesh.Cell3DsId.size(); i++) {
+        Cell3Ds << mesh.Cell3DsId[i];
+
+        // Vertici
+        for (unsigned int v : mesh.Cell3DsVertices[i])
+            Cell3Ds << ";" << v;
+
+        // Lati
+        for (unsigned int e : mesh.Cell3DsEdges[i])
+            Cell3Ds << ";" << e;
+
+        // Facce
+        for (unsigned int f : mesh.Cell3DsFaces[i])
+            Cell3Ds << ";" << f;
+
+        Cell3Ds << "\n";
+    }
+    Cell3Ds.close();
+} 
+
+bool ExportDual(PolyhedralMesh& mesh, PolyhedralMesh& dualMesh){
+    MatrixXd barycenters = {};
+    barycenters.reserve(mesh.NumCell2Ds,3);
+    Vector3d tmp = zeros();
+    for (unsigned int i=0; i<mesh.NumCell2Ds; i++){
+        for (unsigned int v : mesh.Cell2DsVertices[i]){
+            tmp += mesh.Cell0DsCoordinates.row(v);
+        }
+        tmp /= mesh.Cell2DsVertices[i].size(); 
+        barycenters.push_back(tmp);
+    }
+
+    // Riempie Cell0Ds del duale con i baricentri
+    int numDualVertices = barycenters.size();
+    dualMesh.Cell0DsCoordinates.resize(numDualVertices,3);
+    for (int i = 0; i < numDualVertices; ++i) {
+        dualMesh.Cell0DsCoordinates.row(i) = barycenters[i];
+        dualMesh.Cell0DsId.push_back(i);
+    }
+
+    // Mappa: vertice originale -> facce adiacenti che lo contengono
+    map<int, vector<int>> vertexToFaces;
+    for (size_t f = 0; f < mesh.Cell2DsVertices.size(); ++f) {
+        for (unsigned int v : mesh.Cell2DsVertices[f]) {
+            vertexToFaces[v].push_back(f);
+        }
+    }
+
+    // Step 2: crea facce duali (una per ogni vertice originale)
+    int faceId = 0;
+    int edgeId = 0;
+    map<pair<int, int>, int> edgeMap; // per evitare spigoli duplicati
+    for (const auto& [vertex, faces] : vertexToFaces) {
+        // Ordina ciclicamente le facce attorno al vertice originale
+        vector<int> orderedFaces;
+        vector<int> rest = faces;
+
+        orderedFaces.push_back(rest[0]); // inizia da una qualsiasi
+        rest.erase(rest.begin());
+
+        while (!rest.empty()) {
+            int current = orderedFaces.back();
+            int next = -1;
+            for (auto it = rest.begin(); it != rest.end(); ++it) {
+                const auto& fv1 = mesh.Cell2DsVertices[current];
+                const auto& fv2 = mesh.Cell2DsVertices[*it];
+                vector<int> common;
+                for (int a : fv1)
+                    for (int b : fv2)
+                        if (a == b) common.push_back(a);
+                if (common.size() >= 2) {
+                    next = *it;
+                    rest.erase(it);
+                    break;
+                }
+            }
+            if (next == -1) break;
+            orderedFaces.push_back(next);
+        }
+
+        // Crea la nuova faccia nel duale
+        dualMesh.Cell2DsVertices.push_back(orderedFaces);
+        dualMesh.Cell2DsId.push_back(faceId);
+
+        // Costruzione degli spigoli per la faccia
+        vector<unsigned int> faceEdges;
+        for (size_t i = 0; i < orderedFaces.size(); ++i) {
+            int a = orderedFaces[i];
+            int b = orderedFaces[(i + 1) % orderedFaces.size()];
+            pair<int, int> key = (a < b) ? make_pair(a, b) : make_pair(b, a);
+            if (edgeMap.count(key) == 0) {
+                dualMesh.Cell1DsExtrema.conservativeResize(2, edgeId + 1);
+                dualMesh.Cell1DsExtrema(0, edgeId) = key.first;
+                dualMesh.Cell1DsExtrema(1, edgeId) = key.second;
+                dualMesh.Cell1DsId.push_back(edgeId);
+                edgeMap[key] = edgeId++;
+            }
+            faceEdges.push_back(edgeMap[key]);
+        }
+        dualMesh.Cell2DsEdges.push_back(faceEdges);
+        ++faceId;
+    }
+
+    // Definisce il poliedro 3D che contiene tutto
+    dualMesh.Cell3DsId = {0};
+    dualMesh.Cell3DsVertices = dualMesh.Cell0DsId;
+    dualMesh.Cell3DsEdges = dualMesh.Cell1DsId;
+    dualMesh.Cell3DsFaces = dualMesh.Cell2DsId;
+
+    // Aggiorna i conteggi delle celle
+    dualMesh.NumCell0Ds = dualMesh.Cell0DsId.size();
+    dualMesh.NumCell1Ds = dualMesh.Cell1DsId.size();
+    dualMesh.NumCell2Ds = dualMesh.Cell2DsId.size();
+    dualMesh.NumCell3Ds = 1;
+}
+
 bool ExportTetrahedron(PolyhedralMesh& mesh) {
 	
 	// Vertici
@@ -103,6 +261,8 @@ bool ExportTetrahedron(PolyhedralMesh& mesh) {
     mesh.Cell3DsFaces = {0, 1, 2, 3};
 
     CreateTxtFiles(const PolyhedralMesh& mesh);
+    ExportDual(const PolyhedralMesh& mesh, PolyhedralMesh& dualMesh);
+    CreateTxtFiles(const PolyhedralMesh& dualMesh);
 
     return true;
 }
@@ -186,7 +346,8 @@ bool ExportCube(PolyhedralMesh& mesh) {
 	mesh.Cell3DsEdges = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
 	mesh.Cell3DsFaces = {0, 1, 2, 3, 4, 5};
 	
-    CreateTxtFiles(const PolyhedralMesh& mesh);
+    ExportDual(const PolyhedralMesh& mesh, PolyhedralMesh& dualMesh);
+    CreateTxtFiles(const PolyhedralMesh& dualMesh);
 
 	return true;
 }
@@ -404,7 +565,8 @@ bool ExportDodecahedron(PolyhedralMesh& mesh) {
     mesh.Cell3DsEdges = {0, 1, 2, 3,  4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29};
     mesh.Cell3DsFaces = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
 
-    CreateTxtFiles(const PolyhedralMesh& mesh);
+    ExportDual(const PolyhedralMesh& mesh, PolyhedralMesh& dualMesh);
+    CreateTxtFiles(const PolyhedralMesh& dualMesh);
     
     return true;
 }
@@ -546,66 +708,4 @@ bool ExportIcosahedron(PolyhedralMesh& mesh) {
       
     return true;
 }
-
-void CreateTxtFiles(const PolyhedralMesh& mesh) {
-    // Creazione Cell0Ds.txt
-    ofstream Cell0Ds("Cell0Ds.txt");
-    out0 << "ID;x;y;z\n";
-    for (size_t i = 0; i < mesh.Cell0DsId.size(); i++) {
-        Cell0Ds << mesh.Cell0DsId[i] << ";" << mesh.Cell0DsCoordinates(0, i) << ";" << mesh.Cell0DsCoordinates(1, i) << ";" << mesh.Cell0DsCoordinates(2, i) << "\n";
-    }
-    Cell0Ds.close();
-
-    // Creazione Cell1Ds.txt 
-    ofstream Cell1Ds("Cell1Ds.txt");
-    Cell1Ds << "ID;Origin;End\n";
-    for (size_t i = 0; i < mesh.Cell1DsId.size(); i++) {
-        Cell1Ds << mesh.Cell1DsId[i] << ";"
-             << mesh.Cell1DsExtrema(0, i) << ";"
-             << mesh.Cell1DsExtrema(1, i) << "\n";
-    }
-    Cell1Ds.close();
-
-    // Creazione Cell2Ds.txt 
-    ofstream Cell2Ds("Cell2Ds.txt");
-    Cell2Ds << "ID;NumVertices;NumEdges;Vertices;Edges\n";
-    for (size_t i = 0; i < mesh.Cell2DsId.size(); i++) {
-        Cell2Ds << mesh.Cell2DsId[i] << ";"
-             << mesh.Cell2DsVertices[i].size() << ";"
-             << mesh.Cell2DsEdges[i].size();
-
-        // Vertici
-        for (unsigned int v : mesh.Cell2DsVertices[i])
-            Cell2Ds << ";" << v;
-
-        // Lati
-        for (unsigned int e : mesh.Cell2DsEdges[i])
-            Cell2Ds << ";" << e;
-
-        Cell2Ds << "\n";
-    }
-    Cell2Ds.close();
-
-    // Creazione Cell3Ds.txt
-    ofstream Cell3Ds("Cell3Ds.txt");
-    Cell3Ds << "ID;Vertices;Edges;Faces\n";
-    for (size_t i = 0; i < mesh.Cell3DsId.size(); i++) {
-        Cell3Ds << mesh.Cell3DsId[i];
-
-        // Vertici
-        for (unsigned int v : mesh.Cell3DsVertices[i])
-            Cell3Ds << ";" << v;
-
-        // Lati
-        for (unsigned int e : mesh.Cell3DsEdges[i])
-            Cell3Ds << ";" << e;
-
-        // Facce
-        for (unsigned int f : mesh.Cell3DsFaces[i])
-            Cell3Ds << ";" << f;
-
-        Cell3Ds << "\n";
-    }
-    Cell3Ds.close();
-} 
 }

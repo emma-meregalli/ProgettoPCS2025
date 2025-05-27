@@ -42,4 +42,8 @@ struct PolyhedralMesh
     std::vector<std::vector<unsigned int>> Cell2DsFaces;    // Cell3D faces id
 };
 
+struct PolyhedralTriangulation {
+    
+}
+
 }
