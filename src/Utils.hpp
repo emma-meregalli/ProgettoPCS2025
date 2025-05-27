@@ -8,7 +8,7 @@ using namespace std;
 namespace PolyhedralLibrary
 {
 
-std::vector<int> ComputeVEF(unsigned int q, int b, int c)
+std::vector<int> ComputeVEF(unsigned int q, int b, int c);
 
 bool ExportTetrahedron(PolyhedralMesh& mesh);
 
@@ -19,5 +19,7 @@ bool ExportOctahedron(PolyhedralMesh& mesh);
 bool ExportDodecahedron(PolyhedralMesh& mesh);
 
 bool ExportIcosahedron(PolyhedralMesh& mesh);
+
+void CreateTxtFiles(const PolyhedralMesh& mesh);
 
 }

@@ -44,6 +44,39 @@ int main()
     unsigned int b = vector_input[2];
     unsigned int c = vector_input[3];
 
+    PolyhedralLibrary::PolyhedralMesh mesh;
+
+    if (b=0= || c==0){
+        if (p==3){
+            switch (q){
+                case 3 : //genera il tetraedro se p=3,q=3
+                    ExportTetrahedron(mesh);
+                case 4 : //genera l'ottaedro se p=3,q=4
+                    ExportOctahedron(mesh);
+                case 5 : //genera l'icosaedro se p=3,q=5
+                    ExportIcosahedron(mesh);
+            }
+        if (q==3){
+            switch (p){
+                case 3 : //genera il tetraedro se p=3,q=3
+                    ExportTetrahedronDual(mesh);
+                case 4 : //genera il tetraedro se p=4,q=3
+                    ExportCubeDual(mesh);
+                case 5 : //genera il tetraedro se p=5,q=3
+                    ExportDodecahedronDual(mesh);
+            }
+        }
+        }
+    }
+
+
+
+
+
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     if (vector_input.size() == 6) // controlla se il numero di elementi è 6
     {
         unsigned int id_vertex_1 = vector_input[4];
@@ -62,6 +95,8 @@ int main()
         return 1;
     }
     length_input = vector_input.size(); 
+
+    if()
 
 
     // caso 1: q=3 p=3 export tetraedo

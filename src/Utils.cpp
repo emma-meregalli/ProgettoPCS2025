@@ -9,69 +9,6 @@ using namespace Eigen;
 
 namespace PolyhedralLibrary
 {
-void CreateTxtFiles(const PolyhedralMesh& mesh) {
-    // Creazione Cell0Ds.txt
-    ofstream Cell0Ds("Cell0Ds.txt");
-    out0 << "ID;x;y;z\n";
-    for (size_t i = 0; i < mesh.Cell0DsId.size(); i++) {
-        Cell0Ds << mesh.Cell0DsId[i] << ";" << mesh.Cell0DsCoordinates(0, i) << ";" << mesh.Cell0DsCoordinates(1, i) << ";" << mesh.Cell0DsCoordinates(2, i) << "\n";
-    }
-    Cell0Ds.close();
-
-    // Creazione Cell1Ds.txt 
-    ofstream Cell1Ds("Cell1Ds.txt");
-    Cell1Ds << "ID;Origin;End\n";
-    for (size_t i = 0; i < mesh.Cell1DsId.size(); i++) {
-        Cell1Ds << mesh.Cell1DsId[i] << ";"
-             << mesh.Cell1DsExtrema(0, i) << ";"
-             << mesh.Cell1DsExtrema(1, i) << "\n";
-    }
-    Cell1Ds.close();
-
-    // Creazione Cell2Ds.txt 
-    ofstream Cell2Ds("Cell2Ds.txt");
-    Cell2Ds << "ID;NumVertices;NumEdges;Vertices;Edges\n";
-    for (size_t i = 0; i < mesh.Cell2DsId.size(); i++) {
-        Cell2Ds << mesh.Cell2DsId[i] << ";"
-             << mesh.Cell2DsVertices[i].size() << ";"
-             << mesh.Cell2DsEdges[i].size();
-
-        // Vertici
-        for (unsigned int v : mesh.Cell2DsVertices[i])
-            Cell2Ds << ";" << v;
-
-        // Lati
-        for (unsigned int e : mesh.Cell2DsEdges[i])
-            Cell2Ds << ";" << e;
-
-        Cell2Ds << "\n";
-    }
-    Cell2Ds.close();
-
-    // Creazione Cell3Ds.txt
-    ofstream Cell3Ds("Cell3Ds.txt");
-    Cell3Ds << "ID;Vertices;Edges;Faces\n";
-    for (size_t i = 0; i < mesh.Cell3DsId.size(); i++) {
-        Cell3Ds << mesh.Cell3DsId[i];
-
-        // Vertici
-        for (unsigned int v : mesh.Cell3DsVertices[i])
-            Cell3Ds << ";" << v;
-
-        // Lati
-        for (unsigned int e : mesh.Cell3DsEdges[i])
-            Cell3Ds << ";" << e;
-
-        // Facce
-        for (unsigned int f : mesh.Cell3DsFaces[i])
-            Cell3Ds << ";" << f;
-
-        Cell3Ds << "\n";
-    }
-    Cell3Ds.close();
-}
-
-
 vector<int> ComputeVEF(unsigned int q, int b, int c)
 {
     vector<int> VEF(3, 0);  // inizializzo un vettore nullo di lunghezza 3
@@ -609,5 +546,66 @@ bool ExportIcosahedron(PolyhedralMesh& mesh) {
       
     return true;
 }
- 
+
+void CreateTxtFiles(const PolyhedralMesh& mesh) {
+    // Creazione Cell0Ds.txt
+    ofstream Cell0Ds("Cell0Ds.txt");
+    out0 << "ID;x;y;z\n";
+    for (size_t i = 0; i < mesh.Cell0DsId.size(); i++) {
+        Cell0Ds << mesh.Cell0DsId[i] << ";" << mesh.Cell0DsCoordinates(0, i) << ";" << mesh.Cell0DsCoordinates(1, i) << ";" << mesh.Cell0DsCoordinates(2, i) << "\n";
+    }
+    Cell0Ds.close();
+
+    // Creazione Cell1Ds.txt 
+    ofstream Cell1Ds("Cell1Ds.txt");
+    Cell1Ds << "ID;Origin;End\n";
+    for (size_t i = 0; i < mesh.Cell1DsId.size(); i++) {
+        Cell1Ds << mesh.Cell1DsId[i] << ";"
+             << mesh.Cell1DsExtrema(0, i) << ";"
+             << mesh.Cell1DsExtrema(1, i) << "\n";
+    }
+    Cell1Ds.close();
+
+    // Creazione Cell2Ds.txt 
+    ofstream Cell2Ds("Cell2Ds.txt");
+    Cell2Ds << "ID;NumVertices;NumEdges;Vertices;Edges\n";
+    for (size_t i = 0; i < mesh.Cell2DsId.size(); i++) {
+        Cell2Ds << mesh.Cell2DsId[i] << ";"
+             << mesh.Cell2DsVertices[i].size() << ";"
+             << mesh.Cell2DsEdges[i].size();
+
+        // Vertici
+        for (unsigned int v : mesh.Cell2DsVertices[i])
+            Cell2Ds << ";" << v;
+
+        // Lati
+        for (unsigned int e : mesh.Cell2DsEdges[i])
+            Cell2Ds << ";" << e;
+
+        Cell2Ds << "\n";
+    }
+    Cell2Ds.close();
+
+    // Creazione Cell3Ds.txt
+    ofstream Cell3Ds("Cell3Ds.txt");
+    Cell3Ds << "ID;Vertices;Edges;Faces\n";
+    for (size_t i = 0; i < mesh.Cell3DsId.size(); i++) {
+        Cell3Ds << mesh.Cell3DsId[i];
+
+        // Vertici
+        for (unsigned int v : mesh.Cell3DsVertices[i])
+            Cell3Ds << ";" << v;
+
+        // Lati
+        for (unsigned int e : mesh.Cell3DsEdges[i])
+            Cell3Ds << ";" << e;
+
+        // Facce
+        for (unsigned int f : mesh.Cell3DsFaces[i])
+            Cell3Ds << ";" << f;
+
+        Cell3Ds << "\n";
+    }
+    Cell3Ds.close();
+} 
 }
