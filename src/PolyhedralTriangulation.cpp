@@ -37,15 +37,17 @@ namespace PolyhedralLibrary {
 
         return VEF;  // Mi viene restituito il vettore con i valori di V, E, F
     }
+    
+    //AddOrFindEdge ha lo scopo di evitare duplicati durante la costruzione della mesh triangolata, aggiungendo un lato (edge) solo se non esiste già 
 
     // Funzione ausiliaria per aggiungere un lato alla mesh triangolata, evitando duplicati
     void AddOrFindEdge(
         int vStart, int vEnd, // estremi del lato
         PolyhedralMesh& triMesh, 
         unsigned int& edgeCounter, // contatore globale dei lati
-        unsigned int faceIndex) // indice della faccia a cui appartiene
+        unsigned int faceIndex) // indice della faccia corrente nella mesh
     {
-        bool alreadyExists = false; // Flag per indicare se il lato esiste già
+        bool alreadyExists = false; // variabile booleana per indicare se il lato esiste già
 
         // Verifico se il lato da vStart a vEnd esiste già nella mesh
         for (unsigned int i = 0; i < edgeCounter; i++)  //Scorro tutti i lati già inseriti nella mesh triangolata
@@ -53,30 +55,31 @@ namespace PolyhedralLibrary {
             if ((triMesh.Cell1DsExtrema(i, 0) == vStart && triMesh.Cell1DsExtrema(i, 1) == vEnd) ||  
                 (triMesh.Cell1DsExtrema(i, 0) == vEnd && triMesh.Cell1DsExtrema(i, 1) == vStart)) //Controllo se l’i-esimo lato ha come estremi vStart e vEnd, nell'ordine dato e nell'ordine inverso  
             {
-                triMesh.Cell2DsEdges[faceIndex].push_back(i); //Se il lato esiste già, viene semplicemente aggiunto alla lista dei lati della faccia corrente (faceIndex).
-                alreadyExists = true; //Imposto il flag per evitare di creare nuovamente il lato.
+                triMesh.Cell2DsEdges[faceIndex].push_back(i); //Se il lato esiste già, viene aggiunto alla lista dei lati della faccia corrente (faceIndex).
+                alreadyExists = true; //setto alreadyExist = true per evitare di aggiungere nuovamente il lato.
                 break;
             }
         }
 
-        if (!alreadyExists) 
+        if (!alreadyExists) // se il lato non esiste già lo aggiungo alla mesh triangolata
         {
-            // Se il lato non esiste ancora, lo creiamo
-            triMesh.Cell1DsExtrema.row(edgeCounter) << vStart, vEnd; // Inserisco gli estremi del nuovo lato nella tabella dei lati 
+            triMesh.Cell1DsExtrema.row(edgeCounter) << vStart, vEnd; // Inserisco gli estremi del lato nella tabella dei lati 
             triMesh.Cell1DsId[edgeCounter] = edgeCounter; // Assegno l’ID del lato (uguale all’indice in cui viene inserito)
 
-            const auto& flagsA = triMesh.Cell0DsFlag[vStart]; // Flag associati al primo vertice
-            const auto& flagsB = triMesh.Cell0DsFlag[vEnd];   // Flag del secondo vertice
+            const auto& flagsA = triMesh.Cell0DsFlag[vStart]; // Flag associato al primo vertice (vStart)
+            const auto& flagsB = triMesh.Cell0DsFlag[vEnd];   // Flag associato al secondo vertice (vEnd)
             //I flag dicono a quali facce appartiene ciascun vertice
 
-            bool hasCommonFlag = false; // Verifica se i due vertici condividono almeno una faccia
-            for (unsigned int fA : flagsA) 
+            bool hasCommonFlag = false; // variabile booleana per verificare se i due vertici hanno flag comuni
+            // Cerco i flag comuni tra i due vertici
+            for (unsigned int fA : flagsA) // Scorro i flag del primo vertice
             {
-                for (unsigned int fB : flagsB) 
+                for (unsigned int fB : flagsB)  // Scorro i flag del secondo vertice
                 {
-                    if (fA == fB) 
+                    if (fA == fB) // Se trovo un flag comune tra i due vertici
                     {
-                        triMesh.Cell1DsFlag[edgeCounter] = fA; // Assegno il flag comune
+                        triMesh.Cell1DsFlag[edgeCounter] = fA; // Assegno il flag comune al lato
+                        // Se i flag sono uguali, significa che il lato appartiene a quella faccia
                         hasCommonFlag = true;
                         break;
                     }
@@ -84,12 +87,11 @@ namespace PolyhedralLibrary {
                 if (hasCommonFlag) break; // Se ho trovato un flag comune, esco dal ciclo
             }
 
-            if (!hasCommonFlag) // Se non ci sono flag comuni, assegno un valore di flag invalido
+            if (!hasCommonFlag) // Se non ci sono flag comuni, assegno un valore di default invalido
             {
                 triMesh.Cell1DsFlag[edgeCounter] = numeric_limits<unsigned int>::max(); // Se non hanno nulla in comune, assegno flag "invalido"
             }
-
-            triMesh.Cell2DsEdges[faceIndex].push_back(edgeCounter); // Associo lato alla faccia
+            triMesh.Cell2DsEdges[faceIndex].push_back(edgeCounter); // Aggiungo l'indice del lato alla lista dei lati della faccia corrente
             edgeCounter++; // Incremento contatore globale dei lati
         }
     }
@@ -99,9 +101,11 @@ namespace PolyhedralLibrary {
         PolyhedralMesh& baseMesh,     // Mesh di partenza (con facce non triangolate)
         PolyhedralMesh& triMesh,      // Mesh di output triangolata
         unsigned int b, unsigned int c, // Parametri della suddivisione
-        const vector<int>& duplicatedDimensions) // Dimensioni (V, E, F) con duplicati (per via della triangolazione)
+        const vector<int>& duplicatedDimensions) // Dimensione di (V,E,F) della mesh triangolata (con duplicati)
         {
         unsigned int refLevel = b + c; // Numero di suddivisioni laterali per triangolo
+
+        // Inizializzazione della struttura dati della mesh triangolata
 
         // Allocazione memoria per vertici (0D)
         triMesh.Cell0DsId.resize(duplicatedDimensions[0]);
@@ -121,23 +125,23 @@ namespace PolyhedralLibrary {
         // Contatori per vertici, lati e facce
         unsigned int vCount = 0, eCount = 0, fCount = 0;
 
-        // Ciclo su tutte le facce originali
+        // Ciclo su tutte le facce della mesh di base
         for (unsigned int faceIdx = 0; faceIdx < baseMesh.Cell2DsId.size(); faceIdx++) 
         {
-            const auto& faceVerts = baseMesh.Cell2DsVertices[faceIdx]; //Prendiamo i tre vertici della faccia corrente
+            const auto& faceVerts = baseMesh.Cell2DsVertices[faceIdx]; //Prendo i tre vertici della faccia corrente
         
             // Coordinate dei 3 vertici del triangolo originale
             Vector3d A = baseMesh.Cell0DsCoordinates.col(faceVerts[0]); // Vertice A
             Vector3d B = baseMesh.Cell0DsCoordinates.col(faceVerts[1]); // Vertice B
             Vector3d C = baseMesh.Cell0DsCoordinates.col(faceVerts[2]); // Vertice C
 
-            vector<vector<int>> grid; // Griglia di vertici generati per questa faccia
-            // la griglia ha refLevel = b + c righe e ogni riga i ha i + 1 elementi 
-            // Costruzione dei punti interpolati nella griglia
+            vector<vector<int>> grid; // Griglia di vertici interni alla faccia
+            // la griglia ha refLevel = b + c righe e ogni riga i ha i + 1 elementi (forma triangolare)
+            // Costruzione della griglia interplata sulla faccia
             for (unsigned int i = 0; i <= refLevel; i++) {
-                vector<int> row;
+                vector<int> row; //riga corrente dei vertici 
 
-                // Calcola punto iniziale e finale della riga i-esima
+                // Calcolo il punto iniziale e finale della riga i-esima
                 Vector3d from = ((double)i / refLevel) * B + ((double)(refLevel - i) / refLevel) * A;
                 Vector3d to = ((double)i / refLevel) * C + ((double)(refLevel - i) / refLevel) * A;
 
