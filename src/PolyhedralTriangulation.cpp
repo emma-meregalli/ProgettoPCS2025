@@ -102,8 +102,8 @@ namespace PolyhedralLibrary {
         PolyhedralMesh& triMesh,      // Mesh di output triangolata
         unsigned int b, unsigned int c, // Parametri della suddivisione
         const vector<int>& duplicatedDimensions) // Dimensione di (V,E,F) della mesh triangolata (con duplicati)
-        {
-        unsigned int refLevel = b + c; // Numero di suddivisioni laterali per triangolo
+    {
+        unsigned int level = b + c; // Numero di suddivisioni laterali per triangolo
 
         // Inizializzazione della struttura dati della mesh triangolata
 
@@ -136,23 +136,23 @@ namespace PolyhedralLibrary {
             Vector3d C = baseMesh.Cell0DsCoordinates.col(faceVerts[2]); // Vertice C
 
             vector<vector<int>> grid; // Griglia di vertici interni alla faccia
-            // la griglia ha refLevel = b + c righe e ogni riga i ha i + 1 elementi (forma triangolare)
+            // la griglia ha level = b + c righe e ogni riga i ha i + 1 elementi (forma triangolare)
             // Costruzione della griglia interplata sulla faccia
-            for (unsigned int i = 0; i <= refLevel; i++) {
+            for (unsigned int i = 0; i <= level; i++) {
                 vector<int> row; //riga corrente dei vertici 
 
-                // Calcolo il punto iniziale e finale della riga i-esima
-                Vector3d from = ((double)i / refLevel) * B + ((double)(refLevel - i) / refLevel) * A;
-                Vector3d to = ((double)i / refLevel) * C + ((double)(refLevel - i) / refLevel) * A;
+                // Calcolo il punto iniziale e finale della riga i-esima 
+                // Partiziono il lato in base al valore di b e c
+                Vector3d from = ((double)i / level) * B + ((double)(level - i) / level) * A;
+                Vector3d to = ((double)i / level) * C + ((double)(level - i) / level) * A;
 
-                for (unsigned int j = 0; j <= i; j++) {
-                    // Interpola tra from e to per ottenere un punto interno
+                for (unsigned int j = 0; j <= i; j++) { 
+                    // Interpolo tra from e to per ottenere un punto interno
                     Vector3d pos;
                     if (i == 0) {
                         pos = A;
                     } else {
                         pos = ((double)j / i) * to + ((double)(i - j) / i) * from;
-                        pos.normalize(); // Proietta sulla sfera unitaria
                     }
                     triMesh.Cell0DsCoordinates.col(vCount) = pos; // Salva posizione
                     triMesh.Cell0DsId[vCount] = vCount;           // Salva ID
@@ -161,10 +161,10 @@ namespace PolyhedralLibrary {
                     if (i == 0) 
                     {
                         triMesh.Cell0DsFlag[vCount] = {baseMesh.Cell2DsEdges[faceIdx][0], baseMesh.Cell2DsEdges[faceIdx][2]};
-                    } else if (i == refLevel) {
+                    } else if (i == level) {
                         if (j == 0)
                             triMesh.Cell0DsFlag[vCount] = {baseMesh.Cell2DsEdges[faceIdx][0], baseMesh.Cell2DsEdges[faceIdx][1]};
-                        else if (j == refLevel)
+                        else if (j == level)
                             triMesh.Cell0DsFlag[vCount] = {baseMesh.Cell2DsEdges[faceIdx][1], baseMesh.Cell2DsEdges[faceIdx][2]};
                         else
                             triMesh.Cell0DsFlag[vCount] = {baseMesh.Cell2DsEdges[faceIdx][1]};
@@ -182,10 +182,10 @@ namespace PolyhedralLibrary {
                 grid.push_back(row); // Aggiungi riga alla griglia
             }
 
-            // Costruzione dei triangoli nella griglia (2 triangoli per quadrilatero)
-            for (unsigned int i = 0; i < refLevel; i++) {
+            // Costruzione dei triangoli nella griglia per riempire la faccia
+            for (unsigned int i = 0; i < level; i++) {
                 for (unsigned int j = 0; j < i; j++) {
-                    // Primo triangolo
+                    // Primo triangolo 
                     vector<unsigned int> tri1 = {grid[i][j], grid[i + 1][j], grid[i + 1][j + 1]};
                     triMesh.Cell2DsVertices[fCount] = tri1;
                     triMesh.Cell2DsId[fCount] = fCount;
@@ -202,7 +202,7 @@ namespace PolyhedralLibrary {
                     fCount++;
                 }
 
-                // Triangolo finale sul bordo destro
+                // Ultimo riangolo sul bordo destro
                 vector<unsigned int> lastTri = {grid[i][i], grid[i + 1][i], grid[i + 1][i + 1]};
                 triMesh.Cell2DsVertices[fCount] = lastTri;
                 triMesh.Cell2DsId[fCount] = fCount;
@@ -213,4 +213,6 @@ namespace PolyhedralLibrary {
         }
     }
 
+    //"nome funzione" ha lo scopo di popolare la cell3Ds
+    
 }
