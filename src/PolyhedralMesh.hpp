@@ -15,13 +15,13 @@ struct PolyhedralMesh
     unsigned int NumCell0Ds = 0;    // number of Cell0Ds
     std::vector<unsigned int> Cell0DsId = {};   // Cell0Ds id
     Eigen::MatrixXd Cell0DsCoordinates = {};    // Cell0Ds coordinates
-    vector<bool> Cell0DsDupe = {}; // Cell0Ds duplicati
+    vector<bool> Cell0DsDupes = {}; // Cell0Ds duplicati
 
     // Spigoli
     unsigned int NumCell1Ds = 0;    // number of Cell1Ds
     std::vector<unsigned int> Cell1DsId = {};   // Cell1Ds id
     Eigen::MatrixXi Cell1DsExtrema = {};    // Cell1Ds vertices id (start, end)
-    vector<bool> Cell01sDupe = {}; // Cell1Ds duplicati
+    vector<bool> Cell1DsDupes = {}; // Cell1Ds duplicati
 
     //Facce
     unsigned int NumCell2Ds = 0;    // number of Cell2D
