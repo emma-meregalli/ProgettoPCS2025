@@ -96,7 +96,7 @@ namespace PolyhedralLibrary {
         }
     }
 
-    // Funzione principale per triangolare le facce e popolare la mesh triangolata
+    // Funzione principale per triangolare le facce e popolare la mesh triangolata (SONO QUIIIIIIIIIIII)
     void GenerateTriangulatedMesh(
         PolyhedralMesh& baseMesh,     // Mesh di partenza (con facce non triangolate)
         PolyhedralMesh& triMesh,      // Mesh di output triangolata
