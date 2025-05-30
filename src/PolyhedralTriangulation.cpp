@@ -52,8 +52,6 @@ namespace PolyhedralLibrary {
         return false;
     }
 
-    void swap(int a,b)
-
     bool EdgeIsDupe(const PolygonalMesh& mesh, const Vector2i& e){
         for(size_t i=0; i<mesh.Cell1DsId.size(); i++){
             if(mesh.Cell1DsExtrema[i]==e)
@@ -93,6 +91,8 @@ namespace PolyhedralLibrary {
 
         // Id per vertici
         unsigned int vCount = 0;
+		unsigned int eCount = 0;
+		unsigned int fCount = 0;
 
         // Ciclo su tutte le facce della mesh di base
         for (unsigned int faceIdx = 0; faceIdx < baseMesh.Cell2DsId.size(); faceIdx++) 
@@ -134,14 +134,13 @@ namespace PolyhedralLibrary {
                 grid.push_back(row); // Aggiungi riga alla griglia
             }
 
-            // Id per vertici
-            unsigned int eCount = 0;
+            // variabile temporanea che memorizza gli estremi dei lati
             vector<Vector2i> eList;
 
             //Creiamo i nuovi lati dati dalla triangolazione e aggiorniamo la lista dei lati
             for(size_t i=0; i<grid.size(); i++){
                 Vector2i estrema;
-                for(size_t j=0; j<grid[i]; j++){
+                for(size_t j=0; j<grid[i].size(); j++){
                     if(i<grid.size()-1){
                         triMesh.Cell1DsId[eCount]=eCount;
                         triMesh.Cell1DsExtrema[eCount]=[grid[i][j],grid[i+1][j]];  //lato sotto a sinistra
@@ -167,9 +166,24 @@ namespace PolyhedralLibrary {
                     }
                 }
             }
-        }
-    }
+			
+			unsigned int fCount = 0;
+			for (size_t i=0; i<grid.size(); i++){
+				for (size_t j=0; j<grid[i].size(); j++){
+					if (i<grid.size() -1) {
+						triMesh.Cell2DsId[fCount] = fCount;
+						triMesh.Cell2DsVertices=[grid[i][j],grif[i+1][j],grid[i+1][j+1]];
+						triMesh.Cell2DsEdges=[triMesh.Cell1DsId[  //dobbiamo aggiungere la memorizzazione dei lati della triangolazione che formano le facce
+						
+						
+					}
+					
+						
+			    }
+		    }
+		}
 
     //"nome funzione" ha lo scopo di popolare la cell3Ds
     
+    }
 }

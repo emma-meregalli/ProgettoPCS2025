@@ -114,14 +114,14 @@ bool ExportDual(PolyhedralMesh& mesh, PolyhedralMesh& dualMesh){
     // Riempie Cell0Ds del duale con i baricentri
     int numDualVertices = barycenters.size();
     dualMesh.Cell0DsCoordinates.resize(numDualVertices,3);
-    for (int i = 0; i < numDualVertices; ++i) {
+    for (int i = 0; i < numDualVertices; i++) {
         dualMesh.Cell0DsCoordinates.row(i) = barycenters[i];
         dualMesh.Cell0DsId.push_back(i);
     }
 
     // Mappa: vertice originale -> facce adiacenti che lo contengono
     map<int, vector<int>> vertexToFaces;
-    for (size_t f = 0; f < mesh.Cell2DsVertices.size(); ++f) {
+    for (size_t f = 0; f < mesh.Cell2DsVertices.size(); f++) {
         for (unsigned int v : mesh.Cell2DsVertices[f]) {
             vertexToFaces[v].push_back(f);
         }
@@ -142,7 +142,7 @@ bool ExportDual(PolyhedralMesh& mesh, PolyhedralMesh& dualMesh){
         while (!rest.empty()) {
             int current = orderedFaces.back();
             int next = -1;
-            for (auto it = rest.begin(); it != rest.end(); ++it) {
+            for (auto it = rest.begin(); it != rest.end(); it++) {
                 const auto& fv1 = mesh.Cell2DsVertices[current];
                 const auto& fv2 = mesh.Cell2DsVertices[*it];
                 vector<int> common;
@@ -165,7 +165,7 @@ bool ExportDual(PolyhedralMesh& mesh, PolyhedralMesh& dualMesh){
 
         // Costruzione degli spigoli per la faccia
         vector<unsigned int> faceEdges;
-        for (size_t i = 0; i < orderedFaces.size(); ++i) {
+        for (size_t i = 0; i < orderedFaces.size(); i++) {
             int a = orderedFaces[i];
             int b = orderedFaces[(i + 1) % orderedFaces.size()];
             pair<int, int> key = (a < b) ? make_pair(a, b) : make_pair(b, a);
@@ -179,7 +179,7 @@ bool ExportDual(PolyhedralMesh& mesh, PolyhedralMesh& dualMesh){
             faceEdges.push_back(edgeMap[key]);
         }
         dualMesh.Cell2DsEdges.push_back(faceEdges);
-        ++faceId;
+        faceId++;
     }
 
     // Definisce il poliedro 3D che contiene tutto
