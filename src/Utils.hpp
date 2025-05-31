@@ -8,20 +8,16 @@ using namespace std;
 namespace PolyhedralLibrary
 {
 
-std::vector<int> ComputeVEF(unsigned int q, int b, int c);
+std::Vector3i ComputeVEF(unsigned int q, int b, int c);
 
 void CreateTxtFiles(const PolyhedralMesh& mesh);
 
-bool ExportDual(PolyhedralMesh& mesh, PolyhedralMesh& dualMesh);
+bool GenerateDual(PolyhedralMesh& mesh, PolyhedralMesh& dualMesh);
 
-bool ExportTetrahedron(PolyhedralMesh& mesh);
+bool ExportTetrahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int& b, const int& c);
 
-bool ExportCube(PolyhedralMesh& mesh);
+bool ExportOctahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int& b, const int& c);
 
-bool ExportOctahedron(PolyhedralMesh& mesh);
-
-bool ExportDodecahedron(PolyhedralMesh& mesh);
-
-bool ExportIcosahedron(PolyhedralMesh& mesh);
+bool ExportIcosahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int& b, const int& c);
 
 }

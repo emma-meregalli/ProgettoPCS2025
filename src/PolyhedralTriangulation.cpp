@@ -9,35 +9,7 @@
 using namespace std;
 using namespace Eigen;
 
-namespace PolyhedralLibrary {
-
-    vector<int> ComputeVEF(unsigned int q, int b, int c)
-    {
-        vector<int> VEF(3, 0);  // inizializzo un vettore nullo di lunghezza 3
-
-        unsigned int T = b * b + b * c + c * c;
-        unsigned int V, E, F;
-
-        if (q == 3) {
-            V = 2 * T + 2;
-            E = 6 * T;
-            F = 4 * T;
-        } else if (q == 4) {
-            V = 4 * T + 2;
-            E = 12 * T;
-            F = 8 * T;
-        } else {
-            V = 10 * T + 2;
-            E = 30 * T;
-            F = 20 * T;
-        }
-
-        VEF[0] = V;  // V = vertici
-        VEF[1] = E;  // E = spigoli
-        VEF[2] = F;  // F = facce
-
-        return VEF;  // Mi viene restituito il vettore con i valori di V, E, F
-    }
+namespace PolyhedralTriangulation {
 
     bool VertexIsDupe(const PolygonalMesh& mesh, const Vector3d& v){
         //Fisso una tolleranza per confrontare i vertici
@@ -68,7 +40,7 @@ namespace PolyhedralLibrary {
         PolyhedralMesh& baseMesh,     // Mesh di partenza (con facce non triangolate)
         PolyhedralMesh& triMesh,      // Mesh di output triangolata
         unsigned int b, unsigned int c, // Parametri della suddivisione
-        const vector<int>& triDimensions) // Dimensione di (V,E,F) della mesh triangolata (con duplicati)
+        const Vector3i& triDimensions) // Dimensione di (V,E,F) della mesh triangolata (con duplicati)
     {
         unsigned int level = b + c; // Numero di suddivisioni laterali per triangolo
 
@@ -123,10 +95,11 @@ namespace PolyhedralLibrary {
                     } else {
                         pos = ((double)j / i) * to + ((double)(i - j) / i) * from;
                     }
-                    triMesh.Cell0DsCoordinates.col(vCount) = pos; // Salva posizione
-                    triMesh.Cell0DsId[vCount] = vCount;           // Salva ID
+                    pos=pos.normalize();s
+                    triMesh.Cell0DsCoordinates.push_back(pos); // Salva posizione
+                    triMesh.Cell0DsId.push_back(vCount);           // Salva ID
 
-                    triMesh.Cell0DsDupes[vCount]=VertexIsDupe(triMesh, pos);  //restituisce True se il vertice esiste già nella lista
+                    triMesh.Cell0DsDupes.push_back(VertexIsDupe(triMesh, pos));  //restituisce True se il vertice esiste già nella lista
 
                     row.push_back(vCount); // Aggiungi indice del vertice alla riga corrente
                     vCount++; // Avanza contatore vertici
@@ -142,48 +115,84 @@ namespace PolyhedralLibrary {
                 Vector2i estrema;
                 for(size_t j=0; j<grid[i].size(); j++){
                     if(i<grid.size()-1){
-                        triMesh.Cell1DsId[eCount]=eCount;
-                        triMesh.Cell1DsExtrema[eCount]=[grid[i][j],grid[i+1][j]];  //lato sotto a sinistra
+                        triMesh.Cell1DsId.push_back(eCount);
+                        triMesh.Cell1DsExtrema.push_back([grid[i][j],grid[i+1][j]]);  //lato sotto a sinistra
                         extrema=triMesh.Cell1DsExtrema[eCount];
-                        triMesh.Cell1DsDupes[eCount]=EdgeIsDupe(triMesh, extrema);
+                        triMesh.Cell1DsDupes.push_back(EdgeIsDupe(triMesh, extrema));
                         eList.push_back(estrema);
                         eCount++;
 
                         triMesh.Cell1DsId[eCount]=eCount;
-                        triMesh.Cell1DsExtrema[eCount]=[grid[i][j],grid[i+1][j+1]];  // lato sotto a destra
+                        triMesh.Cell1DsExtrema.push_back([grid[i][j],grid[i+1][j+1]]);  // lato sotto a destra
                         extrema=triMesh.Cell1DsExtrema[eCount];
-                        triMesh.Cell1DsDupes[eCount]=EdgeIsDupe(triMesh, extrema);
+                        triMesh.Cell1DsDupes.push_back(EdgeIsDupe(triMesh, extrema));
                         eList.push_back(estrema);
                         eCount++;
                     }
                     if(j<grid[i].size()-1){
-                        triMesh.Cell1DsId[eCount]=eCount;
-                        triMesh.Cell1DsExtrema[eCount]=[grid[i][j],grid[i][j+1]];
+                        triMesh.Cell1DsId.push_back(eCount);
+                        triMesh.Cell1DsExtrema.push_back([grid[i][j],grid[i][j+1]]);
                         extrema=triMesh.Cell1DsExtrema[eCount];
-                        triMesh.Cell1DsDupes[eCount]=EdgeIsDupe(triMesh, extrema);
+                        triMesh.Cell1DsDupes.push_back(EdgeIsDupe(triMesh, extrema));
                         eList.push_back(estrema);
                         eCount++;
                     }
                 }
             }
 			
+			//Creiamo le nuove facce dopo la triangolazione
 			unsigned int fCount = 0;
 			for (size_t i=0; i<grid.size(); i++){
 				for (size_t j=0; j<grid[i].size(); j++){
 					if (i<grid.size() -1) {
-						triMesh.Cell2DsId[fCount] = fCount;
-						triMesh.Cell2DsVertices=[grid[i][j],grif[i+1][j],grid[i+1][j+1]];
-						triMesh.Cell2DsEdges=[triMesh.Cell1DsId[  //dobbiamo aggiungere la memorizzazione dei lati della triangolazione che formano le facce
-						
-						
+						triMesh.Cell2DsId.push_back(fCount);
+						triMesh.Cell2DsVertices.push_back([grid[i][j],grid[i+1][j],grid[i+1][j+1]]);
+						for(unsigned int v=0; v<2; v++){
+							unsigned int from=triMesh.Cell2DsVertices[fCount][v];
+							unsigned int to=triMesh.Cell2DsVertices[fCount][v+1];
+							Vector3i edges;
+							for(size_t k=0; k<triMesh.Cell1DsExtrema.size(); i++){
+								if((from==triMesh.Cell1DsExtrema(0, k) && to==triMesh.Cell1DsExtrema(1, k)) || (from==triMesh.Cell1DsExtrema(1, k) && to==triMesh.Cell1DsExtrema(0, k))){
+									edges.push_back(k);
+									break;
+								}
+							}
+							triMesh.Cell2DsEdges.push_back(edges);
+							fCount++;
+						}
 					}
 					
-						
+					if(j<grid[i].size()-1){
+						triMesh.Cell2DsId.push_back(fCount);
+						triMesh.Cell2DsVertices.push_back([grid[i][j],grid[i][j+1],grid[i+1][j+1]]);
+						for(unsigned int v=0; v<2; v++){
+							unsigned int from=triMesh.Cell2DsVertices[fCount][v];
+							unsigned int to=triMesh.Cell2DsVertices[fCount][v+1];
+							Vector3i edges;
+							for(size_t k=0; k<triMesh.Cell1DsExtrema.size(); i++){
+								if((from==triMesh.Cell1DsExtrema(0, k) && to==triMesh.Cell1DsExtrema(1, k)) || (from==triMesh.Cell1DsExtrema(1, k) && to==triMesh.Cell1DsExtrema(0, k))){
+									edges.push_back(k);
+									break;
+								}
+							}
+							triMesh.Cell2DsEdges.push_back(edges);
+							fCount++;
+						}
+					}		
 			    }
 		    }
-		}
-
-    //"nome funzione" ha lo scopo di popolare la cell3Ds
-    
+		    
+		    //Creiamo il poliedro triangolato
+		    dualMesh.Cell3DsId = {0};
+		    triMesh.Cell3DsVertices = triMesh.Cell0DsId;
+		    triMesh.Cell3DsEdges = triMesh.Cell1DsId;
+		    triMesh.Cell3DsFaces = triMesh.Cell2DsId;
+		
+		    // Aggiorna i conteggi delle celle
+		    triMesh.NumCell0Ds = triMesh.Cell0DsId.size();
+		    triMesh.NumCell1Ds = triMesh.Cell1DsId.size();
+		    triMesh.NumCell2Ds = triMesh.Cell2DsId.size();
+		    triMesh.NumCell3Ds = 1;
+		}    
     }
 }
