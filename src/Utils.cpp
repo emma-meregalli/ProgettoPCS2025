@@ -3,6 +3,7 @@
 #include <sstream>
 #include "Utils.hpp"
 #include "PolyhedralMesh.hpp"
+#include <Eigen/Dense>
 
 using namespace std;
 using namespace Eigen;
@@ -194,6 +195,8 @@ bool GenerateDual(const PolyhedralMesh& mesh, PolyhedralMesh& dualMesh){
     dualMesh.NumCell1Ds = dualMesh.Cell1DsId.size();
     dualMesh.NumCell2Ds = dualMesh.Cell2DsId.size();
     dualMesh.NumCell3Ds = 1;
+    
+    return true;
 }
 
 bool ExportTetrahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int& b, const int& c) {
@@ -213,7 +216,7 @@ bool ExportTetrahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int&
     
     // Lati
     mesh.Cell1DsId.reserve(6);
-    Cell1DsId = {0,1,2,3,4,5};
+    mesh.Cell1DsId = {0,1,2,3,4,5};
 
     mesh.Cell1DsExtrema.resize(6, 2);
     mesh.Cell1DsExtrema <<
@@ -261,7 +264,7 @@ bool ExportTetrahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int&
     mesh.Cell3DsEdges = {0, 1, 2, 3, 4, 5};
     mesh.Cell3DsFaces = {0, 1, 2, 3};
     
-    Vector3i VEF = ComputeVEF(q,b,c);
+    Vector3i VEF = ComputeVEF(3,b,c);
     GenerateTriangulatedMesh(mesh,triMesh,b,c,VEF);
 
     return true;
@@ -349,7 +352,7 @@ bool ExportOctahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int& 
     mesh.Cell3DsEdges = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
     mesh.Cell3DsFaces = {0, 1, 2, 3, 4, 5, 6, 7};
     
-    Vector3i VEF = ComputeVEF(q,b,c);
+    Vector3i VEF = ComputeVEF(4,b,c);
     GenerateTriangulatedMesh(mesh,triMesh,b,c,VEF);
 
     return true;
@@ -487,7 +490,7 @@ bool ExportIcosahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int&
     mesh.Cell3DsEdges = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29};
     mesh.Cell3DsFaces = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19};
     
-    Vector3i VEF = ComputeVEF(q,b,c);
+    Vector3i VEF = ComputeVEF(5,b,c);
     GenerateTriangulatedMesh(mesh,triMesh,b,c,VEF);
       
     return true;

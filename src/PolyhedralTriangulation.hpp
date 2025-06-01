@@ -1,7 +1,7 @@
 #pragma once
 
 #include <iostream>
-#include "PolygonalMesh.hpp"
+#include "PolyhedralMesh.hpp"
 
 using namespace std;
 
@@ -12,6 +12,6 @@ bool VertexIsDupe(const PolygonalMesh& mesh, const Vector3d& v);
 
 bool EdgeIsDupe(const PolygonalMesh& mesh, const Vector2i& e);
 
-void GenerateTriangulatedMesh(PolyhedralMesh& baseMesh, PolyhedralMesh& triMesh, unsigned int b, unsigned int c, const Vector3i& triDimensions);
+bool GenerateTriangulatedMesh(PolyhedralMesh& baseMesh, PolyhedralMesh& triMesh, const unsigned int& b, const unsigned int& c, const Vector3i& triDimensions);
 
 }

@@ -1,14 +1,15 @@
 #pragma once
 
 #include <iostream>
-#include "PolygonalMesh.hpp"
+#include <Eigen/Dense>
+#include "PolyhedralMesh.hpp"
 
 using namespace std;
 
 namespace PolyhedralLibrary
 {
 
-std::Vector3i ComputeVEF(unsigned int q, int b, int c);
+Eigen::Vector3i ComputeVEF(unsigned int q, int b, int c);
 
 void CreateTxtFiles(const PolyhedralMesh& mesh);
 

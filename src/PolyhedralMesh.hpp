@@ -32,9 +32,9 @@ struct PolyhedralMesh
     //Poliedri
     unsigned int NumCell3Ds = 0;    // number of Cell3D
     std::vector<unsigned int> Cell3DsId = {};   // Cell3D id
-    std::vector<std::vector<unsigned int>> Cell2DsVertices = {};     // Cell3D vertices id
-    std::vector<std::vector<unsigned int>> Cell2DsEdges = {};   // Cell3D edges id
-    std::vector<std::vector<unsigned int>> Cell2DsFaces = {};    // Cell3D faces id
+    std::vector<unsigned int> Cell3DsVertices = {};     // Cell3D vertices id
+    std::vector<unsigned int> Cell3DsEdges = {};   // Cell3D edges id
+    std::vector<unsigned int> Cell3DsFaces = {};    // Cell3D faces id
 };
 
 }
