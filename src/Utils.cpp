@@ -3,11 +3,11 @@
 #include <sstream>
 #include "Utils.hpp"
 #include "PolyhedralMesh.hpp"
+#include "PolyhedralTriangulation.hpp"
 #include <Eigen/Dense>
 
 using namespace std;
 using namespace Eigen;
-using namespace PolyhedralTriangulation;
 
 namespace PolyhedralLibrary
 {
@@ -42,7 +42,7 @@ Vector3i ComputeVEF(unsigned int q, int b, int c)
 void CreateTxtFiles(const PolyhedralMesh& mesh) {
     // Creazione Cell0Ds.txt
     ofstream Cell0Ds("Cell0Ds.txt");
-    out0 << "ID;x;y;z\n";
+    Cell0Ds << "ID;x;y;z\n";
     for (size_t i = 0; i < mesh.Cell0DsId.size(); i++) {
         Cell0Ds << mesh.Cell0DsId[i] << ";" << mesh.Cell0DsCoordinates(0, i) << ";" << mesh.Cell0DsCoordinates(1, i) << ";" << mesh.Cell0DsCoordinates(2, i) << "\n";
     }
@@ -103,14 +103,14 @@ void CreateTxtFiles(const PolyhedralMesh& mesh) {
 
 bool GenerateDual(const PolyhedralMesh& mesh, PolyhedralMesh& dualMesh){
     MatrixXd barycenters = {};
-    barycenters.reserve(mesh.NumCell2Ds,3);
-    Vector3d tmp = zeros();
+    barycenters.resize(mesh.NumCell2Ds,3);
+    Vector3d tmp = Vector3d::Zero();
     for (unsigned int i=0; i<mesh.NumCell2Ds; i++){
         for (unsigned int v : mesh.Cell2DsVertices[i]){
             tmp += mesh.Cell0DsCoordinates.row(v);
         }
         tmp /= mesh.Cell2DsVertices[i].size(); 
-        barycenters.push_back(tmp);
+        barycenters.row(i) = tmp;
     }
 
     // Riempie Cell0Ds del duale con i baricentri
@@ -135,8 +135,8 @@ bool GenerateDual(const PolyhedralMesh& mesh, PolyhedralMesh& dualMesh){
     map<pair<int, int>, int> edgeMap; // per evitare spigoli duplicati
     for (const auto& [vertex, faces] : vertexToFaces) {
         // Ordina ciclicamente le facce attorno al vertice originale
-        vector<int> orderedFaces;
-        vector<int> rest = faces;
+        vector<unsigned int> orderedFaces;
+        vector<unsigned int> rest = faces;
 
         orderedFaces.push_back(rest[0]); // inizia da una qualsiasi
         rest.erase(rest.begin());
@@ -265,7 +265,7 @@ bool ExportTetrahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int&
     mesh.Cell3DsFaces = {0, 1, 2, 3};
     
     Vector3i VEF = ComputeVEF(3,b,c);
-    GenerateTriangulatedMesh(mesh,triMesh,b,c,VEF);
+    PolyhedralTriangulation::GenerateTriangulatedMesh(mesh,triMesh,b,c,VEF);
 
     return true;
 }
@@ -388,7 +388,7 @@ bool ExportIcosahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int&
     mesh.Cell1DsId.reserve(30);
     mesh.Cell1DsId = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29};
 
-    mesh.Cell1DsExtrema = matrixXi::Zero(30, 2);
+    mesh.Cell1DsExtrema = MatrixXi::Zero(30, 2);
     mesh.Cell1DsExtrema <<
     	0, 1,  // Lato 0
         1, 2,  // Lato 1
@@ -455,7 +455,10 @@ bool ExportIcosahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int&
         {9, 10, 11},  // Faccia 18
         {6, 10, 11},   // Faccia 19
     };
-    mesh.Cell2DsEdges.reserve(20,3);
+    mesh.Cell2DsEdges.reserve(20);
+	for (auto& edgeList : mesh.Cell2DsEdges) {
+		edgeList.resize(3);
+	}	
 	mesh.Cell2DsEdges = {
 		{0, 1, 2},  // Faccia 0
         {2, 7, 3},  // Faccia 1
