@@ -68,6 +68,7 @@ int checkInput(const vector<int> vector_input){
     if(b==c){
     	//Poliedri geodetici di classe II
 	}
+	return 1
 }
 
 int main()
