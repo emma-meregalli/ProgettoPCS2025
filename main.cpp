@@ -47,6 +47,7 @@ int checkInput(const vector<int> vector_input){
                     ExportIcosahedron(mesh,triMesh,b,c);
                     CreateTxtFiles(triMesh);
             }
+    	}
         if (q==3){
             switch (p){
                 case 3 : //genera il tetraedro se p=3,q=3
@@ -62,12 +63,12 @@ int checkInput(const vector<int> vector_input){
                     CreateTxtFiles(dualMesh);
             }
         }
-        }
     }
     
     if(b==c){
     	//Poliedri geodetici di classe II
 	}
+	return 0;
 }
 
 int main()
@@ -114,4 +115,5 @@ int main()
 
         checkInput(vector_input);
     }
+    return 0;
 }    
