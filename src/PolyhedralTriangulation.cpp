@@ -60,7 +60,7 @@ namespace PolyhedralTriangulation {
         // Allocazione memoria per facce (2D)
         triMesh.Cell2DsId.resize(triDimensions[2]);
         triMesh.Cell2DsEdges.resize(triDimensions[2]);
-        for (auto& edgeList : triMesh.cell2DsEdges) {
+        for (auto& edgeList : triMesh.Cell2DsEdges) {
             edgeList.resize(3); // Ogni faccia ha 3 spigoli
         }
 
@@ -115,13 +115,13 @@ namespace PolyhedralTriangulation {
 
             //Creiamo i nuovi lati dati dalla triangolazione e aggiorniamo la lista dei lati
             for(size_t i=0; i<grid.size(); i++){
-                Vector2i estrema;
+                Vector2i extrema;
                 for(size_t j=0; j<grid[i].size(); j++){
                     if(i<grid.size()-1){
                         triMesh.Cell1DsId.push_back(eCount);
                         triMesh.Cell1DsExtrema(0, eCount) = grid[i][j];  //lato sotto a sinistra
                         triMesh.Cell1DsExtrema(1, eCount) = grid[i + 1][j];
-                        Vector2i extrema = triMesh.Cell1DsExtrema.col(eCount);
+                        extrema = triMesh.Cell1DsExtrema.col(eCount);
                         triMesh.Cell1DsDupes.push_back(EdgeIsDupe(triMesh, extrema));
                         eList.push_back(extrema);
                         eCount++;
@@ -129,7 +129,7 @@ namespace PolyhedralTriangulation {
                         triMesh.Cell1DsId[eCount]=eCount;
                         triMesh.Cell1DsExtrema(0, eCount) = grid[i][j];  //lato sotto a sinistra
                         triMesh.Cell1DsExtrema(1, eCount) = grid[i + 1][j + 1];
-                        Vector2i extrema = triMesh.Cell1DsExtrema.col(eCount);
+                        extrema = triMesh.Cell1DsExtrema.col(eCount);
                         triMesh.Cell1DsDupes.push_back(EdgeIsDupe(triMesh, extrema));
                         eList.push_back(extrema);
                         eCount++;
@@ -138,7 +138,7 @@ namespace PolyhedralTriangulation {
                         triMesh.Cell1DsId.push_back(eCount);
                         triMesh.Cell1DsExtrema(0, eCount) = grid[i][j];  //lato sotto a sinistra
                         triMesh.Cell1DsExtrema(1, eCount) = grid[i][j + 1];
-                        Vector2i extrema = triMesh.Cell1DsExtrema.col(eCount);
+                        extrema = triMesh.Cell1DsExtrema.col(eCount);
                         triMesh.Cell1DsDupes.push_back(EdgeIsDupe(triMesh, extrema));
                         eList.push_back(extrema);
                         eCount++;
