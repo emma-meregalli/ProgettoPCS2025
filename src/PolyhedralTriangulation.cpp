@@ -96,7 +96,7 @@ namespace PolyhedralTriangulation {
                     } else {
                         pos = ((double)j / i) * to + ((double)(i - j) / i) * from;
                     }
-                    pos=pos/norm(pos);
+                    pos=pos/pos.norm();
                     triMesh.Cell0DsCoordinates.push_back(pos); // Salva posizione
                     triMesh.Cell0DsId.push_back(vCount);           // Salva ID
 
