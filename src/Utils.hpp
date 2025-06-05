@@ -13,7 +13,7 @@ Eigen::Vector3i ComputeVEF(unsigned int q, int b, int c);
 
 void CreateTxtFiles(const PolyhedralMesh& mesh);
 
-bool GenerateDual(PolyhedralMesh& mesh, PolyhedralMesh& dualMesh);
+bool GenerateDual(const PolyhedralMesh& mesh, PolyhedralMesh& dualMesh);
 
 bool ExportTetrahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int& b, const int& c);
 

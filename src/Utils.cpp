@@ -82,29 +82,32 @@ void CreateTxtFiles(const PolyhedralMesh& mesh) {
     // Creazione Cell3Ds.txt
     ofstream Cell3Ds("Cell3Ds.txt");
     Cell3Ds << "ID;Vertices;Edges;Faces\n";
-    for (size_t i = 0; i < mesh.Cell3DsId.size(); i++) {
-        Cell3Ds << mesh.Cell3DsId[i];
+    for (size_t i = 0; i < mesh.Cell3DsId.size(); ++i) {
+    Cell3Ds << mesh.Cell3DsId[i];
 
-        // Vertici
-        for (unsigned int v : mesh.Cell3DsVertices[i])
-            Cell3Ds << ";" << v;
-
-        // Lati
-        for (unsigned int e : mesh.Cell3DsEdges[i])
-            Cell3Ds << ";" << e;
-
-        // Facce
-        for (unsigned int f : mesh.Cell3DsFaces[i])
-            Cell3Ds << ";" << f;
-
-        Cell3Ds << "\n";
+    // Vertici
+    for (size_t v = 0; v < mesh.Cell3DsVertices.size(); ++v) {
+        Cell3Ds << ";" << mesh.Cell3DsVertices[v];
     }
+
+    // Lati
+    for (size_t e = 0; e < mesh.Cell3DsEdges.size(); ++e) {
+        Cell3Ds << ";" << mesh.Cell3DsEdges[e];
+    }
+
+    // Facce
+    for (size_t f = 0; f < mesh.Cell3DsFaces.size(); ++f) {
+        Cell3Ds << ";" << mesh.Cell3DsFaces[f];
+    }
+
+    Cell3Ds << "\n";
+}
     Cell3Ds.close();
 } 
 
 bool GenerateDual(const PolyhedralMesh& mesh, PolyhedralMesh& dualMesh){
-    MatrixXd barycenters = {};
-    barycenters.resize(mesh.NumCell2Ds,3);
+	MatrixXd barycenters = {};
+	barycenters.resize(mesh.NumCell2Ds,3);
     Vector3d tmp = Vector3d::Zero();
     for (unsigned int i=0; i<mesh.NumCell2Ds; i++){
         for (unsigned int v : mesh.Cell2DsVertices[i]){
@@ -118,7 +121,7 @@ bool GenerateDual(const PolyhedralMesh& mesh, PolyhedralMesh& dualMesh){
     int numDualVertices = barycenters.size();
     dualMesh.Cell0DsCoordinates.resize(numDualVertices,3);
     for (int i = 0; i < numDualVertices; i++) {
-        dualMesh.Cell0DsCoordinates.row(i) = barycenters[i];
+        dualMesh.Cell0DsCoordinates.row(i) = barycenters.row(i);
         dualMesh.Cell0DsId.push_back(i);
     }
 
@@ -136,8 +139,8 @@ bool GenerateDual(const PolyhedralMesh& mesh, PolyhedralMesh& dualMesh){
     map<pair<int, int>, int> edgeMap; // per evitare spigoli duplicati
     for (const auto& [vertex, faces] : vertexToFaces) {
         // Ordina ciclicamente le facce attorno al vertice originale
-        vector<unsigned int> orderedFaces;
-        vector<unsigned int> rest = faces;
+        vector<int> orderedFaces;
+        vector<int> rest = faces;
 
         orderedFaces.push_back(rest[0]); // inizia da una qualsiasi
         rest.erase(rest.begin());
@@ -163,7 +166,8 @@ bool GenerateDual(const PolyhedralMesh& mesh, PolyhedralMesh& dualMesh){
         }
 
         // Crea la nuova faccia nel duale
-        dualMesh.Cell2DsVertices.push_back(orderedFaces);
+        std::vector<unsigned int> orderedFacesUnsigned(orderedFaces.begin(), orderedFaces.end());
+		dualMesh.Cell2DsVertices.push_back(orderedFacesUnsigned);
         dualMesh.Cell2DsId.push_back(faceId);
 
         // Costruzione degli spigoli per la faccia
@@ -205,7 +209,7 @@ bool ExportTetrahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int&
 	// Vertici
     double r = sqrt(3.0) / 3.0;
     
-    mesh.Cell0DsCoordinates.reserve(4,3);
+    mesh.Cell0DsCoordinates.resize(4,3);
     mesh.Cell0DsId.reserve(4);
 
     mesh.Cell0DsCoordinates(0, 0) = r;   mesh.Cell0DsCoordinates(1, 0) = r;   mesh.Cell0DsCoordinates(2, 0) = r;  
@@ -269,7 +273,7 @@ bool ExportTetrahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int&
     PolyhedralTriangulation::GenerateTriangulatedMesh(mesh,triMesh,b,c,VEF);
 
     return true;
-}
+	}
 	
 bool ExportOctahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int& b, const int& c) {
 	
@@ -290,7 +294,7 @@ bool ExportOctahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int& 
 
     // Lati
     mesh.Cell1DsId.reserve(12);
-    Cell1DsId = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
+    mesh.Cell1DsId = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
 
     mesh.Cell1DsExtrema = MatrixXi::Zero(12, 2);
     mesh.Cell1DsExtrema <<
@@ -357,7 +361,7 @@ bool ExportOctahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int& 
     GenerateTriangulatedMesh(mesh,triMesh,b,c,VEF);
 
     return true;
-}
+	}
 
 bool ExportIcosahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int& b, const int& c) {
 
@@ -498,5 +502,5 @@ bool ExportIcosahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int&
     GenerateTriangulatedMesh(mesh,triMesh,b,c,VEF);
       
     return true;
-}
+	}
 }
