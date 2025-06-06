@@ -209,9 +209,9 @@ bool ExportTetrahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int&
 	// Vertici
     double r = sqrt(3.0) / 3.0;
     
-    mesh.Cell0DsCoordinates.resize(4,3);
+    mesh.Cell0DsCoordinates.resize(3,4);
     mesh.Cell0DsId.reserve(4);
-
+	
     mesh.Cell0DsCoordinates(0, 0) = r;   mesh.Cell0DsCoordinates(1, 0) = r;   mesh.Cell0DsCoordinates(2, 0) = r;  
     mesh.Cell0DsCoordinates(0, 1) = -r;  mesh.Cell0DsCoordinates(1, 1) = -r;  mesh.Cell0DsCoordinates(2, 1) = r; 
     mesh.Cell0DsCoordinates(0, 2) = -r;  mesh.Cell0DsCoordinates(1, 2) = r;   mesh.Cell0DsCoordinates(2, 2) = -r;
@@ -222,8 +222,8 @@ bool ExportTetrahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int&
     // Lati
     mesh.Cell1DsId.reserve(6);
     mesh.Cell1DsId = {0,1,2,3,4,5};
-
-    mesh.Cell1DsExtrema.resize(6, 2);
+	
+    mesh.Cell1DsExtrema.resize(2, 6);
     mesh.Cell1DsExtrema <<
         0, 1,
         1, 2,
@@ -257,7 +257,7 @@ bool ExportTetrahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int&
         {4, 5, 1},
         {5, 3, 2} 
     };
-
+	
     // Poliedro
     mesh.Cell3DsId.reserve(1);
     mesh.Cell3DsVertices.reserve(4);
@@ -270,8 +270,9 @@ bool ExportTetrahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int&
     mesh.Cell3DsFaces = {0, 1, 2, 3};
     
     Vector3i VEF = ComputeVEF(3,b,c);
+    
     PolyhedralTriangulation::GenerateTriangulatedMesh(mesh,triMesh,b,c,VEF);
-
+	cout<<"Sono quiiii!"<<endl;
     return true;
 	}
 	
@@ -280,7 +281,7 @@ bool ExportOctahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int& 
     // Vertici
     double r = 1.0; 
 
-    mesh.Cell0DsCoordinates = MatrixXd::Zero(6, 3);
+    mesh.Cell0DsCoordinates = MatrixXd::Zero(3, 6);
     mesh.Cell0DsId.reserve(6);
 
     mesh.Cell0DsCoordinates(0, 0) = r;   mesh.Cell0DsCoordinates(1, 0) = 0.0;  mesh.Cell0DsCoordinates(2, 0) = 0.0;  
@@ -295,8 +296,8 @@ bool ExportOctahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int& 
     // Lati
     mesh.Cell1DsId.reserve(12);
     mesh.Cell1DsId = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
-
-    mesh.Cell1DsExtrema = MatrixXi::Zero(12, 2);
+	cout<<"Sono quiiii!"<<endl;
+    mesh.Cell1DsExtrema = MatrixXi::Zero(2, 12);
     mesh.Cell1DsExtrema <<
         0, 2,  // Lato 0
 		2, 1,  // Lato 1
@@ -323,7 +324,7 @@ bool ExportOctahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int& 
 	for (auto& e : mesh.Cell2DsEdges)
 		e.reserve(3);
 	
-
+	cout<<"Sono quiiii!"<<endl;
     mesh.Cell2DsVertices = {
         {0, 2, 4},  // Faccia 0
 		{0, 4, 3},  // Faccia 1
@@ -345,7 +346,7 @@ bool ExportOctahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int& 
 		{8, 9, 2},  // Faccia 6
 		{3, 9, 10}  // Faccia 7
     };
-
+	cout<<"Sono quiiii!"<<endl;
     // Poliedro
     mesh.Cell3DsId.reserve(1);
     mesh.Cell3DsVertices.reserve(6);
@@ -359,7 +360,7 @@ bool ExportOctahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int& 
     
     Vector3i VEF = ComputeVEF(4,b,c);
     GenerateTriangulatedMesh(mesh,triMesh,b,c,VEF);
-
+	cout<<"Sono quiiii!"<<endl;
     return true;
 	}
 
@@ -369,7 +370,7 @@ bool ExportIcosahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int&
     double r = 1.0;
     double phi = (1.0 + sqrt(5.0)) / 2.0;
 
-    mesh.Cell0DsCoordinates = MatrixXd::Zero(12, 3);
+    mesh.Cell0DsCoordinates = MatrixXd::Zero(3, 12);
     mesh.Cell0DsId.reserve(12);
 	
 	double norm = sqrt(10.0+2.0*sqrt(5.0))/2.0;
@@ -393,7 +394,7 @@ bool ExportIcosahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int&
     mesh.Cell1DsId.reserve(30);
     mesh.Cell1DsId = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29};
 
-    mesh.Cell1DsExtrema = MatrixXi::Zero(30, 2);
+    mesh.Cell1DsExtrema = MatrixXi::Zero(2, 30);
     mesh.Cell1DsExtrema <<
     	0, 1,  // Lato 0
         1, 2,  // Lato 1

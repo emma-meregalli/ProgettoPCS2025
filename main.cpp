@@ -48,7 +48,7 @@ int checkInput(const vector<int> vector_input){
                     CreateTxtFiles(triMesh);
             }
     	}
-        if (q==3){
+        if (q==3 && p!=3){
             switch (p){
                 case 3 : //genera il tetraedro se p=3,q=3
                     ExportTetrahedron(mesh,triMesh,b,c);

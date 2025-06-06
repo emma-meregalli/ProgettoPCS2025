@@ -15,11 +15,12 @@ namespace PolyhedralTriangulation {
     bool VertexIsDupe(const PolyhedralMesh& mesh, const Vector3d& v){
         //Fisso una tolleranza per confrontare i vertici
 	    double tol=1e-12;
-
+		
         // Confronto con tutti i vertici già inseriti nella lista
         for (size_t i = 0; i < mesh.Cell0DsId.size(); i++) {
             if ((mesh.Cell0DsCoordinates.col(i) - v).norm() < tol) {    //Se il vertice esiste, allora restituisco il suo ID (bisogna fare un controllo con la tolleranza?)
-                return true;  
+                cout<<"Sono quiiii j!"<<endl;
+				return true;  
             }
         }
         return false;
@@ -63,7 +64,7 @@ namespace PolyhedralTriangulation {
         for (auto& edgeList : triMesh.Cell2DsEdges) {
             edgeList.resize(3); // Ogni faccia ha 3 spigoli
         }
-
+		
         // Id per vertici
         unsigned int vCount = 0;
 		unsigned int eCount = 0;
@@ -78,7 +79,7 @@ namespace PolyhedralTriangulation {
             Vector3d A = baseMesh.Cell0DsCoordinates.col(faceVerts[0]); // Vertice A
             Vector3d B = baseMesh.Cell0DsCoordinates.col(faceVerts[1]); // Vertice B
             Vector3d C = baseMesh.Cell0DsCoordinates.col(faceVerts[2]); // Vertice C
-
+			
             vector<vector<unsigned int>> grid; // Griglia di vertici interni alla faccia
             // la griglia ha level = b + c righe e ogni riga i ha i + 1 elementi (forma triangolare)
             // Costruzione della griglia interplata sulla faccia
@@ -89,7 +90,7 @@ namespace PolyhedralTriangulation {
                 // Partiziono il lato in base al valore di b e c
                 Vector3d from = ((double)i / level) * B + ((double)(level - i) / level) * A;
                 Vector3d to = ((double)i / level) * C + ((double)(level - i) / level) * A;
-
+			
                 for (unsigned int j = 0; j <= i; j++) { 
                     // Interpolo tra from e to per ottenere un punto interno
                     Vector3d pos;
@@ -101,15 +102,15 @@ namespace PolyhedralTriangulation {
                     pos = pos/pos.norm();
                     triMesh.Cell0DsCoordinates.row(vCount) = pos; // Salva posizione
                     triMesh.Cell0DsId.push_back(vCount);           // Salva ID
-
+					cout<<"Sono quiiii j!"<<endl;
                     triMesh.Cell0DsDupes.push_back(VertexIsDupe(triMesh, pos));  //restituisce True se il vertice esiste già nella lista
-
+					 cout<<"Sono quiiii j!"<<endl;
                     row.push_back(vCount); // Aggiungi indice del vertice alla riga corrente
-                    vCount++; // Avanza contatore vertici
+                    vCount++; // Avanza contatore vertice
                 }
                 grid.push_back(row); // Aggiungi riga alla griglia
             }
-
+		cout<<"Sono quiiii!"<<endl;
             // variabile temporanea che memorizza gli estremi dei lati
             vector<Vector2i> eList;
 
@@ -145,7 +146,7 @@ namespace PolyhedralTriangulation {
                     }
                 }
             }
-			
+		cout<<"Sono quiiii!"<<endl;	
 			//Creiamo le nuove facce dopo la triangolazione
 			unsigned int fCount = 0;
 			for (size_t i=0; i<grid.size(); i++){
