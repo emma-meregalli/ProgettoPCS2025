@@ -65,6 +65,9 @@ namespace PolyhedralTriangulation {
         for (auto& edgeList : triMesh.Cell2DsEdges) {
             edgeList.resize(3); // Ogni faccia ha 3 spigoli
         }
+		for (auto& vertList : triMesh.Cell2DsVertices) {
+        vertList.resize(3); // Ogni faccia ha 3 vertici
+		}	
 		
         // Id per vertici
         unsigned int vCount = 0;
@@ -109,7 +112,7 @@ namespace PolyhedralTriangulation {
                     triMesh.Cell0DsCoordinates.row(vCount) = pos.transpose(); // Salva posizione
                     triMesh.Cell0DsId.push_back(vCount);           // Salva ID
 					cout<<"Sono quiiii j!"<<endl;
-                    triMesh.Cell0DsDupes[vCount]=(VertexIsDupe(triMesh, pos));  //restituisce True se il vertice esiste già nella lista
+                    triMesh.Cell0DsDupes.push_back(VertexIsDupe(triMesh, pos));  //restituisce True se il vertice esiste già nella lista
 					 cout<<"Sono quiiii j!"<<endl;
                     row.push_back(vCount); // Aggiungi indice del vertice alla riga corrente
                     vCount++; // Avanza contatore vertice
@@ -129,7 +132,7 @@ namespace PolyhedralTriangulation {
                         triMesh.Cell1DsExtrema(0, eCount) = grid[i][j];  //lato sotto a sinistra
                         triMesh.Cell1DsExtrema(1, eCount) = grid[i + 1][j];
                         extrema = triMesh.Cell1DsExtrema.col(eCount);
-                        triMesh.Cell1DsDupes[eCount]=(EdgeIsDupe(triMesh, extrema));
+                        triMesh.Cell1DsDupes[eCount]=EdgeIsDupe(triMesh, extrema);
                         eList.push_back(extrema);
                         eCount++;
 
@@ -137,7 +140,7 @@ namespace PolyhedralTriangulation {
                         triMesh.Cell1DsExtrema(0, eCount) = grid[i][j];  //lato sotto a sinistra
                         triMesh.Cell1DsExtrema(1, eCount) = grid[i + 1][j + 1];
                         extrema = triMesh.Cell1DsExtrema.col(eCount);
-                        triMesh.Cell1DsDupes[eCount]=(EdgeIsDupe(triMesh, extrema));
+                        triMesh.Cell1DsDupes[eCount]=EdgeIsDupe(triMesh, extrema);
                         eList.push_back(extrema);
                         eCount++;
                     }
@@ -146,7 +149,7 @@ namespace PolyhedralTriangulation {
                         triMesh.Cell1DsExtrema(0, eCount) = grid[i][j];  //lato sotto a sinistra
                         triMesh.Cell1DsExtrema(1, eCount) = grid[i][j + 1];
                         extrema = triMesh.Cell1DsExtrema.col(eCount);
-                        triMesh.Cell1DsDupes[eCount]=(EdgeIsDupe(triMesh, extrema));
+                        triMesh.Cell1DsDupes[eCount]=EdgeIsDupe(triMesh, extrema);
                         eList.push_back(extrema);
                         eCount++;
                     }
@@ -154,29 +157,27 @@ namespace PolyhedralTriangulation {
             }
 		cout<<"Sono quiiii!"<<endl;	
 			//Creiamo le nuove facce dopo la triangolazione
-			unsigned int fCount = 0;
 			for (size_t i=0; i<grid.size(); i++){
 				for (size_t j=0; j<grid[i].size(); j++){
 					if (i<grid.size() -1) {
-						triMesh.Cell2DsId.push_back(fCount);
+						triMesh.Cell2DsId[fCount]=(fCount);
 						triMesh.Cell2DsVertices[fCount] = {grid[i][j],grid[i+1][j],grid[i+1][j+1]};
 						for(unsigned int v=0; v<3; v++){
 							unsigned int from=triMesh.Cell2DsVertices[fCount][v];
 							unsigned int to=triMesh.Cell2DsVertices[fCount][(v+1)%3];
 							vector<unsigned int> edges;
-							for(size_t k=0; k<triMesh.Cell1DsExtrema.size(); k++){
+							for(Eigen::Index k=0; k<triMesh.Cell1DsExtrema.cols(); k++){
 								if((from==triMesh.Cell1DsExtrema(0, k) && to==triMesh.Cell1DsExtrema(1, k)) || (from==triMesh.Cell1DsExtrema(1, k) && to==triMesh.Cell1DsExtrema(0, k))){
-									edges.push_back(k);
+									triMesh.Cell2DsEdges[fCount][v]=k;
 									break;
 								}
 							}
-							triMesh.Cell2DsEdges[fCount] = edges;
-							fCount++;
 						}
+						fCount ++;
 					}
 					
 					if(j<grid[i].size()-1){
-						triMesh.Cell2DsId.push_back(fCount);
+						triMesh.Cell2DsId[fCount]=fCount;
 						triMesh.Cell2DsVertices[fCount] ={grid[i][j],grid[i][j+1],grid[i+1][j+1]};
 						for(unsigned int v=0; v<3; v++){
 							unsigned int from=triMesh.Cell2DsVertices[fCount][v];
@@ -184,16 +185,17 @@ namespace PolyhedralTriangulation {
 							vector<unsigned int> edges;
 							for(Eigen::Index k=0; k<triMesh.Cell1DsExtrema.cols(); k++){
 								if((from==triMesh.Cell1DsExtrema(0, k) && to==triMesh.Cell1DsExtrema(1, k)) || (from==triMesh.Cell1DsExtrema(1, k) && to==triMesh.Cell1DsExtrema(0, k))){
-									edges.push_back(k);
+									triMesh.Cell2DsEdges[fCount][v]=k;
 									break;
 								}
 							}
-							triMesh.Cell2DsEdges[fCount][v] = edges[0];;
-							fCount++;
+							
 						}
+						fCount++;
 					}		
 			    }
 		    }
+		}
 		    
 		    //Creiamo il poliedro triangolato
 		    triMesh.Cell3DsId = {0};
@@ -206,8 +208,8 @@ namespace PolyhedralTriangulation {
 		    triMesh.NumCell1Ds = triMesh.Cell1DsId.size();
 		    triMesh.NumCell2Ds = triMesh.Cell2DsId.size();
 		    triMesh.NumCell3Ds = 1;
-		}
+
 		triMesh.Cell0DsCoordinates.conservativeResize(vCount, 3);
-		return true;    
-    }
+		return true;  
+	}	
 }

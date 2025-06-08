@@ -44,7 +44,7 @@ void CreateTxtFiles(const PolyhedralMesh& mesh) {
     // Creazione Cell0Ds.txt
     ofstream Cell0Ds("Cell0Ds.txt");
     Cell0Ds << "ID;x;y;z\n";
-    for (size_t i = 0; i < mesh.Cell0DsId.size(); i++) {
+    for (Eigen::Index i = 0; i < mesh.Cell0DsCoordinates.rows(); i++) {
         Cell0Ds << mesh.Cell0DsId[i] << ";" << mesh.Cell0DsCoordinates(i, 0) << ";" << mesh.Cell0DsCoordinates(i, 1) << ";" << mesh.Cell0DsCoordinates(i, 2) << "\n";
     }
     Cell0Ds.close();
@@ -86,17 +86,17 @@ void CreateTxtFiles(const PolyhedralMesh& mesh) {
     Cell3Ds << mesh.Cell3DsId[i];
 
     // Vertici
-    for (size_t v = 0; v < mesh.Cell3DsVertices.size(); ++v) {
+    for (unsigned int v = 0; v < mesh.Cell3DsVertices.size(); v++) {
         Cell3Ds << ";" << mesh.Cell3DsVertices[v];
     }
 
     // Lati
-    for (size_t e = 0; e < mesh.Cell3DsEdges.size(); ++e) {
+    for (unsigned int e = 0; e < mesh.Cell3DsEdges.size(); e++) {
         Cell3Ds << ";" << mesh.Cell3DsEdges[e];
     }
 
     // Facce
-    for (size_t f = 0; f < mesh.Cell3DsFaces.size(); ++f) {
+    for (unsigned int f = 0; f < mesh.Cell3DsFaces.size(); f++) {
         Cell3Ds << ";" << mesh.Cell3DsFaces[f];
     }
 
