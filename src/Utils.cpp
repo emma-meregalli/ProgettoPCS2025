@@ -45,7 +45,7 @@ void CreateTxtFiles(const PolyhedralMesh& mesh) {
     ofstream Cell0Ds("Cell0Ds.txt");
     Cell0Ds << "ID;x;y;z\n";
     for (size_t i = 0; i < mesh.Cell0DsId.size(); i++) {
-        Cell0Ds << mesh.Cell0DsId[i] << ";" << mesh.Cell0DsCoordinates(0, i) << ";" << mesh.Cell0DsCoordinates(1, i) << ";" << mesh.Cell0DsCoordinates(2, i) << "\n";
+        Cell0Ds << mesh.Cell0DsId[i] << ";" << mesh.Cell0DsCoordinates(i, 0) << ";" << mesh.Cell0DsCoordinates(i, 1) << ";" << mesh.Cell0DsCoordinates(i, 2) << "\n";
     }
     Cell0Ds.close();
 
