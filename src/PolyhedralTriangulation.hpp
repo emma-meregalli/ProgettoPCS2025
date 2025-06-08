@@ -13,6 +13,8 @@ bool VertexIsDupe(const PolyhedralMesh& mesh, const Vector3d& v);
 
 bool EdgeIsDupe(const PolyhedralMesh& mesh, const Vector2i& e);
 
-bool GenerateTriangulatedMesh(PolyhedralMesh& baseMesh, PolyhedralMesh& triMesh, const unsigned int& b, const unsigned int& c, const Vector3i& triDimensions);
+bool GenerateTriangulatedMesh1(PolyhedralMesh& baseMesh, PolyhedralMesh& triMesh, const unsigned int& b, const unsigned int& c, const Vector3i& triDimensions);
+
+bool GenerateTriangulatedMesh2(PolyhedralMesh& baseMesh, PolyhedralMesh& triMesh, const unsigned int& b, const unsigned int& c, const Vector3i& triDimensions);
 
 }

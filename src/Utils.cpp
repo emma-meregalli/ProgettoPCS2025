@@ -231,7 +231,7 @@ bool ExportTetrahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int&
         0, 3,
         3, 1,
         2, 3;
-
+	
     // Facce
     mesh.Cell2DsId.reserve(4);
     mesh.Cell2DsId = {0, 1, 2, 3};
@@ -263,16 +263,18 @@ bool ExportTetrahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int&
     mesh.Cell3DsVertices.reserve(4);
     mesh.Cell3DsEdges.reserve(6);
     mesh.Cell3DsFaces.reserve(4);
-
+	
     mesh.Cell3DsId = {0};
     mesh.Cell3DsVertices = {0, 1, 2, 3};
     mesh.Cell3DsEdges = {0, 1, 2, 3, 4, 5};
     mesh.Cell3DsFaces = {0, 1, 2, 3};
     
     Vector3i VEF = ComputeVEF(3,b,c);
-    
-    PolyhedralTriangulation::GenerateTriangulatedMesh(mesh,triMesh,b,c,VEF);
-	cout<<"Sono quiiii!"<<endl;
+    if(c==b && b!=0)
+    	GenerateTriangulatedMesh2(mesh,triMesh,b,c,VEF);
+	if(b!=c)
+		GenerateTriangulatedMesh1(mesh,triMesh,b,c,VEF);
+	
     return true;
 	}
 	
@@ -296,7 +298,7 @@ bool ExportOctahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int& 
     // Lati
     mesh.Cell1DsId.reserve(12);
     mesh.Cell1DsId = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
-	cout<<"Sono quiiii!"<<endl;
+	
     mesh.Cell1DsExtrema = MatrixXi::Zero(2, 12);
     mesh.Cell1DsExtrema <<
         0, 2,  // Lato 0
@@ -324,7 +326,6 @@ bool ExportOctahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int& 
 	for (auto& e : mesh.Cell2DsEdges)
 		e.reserve(3);
 	
-	cout<<"Sono quiiii!"<<endl;
     mesh.Cell2DsVertices = {
         {0, 2, 4},  // Faccia 0
 		{0, 4, 3},  // Faccia 1
@@ -346,7 +347,7 @@ bool ExportOctahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int& 
 		{8, 9, 2},  // Faccia 6
 		{3, 9, 10}  // Faccia 7
     };
-	cout<<"Sono quiiii!"<<endl;
+	
     // Poliedro
     mesh.Cell3DsId.reserve(1);
     mesh.Cell3DsVertices.reserve(6);
@@ -359,8 +360,11 @@ bool ExportOctahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int& 
     mesh.Cell3DsFaces = {0, 1, 2, 3, 4, 5, 6, 7};
     
     Vector3i VEF = ComputeVEF(4,b,c);
-    GenerateTriangulatedMesh(mesh,triMesh,b,c,VEF);
-	cout<<"Sono quiiii!"<<endl;
+    if(c==b && b!=0)
+    	GenerateTriangulatedMesh2(mesh,triMesh,b,c,VEF);
+	if(b!=c)
+		GenerateTriangulatedMesh1(mesh,triMesh,b,c,VEF);
+		
     return true;
 	}
 
@@ -500,7 +504,10 @@ bool ExportIcosahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int&
     mesh.Cell3DsFaces = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19};
     
     Vector3i VEF = ComputeVEF(5,b,c);
-    GenerateTriangulatedMesh(mesh,triMesh,b,c,VEF);
+    if(c==b && b!=0)
+    	GenerateTriangulatedMesh2(mesh,triMesh,b,c,VEF);
+	if(b!=c)
+		GenerateTriangulatedMesh1(mesh,triMesh,b,c,VEF);
       
     return true;
 	}
