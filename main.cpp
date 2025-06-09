@@ -33,6 +33,10 @@ int checkInput(const vector<int> vector_input){
     if(b!=c && b!=0 && c!=0){
     	cerr << "b e c non validi!" <<endl;
 	}
+	
+	if(b==0 && c==0){
+    	cerr << "b e c non validi!" <<endl;
+	}
 
     if (p==3){
         switch (q){

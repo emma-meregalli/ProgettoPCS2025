@@ -17,7 +17,7 @@ namespace PolyhedralTriangulation {
 	    double tol=1e-12;
         // Confronto con tutti i vertici già inseriti nella lista
         for (size_t i = 0; i < mesh.Cell0DsId.size(); i++) {
-            if ((mesh.Cell0DsCoordinates.col(i) - v).norm() < tol) {    //Se il vertice esiste, allora restituisco il suo ID (bisogna fare un controllo con la tolleranza?)
+            if ((mesh.Cell0DsCoordinates.col(i) - v).norm() < tol){    //Se il vertice esiste, allora restituisco il suo ID (bisogna fare un controllo con la tolleranza?)
 				return true;  
             }
         }
@@ -65,7 +65,7 @@ namespace PolyhedralTriangulation {
         vertList.resize(3); // Ogni faccia ha 3 vertici
 		}	
 		
-        // Id per vertici
+        // Id per vertici, lati e facce
         unsigned int vCount = 0;
 		unsigned int eCount = 0;
 		unsigned int fCount = 0;
