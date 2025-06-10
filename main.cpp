@@ -32,10 +32,12 @@ int checkInput(const vector<int> vector_input){
     
     if(b!=c && b!=0 && c!=0){
     	cerr << "b e c non validi!" <<endl;
+    	return 1;
 	}
 	
 	if(b==0 && c==0){
     	cerr << "b e c non validi!" <<endl;
+    	return 1;
 	}
 
     if (p==3){
@@ -45,27 +47,29 @@ int checkInput(const vector<int> vector_input){
                 cout<<"Triangolato!"<<endl;
                 CreateTxtFiles(triMesh);
                 cout<<"Stampato!"<<endl;
+                break;
             case 4 : //genera l'ottaedro se p=3,q=4
                 ExportOctahedron(mesh,triMesh,b,c);
                 CreateTxtFiles(triMesh);
+                break;
             case 5 : //genera l'icosaedro se p=3,q=5
                 ExportIcosahedron(mesh,triMesh,b,c);
                 CreateTxtFiles(triMesh);
+                break;
         }
     }
     if (q==3 && p!=3){
         switch (p){
-            case 3 : //genera il tetraedro se p=3,q=3
-                ExportTetrahedron(mesh,triMesh,b,c);
-                CreateTxtFiles(triMesh);
             case 4 : //genera il tetraedro se p=4,q=3
                 ExportOctahedron(mesh,triMesh,b,c);
                 GenerateDual(triMesh, dualMesh);
                 CreateTxtFiles(dualMesh);
+                break;
             case 5 : //genera il tetraedro se p=5,q=3
                 ExportIcosahedron(mesh,triMesh,b,c);
                 GenerateDual(triMesh, dualMesh);
                 CreateTxtFiles(dualMesh);
+                break;
         }
     }
 

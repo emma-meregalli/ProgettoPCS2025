@@ -372,5 +372,5 @@ namespace PolyhedralTriangulation {
 
 		triMesh.Cell0DsCoordinates.conservativeResize(vCount, 3);
 		return true;  
-	}	
+	}
 }

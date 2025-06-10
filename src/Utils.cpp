@@ -46,8 +46,9 @@ void CreateTxtFiles(const PolyhedralMesh& mesh) {
     // Creazione Cell0Ds.txt
     ofstream Cell0Ds("Cell0Ds.txt");
     Cell0Ds << "ID;x;y;z\n";
-    for (Eigen::Index i = 0; i < mesh.Cell0DsCoordinates.rows(); i++) {
-        Cell0Ds << mesh.Cell0DsId[i] << ";" << mesh.Cell0DsCoordinates(i, 0) << ";" << mesh.Cell0DsCoordinates(i, 1) << ";" << mesh.Cell0DsCoordinates(i, 2) << "\n";
+    for (size_t i = 0; i < mesh.Cell0DsCoordinates.cols(); i++) {
+        Cell0Ds << mesh.Cell0DsId[i] << ";" << mesh.Cell0DsCoordinates(0,i) 
+			<< ";" << mesh.Cell0DsCoordinates(1,i) << ";" << mesh.Cell0DsCoordinates(2,i) << "\n";
     }
     Cell0Ds.close();
 
@@ -85,24 +86,24 @@ void CreateTxtFiles(const PolyhedralMesh& mesh) {
     ofstream Cell3Ds("Cell3Ds.txt");
     Cell3Ds << "ID;Vertices;Edges;Faces\n";
     for (size_t i = 0; i < mesh.Cell3DsId.size(); ++i) {
-    Cell3Ds << mesh.Cell3DsId[i];
-
-    // Vertici
-    for (unsigned int v = 0; v < mesh.Cell3DsVertices.size(); v++) {
-        Cell3Ds << ";" << mesh.Cell3DsVertices[v];
-    }
-
-    // Lati
-    for (unsigned int e = 0; e < mesh.Cell3DsEdges.size(); e++) {
-        Cell3Ds << ";" << mesh.Cell3DsEdges[e];
-    }
-
-    // Facce
-    for (unsigned int f = 0; f < mesh.Cell3DsFaces.size(); f++) {
-        Cell3Ds << ";" << mesh.Cell3DsFaces[f];
-    }
-
-    Cell3Ds << "\n";
+	    Cell3Ds << mesh.Cell3DsId[i];
+	
+	    // Vertici
+	    for (unsigned int v = 0; v < mesh.Cell3DsVertices.size(); v++) {
+	        Cell3Ds << ";" << mesh.Cell3DsVertices[v];
+	    }
+	
+	    // Lati
+	    for (unsigned int e = 0; e < mesh.Cell3DsEdges.size(); e++) {
+	        Cell3Ds << ";" << mesh.Cell3DsEdges[e];
+	    }
+	
+	    // Facce
+	    for (unsigned int f = 0; f < mesh.Cell3DsFaces.size(); f++) {
+	        Cell3Ds << ";" << mesh.Cell3DsFaces[f];
+	    }
+	
+	    Cell3Ds << "\n";
 	}
     Cell3Ds.close();
 } 
@@ -276,10 +277,10 @@ bool ExportTetrahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int&
     mesh.Cell3DsFaces = {0, 1, 2, 3};
     
     Vector3i VEF = ComputeVEF(3,b,c);
-    if(c==b && b!=0)
-    	GenerateTriangulatedMesh2(mesh,triMesh,b,c,VEF);
-	if(b!=c)
+    if(b!=c)
 		GenerateTriangulatedMesh1(mesh,triMesh,b,c,VEF);
+    else
+    	GenerateTriangulatedMesh2(mesh,triMesh,b,c,VEF);
 	
     return true;
 }
@@ -368,10 +369,10 @@ bool ExportOctahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int& 
     mesh.Cell3DsFaces = {0, 1, 2, 3, 4, 5, 6, 7};
     
     Vector3i VEF = ComputeVEF(4,b,c);
-    if(c==b && b!=0)
-    	GenerateTriangulatedMesh2(mesh,triMesh,b,c,VEF);
-	if(b!=c)
+    if(b!=c)
 		GenerateTriangulatedMesh1(mesh,triMesh,b,c,VEF);
+    else
+    	GenerateTriangulatedMesh2(mesh,triMesh,b,c,VEF);
 		
     return true;
 }
@@ -514,10 +515,10 @@ bool ExportIcosahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int&
     mesh.Cell3DsFaces = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19};
     
     Vector3i VEF = ComputeVEF(5,b,c);
-    if(c==b && b!=0)
-    	GenerateTriangulatedMesh2(mesh,triMesh,b,c,VEF);
-	if(b!=c)
+    if(b!=c)
 		GenerateTriangulatedMesh1(mesh,triMesh,b,c,VEF);
+    else
+    	GenerateTriangulatedMesh2(mesh,triMesh,b,c,VEF);
       
     return true;
 }
