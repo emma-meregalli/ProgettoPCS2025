@@ -61,11 +61,9 @@ void CreateTxtFiles(const PolyhedralMesh& mesh) {
              << mesh.Cell1DsExtrema(1, i) << "\n";
     }
     Cell1Ds.close();
-	cout<<"letsgooo"<<endl;
     // Creazione Cell2Ds.txt 
     ofstream Cell2Ds("Cell2Ds.txt");
     Cell2Ds << "ID;NumVertices;NumEdges;Vertices;Edges\n";
-    cout<<mesh.Cell2DsId.size()<<endl;
     for (size_t i = 0; i < mesh.Cell2DsId.size(); i++) {
         Cell2Ds << mesh.Cell2DsId[i] << ";"
              << mesh.Cell2DsVertices[i].size() << ";"
@@ -383,25 +381,25 @@ bool ExportOctahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int& 
 bool ExportIcosahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int& b, const int& c) {
 
     // Vertici
-    double r = 1.0;
-    double phi = (1.0 + sqrt(5.0)) / 2.0;
+	const double phi = (1.0 + sqrt(5.0)) / 2.0;
+    const double r = 1.0/(sqrt(1 + pow(phi,2)));
+	const double s = phi / (sqrt(1 + pow(phi,2)));
 
     mesh.Cell0DsCoordinates = MatrixXd::Zero(3, 12);
     mesh.Cell0DsId.reserve(12);
 	
-	double norm = sqrt(10.0+2.0*sqrt(5.0))/2.0;
-    mesh.Cell0DsCoordinates(0, 0) = 0.0; mesh.Cell0DsCoordinates(1, 0) = r / norm; mesh.Cell0DsCoordinates(2, 0) = phi / norm;
-    mesh.Cell0DsCoordinates(0, 1) = 0.0; mesh.Cell0DsCoordinates(1, 1) = -r / norm; mesh.Cell0DsCoordinates(2, 1) = phi / norm;
-    mesh.Cell0DsCoordinates(0, 2) = 0.0; mesh.Cell0DsCoordinates(1, 2) = r / norm; mesh.Cell0DsCoordinates(2, 2) = -phi / norm;
-    mesh.Cell0DsCoordinates(0, 3) = 0.0; mesh.Cell0DsCoordinates(1, 3) = -r / norm; mesh.Cell0DsCoordinates(2, 3) = -phi / norm;
-    mesh.Cell0DsCoordinates(0, 4) = r / norm; mesh.Cell0DsCoordinates(1, 4) = phi/ norm; mesh.Cell0DsCoordinates(2, 4) = 0.0;
-    mesh.Cell0DsCoordinates(0, 5) = -r / norm; mesh.Cell0DsCoordinates(1, 5) = phi / norm; mesh.Cell0DsCoordinates(2, 5) = 0.0;
-    mesh.Cell0DsCoordinates(0, 6) = r / norm; mesh.Cell0DsCoordinates(1, 6) = -phi / norm; mesh.Cell0DsCoordinates(2, 6) = 0.0;
-    mesh.Cell0DsCoordinates(0, 7) = -r / norm; mesh.Cell0DsCoordinates(1, 7) = -phi / norm; mesh.Cell0DsCoordinates(2, 7) = 0.0;
-    mesh.Cell0DsCoordinates(0, 8) = phi / norm; mesh.Cell0DsCoordinates(1, 8) = 0.0; mesh.Cell0DsCoordinates(2, 8) = r / norm;
-    mesh.Cell0DsCoordinates(0, 9) = -phi / norm; mesh.Cell0DsCoordinates(1, 9) = 0.0; mesh.Cell0DsCoordinates(2, 9) = r / norm;
-    mesh.Cell0DsCoordinates(0, 10) = phi / norm; mesh.Cell0DsCoordinates(1, 10) = 0.0; mesh.Cell0DsCoordinates(2, 10) = -r / norm;
-    mesh.Cell0DsCoordinates(0, 11) = -phi / norm; mesh.Cell0DsCoordinates(1, 11) = 0.0; mesh.Cell0DsCoordinates(2, 11) = -r / norm;
+    mesh.Cell0DsCoordinates(0, 0) = -r; mesh.Cell0DsCoordinates(1, 0) = s; mesh.Cell0DsCoordinates(2, 0) = 0.0;
+    mesh.Cell0DsCoordinates(0, 1) = r; mesh.Cell0DsCoordinates(1, 1) = -s; mesh.Cell0DsCoordinates(2, 1) = 0.0;
+    mesh.Cell0DsCoordinates(0, 2) = r; mesh.Cell0DsCoordinates(1, 2) = s; mesh.Cell0DsCoordinates(2, 2) = 0.0;
+    mesh.Cell0DsCoordinates(0, 3) = -r; mesh.Cell0DsCoordinates(1, 3) = -s; mesh.Cell0DsCoordinates(2, 3) = 0.0;
+    mesh.Cell0DsCoordinates(0, 4) = 0.0; mesh.Cell0DsCoordinates(1, 4) = r; mesh.Cell0DsCoordinates(2, 4) = s;
+    mesh.Cell0DsCoordinates(0, 5) = 0.0; mesh.Cell0DsCoordinates(1, 5) = -r; mesh.Cell0DsCoordinates(2, 5) = -s;
+    mesh.Cell0DsCoordinates(0, 6) = 0.0; mesh.Cell0DsCoordinates(1, 6) = -r; mesh.Cell0DsCoordinates(2, 6) = s;
+    mesh.Cell0DsCoordinates(0, 7) = 0.0; mesh.Cell0DsCoordinates(1, 7) = r; mesh.Cell0DsCoordinates(2, 7) = -s;
+    mesh.Cell0DsCoordinates(0, 8) = -s; mesh.Cell0DsCoordinates(1, 8) = 0.0; mesh.Cell0DsCoordinates(2, 8) = r;
+    mesh.Cell0DsCoordinates(0, 9) = -s; mesh.Cell0DsCoordinates(1, 9) = 0.0; mesh.Cell0DsCoordinates(2, 9) = -r;
+    mesh.Cell0DsCoordinates(0, 10) = s; mesh.Cell0DsCoordinates(1, 10) = 0.0; mesh.Cell0DsCoordinates(2, 10) = r;
+    mesh.Cell0DsCoordinates(0, 11) = s; mesh.Cell0DsCoordinates(1, 11) = 0.0; mesh.Cell0DsCoordinates(2, 11) = -r;
 	
 	
     mesh.Cell0DsId = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
@@ -412,36 +410,36 @@ bool ExportIcosahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int&
 
     mesh.Cell1DsExtrema = MatrixXi::Zero(2, 30);
     mesh.Cell1DsExtrema <<
-    	0, 1,  // Lato 0
-        1, 2,  // Lato 1
-        2, 0,  // Lato 2
-        3, 0,  // Lato 3
-        4, 0,  // Lato 4
-        0, 5,  // Lato 5
-        1, 5,  // Lato 6
-        3, 2,  // Lato 7
-        5, 4,  // Lato 8
-        4, 3,  // Lato 9
-        4, 7,  // Lato 10
-        5, 7,  // Lato 11
-        5, 6,  // Lato 12
-        1, 6,  // Lato 13
-        1, 10,  // Lato 14
-        4, 8,  // Lato 15
-        2, 10,  // Lato 16
-        3, 8,  // Lato 17
-        2, 9,  // Lato 18
-        6, 10,  // Lato 19
-        10, 9,  // Lato 20
-        6, 7,  // Lato 21
-        7, 8,  // Lato 22
-        8, 9,  // Lato 23
-        7, 11,  // Lato 24
-        8, 11,  // Lato 25
-        10, 11,  // Lato 26
-        6, 11,  // Lato 27
-        9, 11,  // Lato 28
-        3, 9;  // Lato 29
+    	0, 2,  // Lato 0
+        0, 4,  // Lato 1
+        0, 7,  // Lato 2
+        0, 8,  // Lato 3
+        0, 9,  // Lato 4
+        1, 3,  // Lato 5
+        1, 6,  // Lato 6
+        1, 5,  // Lato 7
+        1, 10,  // Lato 8
+        1, 11,  // Lato 9
+        2, 4,  // Lato 10
+        2, 7,  // Lato 11
+        2, 11,  // Lato 12
+        2, 10,  // Lato 13
+        3, 5,  // Lato 14
+        3, 9,  // Lato 15
+        3, 8,  // Lato 16
+        3, 6,  // Lato 17
+        4, 10,  // Lato 18
+        4, 6,  // Lato 19
+        4, 8,  // Lato 20
+        5, 11,  // Lato 21
+        5, 7,  // Lato 22
+        5, 9,  // Lato 23
+        6, 8,  // Lato 24
+        6, 10,  // Lato 25
+        7, 9,  // Lato 26
+        7, 11,  // Lato 27
+        8, 9,  // Lato 28
+        10, 11;  // Lato 29
 
 	// Facce
 	mesh.Cell2DsId.reserve(20);
@@ -456,52 +454,52 @@ bool ExportIcosahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int&
 		e.reserve(3);
 
 	mesh.Cell2DsVertices = {
-		{0, 1, 2},  // Faccia 0
-        {0, 2, 3},  // Faccia 1
-        {0, 3, 4},  // Faccia 2
-        {0, 4, 5},  // Faccia 3
-        {0, 5, 1},  // Faccia 4
-        {5, 7, 4},  // Faccia 5
-        {4, 7, 8},  // Faccia 6
-        {4, 8, 3},   // Faccia 7
-        {3, 8, 9},  // Faccia 8
-        {9, 3, 2},  // Faccia 9
-        {2, 10, 9},  // Faccia 10
-        {2, 1, 10},  // Faccia 11
-        {1, 6, 10},  // Faccia 12
-        {1, 5, 6},  // Faccia 13
-        {5, 6, 7},  // Faccia 14
-        {6, 7, 11},  // Faccia 15
-        {7, 11, 8},  // Faccia 16
-        {8, 11, 9},  // Faccia 17
-        {9, 10, 11},  // Faccia 18
-        {6, 10, 11},   // Faccia 19
+		{0, 2, 4},  // Faccia 0
+        {0, 4, 8},  // Faccia 1
+        {0, 8, 9},  // Faccia 2
+        {0, 7, 9},  // Faccia 3
+        {0, 2, 7},  // Faccia 4
+        {2, 7, 11},  // Faccia 5
+        {5, 7, 11},  // Faccia 6
+        {5, 7, 9},   // Faccia 7
+        {3, 5, 9},  // Faccia 8
+        {3, 8, 9},  // Faccia 9
+        {3, 6, 8},  // Faccia 10
+        {4, 6, 8},  // Faccia 11
+        {4, 6, 10},  // Faccia 12
+        {1, 6, 10},  // Faccia 13
+        {1, 3, 6},  // Faccia 14
+        {1, 3, 5},  // Faccia 15
+        {1, 5, 11},  // Faccia 16
+        {1, 10, 11},  // Faccia 17
+        {2, 10, 11},  // Faccia 18
+        {2, 4, 10},   // Faccia 19
     };
     mesh.Cell2DsEdges.reserve(20);
 	for (auto& edgeList : mesh.Cell2DsEdges) {
 		edgeList.resize(3);
 	}	
 	mesh.Cell2DsEdges = {
-		{0, 1, 2},  // Faccia 0
-        {2, 7, 3},  // Faccia 1
-        {3, 9, 4},  // Faccia 2
-        {4, 8, 5},  // Faccia 3
-        {5, 6, 0},  // Faccia 4
-        {11, 10, 8},  // Faccia 5
-        {10, 22, 15},  // Faccia 6
-        {15, 17, 9},   // Faccia 7
-        {17, 23, 29},  // Faccia 8
-        {29, 7, 18},  // Faccia 9
-        {16, 20, 18},  // Faccia 10
-        {1, 14, 16},  // Faccia 11
-        {13, 19, 14},  // Faccia 12
-        {6, 12, 13},  // Faccia 13
-        {12, 21, 11},  // Faccia 14
-        {21, 24, 27},  // Faccia 15
-        {24, 25, 22},  // Faccia 16
-        {25, 28, 23},  // Faccia 17
-        {20, 26, 28},  // Faccia 18
-        {19, 26, 27},   // Faccia 19
+		{0, 10, 1},  // Faccia 0
+        {1, 20, 3},  // Faccia 1
+        {3, 28, 4},  // Faccia 2
+        {2, 26, 4},  // Faccia 3
+        {0, 11, 2},  // Faccia 4
+        {11, 27, 12},  // Faccia 5
+        {22, 27, 21},  // Faccia 6
+        {22, 26, 23},   // Faccia 7
+        {14, 23, 15},  // Faccia 8
+        {16, 28, 15},  // Faccia 9
+        {17, 24, 16},  // Faccia 10
+        {19, 24, 20},  // Faccia 11
+        {19, 25, 18},  // Faccia 12
+        {6, 25, 8},  // Faccia 13
+        {5, 17, 6},  // Faccia 14
+        {5, 14, 7},  // Faccia 15
+        {7, 21, 9},  // Faccia 16
+        {8, 29, 9},  // Faccia 17
+        {13, 29, 12},  // Faccia 18
+        {10, 18, 13},   // Faccia 19
     };
     
     // Poliedro

@@ -51,12 +51,16 @@ int checkInput(const vector<int> vector_input){
                 break;
             case 4 : //genera l'ottaedro se p=3,q=4
                 ExportOctahedron(mesh,triMesh,b,c);
+				cout<<"Triangolato!"<<endl;
                 CreateTxtFiles(triMesh);
+				cout<<"Stampato!"<<endl;
 				ExportParaView(triMesh, false);
                 break;
             case 5 : //genera l'icosaedro se p=3,q=5
                 ExportIcosahedron(mesh,triMesh,b,c);
+				cout<<"Triangolato!"<<endl;
                 CreateTxtFiles(triMesh);
+				cout<<"Stampato!"<<endl;
 				ExportParaView(triMesh, false);
                 break;
         }
@@ -65,13 +69,21 @@ int checkInput(const vector<int> vector_input){
         switch (p){
             case 4 : //genera il tetraedro se p=4,q=3
                 ExportOctahedron(mesh,triMesh,b,c);
+				cout<<"Triangolato!"<<endl;
                 GenerateDual(triMesh, dualMesh);
+				cout<<"Fatto il duale!"<<endl;
                 CreateTxtFiles(dualMesh);
+				cout<<"Stampato!"<<endl;
+				ExportParaView(triMesh, false);
                 break;
             case 5 : //genera il tetraedro se p=5,q=3
                 ExportIcosahedron(mesh,triMesh,b,c);
+				cout<<"Triangolato!"<<endl;
                 GenerateDual(triMesh, dualMesh);
+				cout<<"Fatto il duale!"<<endl;
                 CreateTxtFiles(dualMesh);
+				cout<<"Stampato!"<<endl;
+				ExportParaView(triMesh, false);
                 break;
         }
     }
