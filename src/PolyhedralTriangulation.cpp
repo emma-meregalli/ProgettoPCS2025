@@ -57,9 +57,9 @@ namespace PolyhedralTriangulation {
         triMesh.Cell1DsExtrema = MatrixXi::Zero(2, triDimensions[1]);
 	
         // Allocazione memoria per facce (2D)
-        triMesh.Cell2DsId.resize(triDimensions[2]);
-        triMesh.Cell2DsEdges.resize(triDimensions[2]);
-        triMesh.Cell2DsVertices.resize(triDimensions[2]);
+        triMesh.Cell2DsId.reserve(triDimensions[2]);
+        triMesh.Cell2DsEdges.reserve(triDimensions[2]);
+        triMesh.Cell2DsVertices.reserve(triDimensions[2]);
         for (auto& edgeList : triMesh.Cell2DsEdges) {
             edgeList.resize(3); // Ogni faccia ha 3 spigoli
         }
@@ -160,40 +160,42 @@ namespace PolyhedralTriangulation {
 			for (size_t i=0; i<grid.size()-1; i++){
 				for (size_t j=0; j<=i; j++){
 					cout<<"eccomi"<<endl;
-					triMesh.Cell2DsId.push_back(fCount);
-					triMesh.Cell2DsVertices.push_back({grid[i][j],grid[i+1][j],grid[i+1][j+1]});
+					vector<unsigned int> v1 = {grid[i][j],grid[i+1][j],grid[i+1][j+1]};
+					vector<unsigned int> e1;
 					cout<<fCount<< ", " << triMesh.Cell2DsId[fCount]<<endl;
 					for(unsigned int v=0; v<3; v++){
-						unsigned int from=triMesh.Cell2DsVertices[fCount][v];
-						unsigned int to=triMesh.Cell2DsVertices[fCount][(v+1)%3];
-						vector<unsigned int> edges;
-						for(unsigned int k=0; k<triDimensions[1]; k++){
+						unsigned int from=v1[v];
+						unsigned int to= v1[(v + 1) % 3];
+						for(unsigned int k=0; k< triMesh.Cell1DsId.size(); k++){
 							if((from==triMesh.Cell1DsExtrema(0, k) && to==triMesh.Cell1DsExtrema(1, k)) || (from==triMesh.Cell1DsExtrema(1, k) && to==triMesh.Cell1DsExtrema(0, k))){
-								edges.push_back(k);
+								e1.push_back(k);
 								break;
 							}
-							triMesh.Cell2DsEdges.push_back(edges);
 						}
 					}
+					triMesh.Cell2DsId.push_back(fCount);
+					triMesh.Cell2DsVertices.push_back(v1);
+					triMesh.Cell2DsEdges.push_back(e1);
 					fCount++;
 					cout<<"wtf "<<fCount<<endl;
 					
 					if(i>0 && j<=i-1){
-						triMesh.Cell2DsId.push_back(fCount);
-						triMesh.Cell2DsVertices.push_back({grid[i][j],grid[i][j+1],grid[i+1][j+1]});
+						vector<unsigned int> v2 = {grid[i][j],grid[i][j+1],grid[i+1][j+1]};
+						vector<unsigned int> e2;
 						cout<<fCount<< ", " << triMesh.Cell2DsId[fCount];
 						for(unsigned int v=0; v<3; v++){
-							unsigned int from=triMesh.Cell2DsVertices[fCount][v];
-							unsigned int to=triMesh.Cell2DsVertices[fCount][(v+1)%3];
-							vector<unsigned int> edges;
-							for(unsigned int k=0; k<triDimensions[1]; k++){
+							unsigned int from=v2[v];
+							unsigned int to=v2[(v+1)%3];
+							for(unsigned int k=0; k< triMesh.Cell1DsId.size(); k++){
 								if((from==triMesh.Cell1DsExtrema(0, k) && to==triMesh.Cell1DsExtrema(1, k)) || (from==triMesh.Cell1DsExtrema(1, k) && to==triMesh.Cell1DsExtrema(0, k))){
-									edges.push_back(k);
+									e2.push_back(k);
 									break;
 								}
-								triMesh.Cell2DsEdges.push_back(edges);
 							}	
 						}
+						triMesh.Cell2DsId.push_back(fCount);
+						triMesh.Cell2DsVertices.push_back(v2);
+						triMesh.Cell2DsEdges.push_back(e2);
 						fCount++;
 						cout<<"boia"<<endl;
 					}		

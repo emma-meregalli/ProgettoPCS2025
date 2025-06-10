@@ -5,6 +5,7 @@
 #include "PolyhedralMesh.hpp"
 #include "PolyhedralTriangulation.hpp"
 #include <Eigen/Dense>
+#include "UCDUtilities.hpp"
 
 using namespace std;
 using namespace Eigen;
@@ -652,7 +653,7 @@ bool ExportIcosahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int&
 
 ////////////////////////////////////////////////////////////////////////
 
-/*void ExportParaView(PolygonalMesh& mesh, bool cammino){
+void ExportParaView(PolyhedralMesh& mesh, bool cammino){
 	
 	if(!cammino){
 		
@@ -667,7 +668,13 @@ bool ExportIcosahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int&
                                  mesh.Cell1DsExtrema,
                                  {});
 		}
-	}else{
+		{
+		utilities.ExportPolygons("./Cell2Ds.inp",
+                             mesh.Cell0DsCoordinates,
+                             mesh.Cell2DsVertices,
+                             {});
+		}
+	} /* else{
 		
 			
 		Gedim::UCDUtilities utilities;
@@ -723,5 +730,5 @@ bool ExportIcosahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int&
 		}
 	}
 }*/
-
+}
 }

@@ -47,14 +47,17 @@ int checkInput(const vector<int> vector_input){
                 cout<<"Triangolato!"<<endl;
                 CreateTxtFiles(triMesh);
                 cout<<"Stampato!"<<endl;
+				ExportParaView(triMesh, false); //per il momento falso perchè ancora no cammino minimo
                 break;
             case 4 : //genera l'ottaedro se p=3,q=4
                 ExportOctahedron(mesh,triMesh,b,c);
                 CreateTxtFiles(triMesh);
+				ExportParaView(triMesh, false);
                 break;
             case 5 : //genera l'icosaedro se p=3,q=5
                 ExportIcosahedron(mesh,triMesh,b,c);
                 CreateTxtFiles(triMesh);
+				ExportParaView(triMesh, false);
                 break;
         }
     }
