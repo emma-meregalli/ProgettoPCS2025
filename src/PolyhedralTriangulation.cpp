@@ -159,10 +159,8 @@ namespace PolyhedralTriangulation {
 			//Creiamo le nuove facce dopo la triangolazione
 			for (size_t i=0; i<grid.size()-1; i++){
 				for (size_t j=0; j<=i; j++){
-					cout<<"eccomi"<<endl;
 					vector<unsigned int> v1 = {grid[i][j],grid[i+1][j],grid[i+1][j+1]};
 					vector<unsigned int> e1;
-					cout<<fCount<< ", " << triMesh.Cell2DsId[fCount]<<endl;
 					for(unsigned int v=0; v<3; v++){
 						unsigned int from=v1[v];
 						unsigned int to= v1[(v + 1) % 3];
@@ -177,12 +175,10 @@ namespace PolyhedralTriangulation {
 					triMesh.Cell2DsVertices.push_back(v1);
 					triMesh.Cell2DsEdges.push_back(e1);
 					fCount++;
-					cout<<"wtf "<<fCount<<endl;
 					
 					if(i>0 && j<=i-1){
 						vector<unsigned int> v2 = {grid[i][j],grid[i][j+1],grid[i+1][j+1]};
 						vector<unsigned int> e2;
-						cout<<fCount<< ", " << triMesh.Cell2DsId[fCount];
 						for(unsigned int v=0; v<3; v++){
 							unsigned int from=v2[v];
 							unsigned int to=v2[(v+1)%3];
@@ -197,11 +193,9 @@ namespace PolyhedralTriangulation {
 						triMesh.Cell2DsVertices.push_back(v2);
 						triMesh.Cell2DsEdges.push_back(e2);
 						fCount++;
-						cout<<"boia"<<endl;
 					}		
 			    }
 		    }
-		    cout<<triMesh.Cell2DsId.size()<<", "<<triMesh.Cell2DsVertices.size()<<endl;
 		}
     
 		//Creiamo il poliedro triangolato
