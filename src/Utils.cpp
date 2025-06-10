@@ -46,7 +46,7 @@ void CreateTxtFiles(const PolyhedralMesh& mesh) {
     // Creazione Cell0Ds.txt
     ofstream Cell0Ds("Cell0Ds.txt");
     Cell0Ds << "ID;x;y;z\n";
-    for (size_t i = 0; i < mesh.Cell0DsCoordinates.cols(); i++) {
+    for (size_t i = 0; i < mesh.Cell0DsId.size(); i++) {
         Cell0Ds << mesh.Cell0DsId[i] << ";" << mesh.Cell0DsCoordinates(0,i) 
 			<< ";" << mesh.Cell0DsCoordinates(1,i) << ";" << mesh.Cell0DsCoordinates(2,i) << "\n";
     }
@@ -56,15 +56,15 @@ void CreateTxtFiles(const PolyhedralMesh& mesh) {
     ofstream Cell1Ds("Cell1Ds.txt");
     Cell1Ds << "ID;Origin;End\n";
     for (size_t i = 0; i < mesh.Cell1DsId.size(); i++) {
-        Cell1Ds << mesh.Cell1DsId[i] << ";"
-             << mesh.Cell1DsExtrema(0, i) << ";"
+        Cell1Ds << mesh.Cell1DsId[i] << ";" << mesh.Cell1DsExtrema(0, i) << ";"
              << mesh.Cell1DsExtrema(1, i) << "\n";
     }
     Cell1Ds.close();
-
+	cout<<"letsgooo"<<endl;
     // Creazione Cell2Ds.txt 
     ofstream Cell2Ds("Cell2Ds.txt");
     Cell2Ds << "ID;NumVertices;NumEdges;Vertices;Edges\n";
+    cout<<mesh.Cell2DsId.size()<<endl;
     for (size_t i = 0; i < mesh.Cell2DsId.size(); i++) {
         Cell2Ds << mesh.Cell2DsId[i] << ";"
              << mesh.Cell2DsVertices[i].size() << ";"
