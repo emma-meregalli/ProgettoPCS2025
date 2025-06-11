@@ -37,6 +37,7 @@ Vector3i ComputeVEF(unsigned int q, int b, int c)
 	}
 	
 	if (b==c){
+		unsigned int numV, numE, numF;
 		if (q==3){
 			numV = 4;
 			numE = 6;
@@ -52,9 +53,9 @@ Vector3i ComputeVEF(unsigned int q, int b, int c)
 			numE = 30;
 			numF = 20;
 		}
-		v = numV + numE*(2*b-1)+numF*((3*b^2)/2 - (3*b)/2 +1);
-		E = numE*(2*b)+numF((9*b^2)/2 + (3*b)/2);
-		F = numF*(3*b^2 + 3*b);	
+		V = numV + numE*(2*b-1)+numF*((3*b*b)/2 - (3*b)/2 +1);
+		E = numE*(2*b)+numF((9*b*b)/2 + (3*b)/2);
+		F = numF*(3*b*b + 3*b);	
 	}	
 	
 	
