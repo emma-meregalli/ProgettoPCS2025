@@ -138,57 +138,61 @@ void CreateTxtFiles(const PolyhedralMesh& mesh) {
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 
-bool GenerateDual(const PolyhedralMesh& mesh, PolyhedralMesh& dualMesh){
-	MatrixXd barycenters = {};
-	barycenters.resize(mesh.NumCell2Ds,3);
-    Vector3d tmp = Vector3d::Zero();
-    for (unsigned int i=0; i<mesh.NumCell2Ds; i++){
-        for (unsigned int v : mesh.Cell2DsVertices[i]){
-            tmp += mesh.Cell0DsCoordinates.row(v);
+bool GenerateDual(const PolyhedralMesh& mesh, PolyhedralMesh& dualMesh) {
+    // Calcolo dei baricentri delle facce (nuovi vertici del duale)
+    MatrixXd barycenters(3, mesh.NumCell2Ds);
+    for (unsigned int i = 0; i < mesh.NumCell2Ds; i++) {
+        Vector3d tmp = Vector3d::Zero();
+        for (unsigned int v : mesh.Cell2DsVertices[i]) {
+            tmp += mesh.Cell0DsCoordinates.col(v);
         }
         tmp /= mesh.Cell2DsVertices[i].size(); 
-        barycenters.row(i) = tmp;
+        barycenters.col(i) = tmp;
     }
 
     // Riempie Cell0Ds del duale con i baricentri
-    int numDualVertices = barycenters.size();
-    dualMesh.Cell0DsCoordinates.resize(numDualVertices,3);
-    for (int i = 0; i < numDualVertices; i++) {
-        dualMesh.Cell0DsCoordinates.row(i) = barycenters.row(i);
-        dualMesh.Cell0DsId.push_back(i);
+    dualMesh.Cell0DsCoordinates = barycenters;
+    dualMesh.Cell0DsId.resize(mesh.NumCell2Ds);
+    for (unsigned int i = 0; i < mesh.NumCell2Ds; ++i) {
+        dualMesh.Cell0DsId[i] = i;
     }
 
     // Mappa: vertice originale -> facce adiacenti che lo contengono
-    map<int, vector<int>> vertexToFaces;
+    std::map<int, std::vector<int>> vertexToFaces;
     for (size_t f = 0; f < mesh.Cell2DsVertices.size(); f++) {
         for (unsigned int v : mesh.Cell2DsVertices[f]) {
             vertexToFaces[v].push_back(f);
         }
     }
 
-    // Step 2: crea facce duali (una per ogni vertice originale)
+    // Preallocazione per gli spigoli
+    MatrixXi extrema(2, mesh.NumCell2Ds * 6); // stima eccessiva
+    std::vector<unsigned int> dualEdgesId;
+    std::map<std::pair<int, int>, int> edgeMap; // per evitare duplicati
+
     int faceId = 0;
     int edgeId = 0;
-    map<pair<int, int>, int> edgeMap; // per evitare spigoli duplicati
-    for (const auto& [vertex, faces] : vertexToFaces) {
-        // Ordina ciclicamente le facce attorno al vertice originale
-        vector<int> orderedFaces;
-        vector<int> rest = faces;
 
-        orderedFaces.push_back(rest[0]); // inizia da una qualsiasi
+    // Crea facce duali
+    for (const auto& [vertex, faces] : vertexToFaces) {
+        std::vector<int> orderedFaces;
+        std::vector<int> rest = faces;
+
+        if (rest.empty()) continue;
+        orderedFaces.push_back(rest[0]);
         rest.erase(rest.begin());
 
         while (!rest.empty()) {
             int current = orderedFaces.back();
             int next = -1;
             for (auto it = rest.begin(); it != rest.end(); it++) {
-                const auto& fv1 = mesh.Cell2DsVertices[current];
-                const auto& fv2 = mesh.Cell2DsVertices[*it];
-                vector<int> common;
-                for (int a : fv1)
-                    for (int b : fv2)
-                        if (a == b) common.push_back(a);
-                if (common.size() >= 2) {
+                const auto& f1 = mesh.Cell2DsVertices[current];
+                const auto& f2 = mesh.Cell2DsVertices[*it];
+                int common = 0;
+                for (int a : f1)
+                    for (int b : f2)
+                        if (a == b) common++;
+                if (common >= 2) {
                     next = *it;
                     rest.erase(it);
                     break;
@@ -199,41 +203,49 @@ bool GenerateDual(const PolyhedralMesh& mesh, PolyhedralMesh& dualMesh){
         }
 
         // Crea la nuova faccia nel duale
-        std::vector<unsigned int> orderedFacesUnsigned(orderedFaces.begin(), orderedFaces.end());
-		dualMesh.Cell2DsVertices.push_back(orderedFacesUnsigned);
-        dualMesh.Cell2DsId.push_back(faceId);
+        std::vector<unsigned int> faceVerts;
+        std::vector<unsigned int> faceEdgeIds;
+        for (int f : orderedFaces) {
+            faceVerts.push_back(f);
+        }
 
         // Costruzione degli spigoli per la faccia
-        vector<unsigned int> faceEdges;
-        for (size_t i = 0; i < orderedFaces.size(); i++) {
-            int a = orderedFaces[i];
-            int b = orderedFaces[(i + 1) % orderedFaces.size()];
-            pair<int, int> key = (a < b) ? make_pair(a, b) : make_pair(b, a);
+        for (size_t i = 0; i < faceVerts.size(); i++) {
+            int a = faceVerts[i];
+            int b = faceVerts[(i + 1) % faceVerts.size()];
+            std::pair<int, int> key = (a < b) ? std::make_pair(a, b) : std::make_pair(b, a);
             if (edgeMap.count(key) == 0) {
-                dualMesh.Cell1DsExtrema.conservativeResize(2, edgeId + 1);
-                dualMesh.Cell1DsExtrema(0, edgeId) = key.first;
-                dualMesh.Cell1DsExtrema(1, edgeId) = key.second;
-                dualMesh.Cell1DsId.push_back(edgeId);
-                edgeMap[key] = edgeId++;
+                extrema(0, edgeId) = key.first;
+                extrema(1, edgeId) = key.second;
+                edgeMap[key] = edgeId;
+                dualEdgesId.push_back(edgeId);
+                faceEdgeIds.push_back(edgeId++);
+            } else {
+                faceEdgeIds.push_back(edgeMap[key]);
             }
-            faceEdges.push_back(edgeMap[key]);
         }
-        dualMesh.Cell2DsEdges.push_back(faceEdges);
-        faceId++;
+
+        dualMesh.Cell2DsId.push_back(faceId++);
+        dualMesh.Cell2DsVertices.push_back(faceVerts);
+        dualMesh.Cell2DsEdges.push_back(faceEdgeIds);
     }
 
-    // Definisce il poliedro 3D che contiene tutto
+    // Troncamento agli spigoli effettivi
+    dualMesh.Cell1DsExtrema = extrema.leftCols(edgeId);
+    dualMesh.Cell1DsId = dualEdgesId;
+
+    // Definizione del poliedro 3D
     dualMesh.Cell3DsId = {0};
     dualMesh.Cell3DsVertices = dualMesh.Cell0DsId;
     dualMesh.Cell3DsEdges = dualMesh.Cell1DsId;
     dualMesh.Cell3DsFaces = dualMesh.Cell2DsId;
 
-    // Aggiorna i conteggi delle celle
+    // Aggiornamento dei conteggi
     dualMesh.NumCell0Ds = dualMesh.Cell0DsId.size();
     dualMesh.NumCell1Ds = dualMesh.Cell1DsId.size();
     dualMesh.NumCell2Ds = dualMesh.Cell2DsId.size();
     dualMesh.NumCell3Ds = 1;
-    
+
     return true;
 }
 
