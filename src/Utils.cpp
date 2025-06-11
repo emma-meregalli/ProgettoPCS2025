@@ -16,29 +16,54 @@ namespace PolyhedralLibrary
 Vector3i ComputeVEF(unsigned int q, int b, int c)
 {
     Vector3i VEF;  // inizializzo un vettore nullo di lunghezza 3
+	unsigned int V, E, F;
+	
+	if (b!=c){
+		unsigned int T = b * b + b * c + c * c;
 
-    unsigned int T = b * b + b * c + c * c;
-    unsigned int V, E, F;
-
-    if (q == 3) {
-        V = 2 * T + 2;
-        E = 6 * T;
-        F = 4 * T;
-    } else if (q == 4) {
-        V = 4 * T + 2;
-        E = 12 * T;
-        F = 8 * T;
-    } else {
-        V = 10 * T + 2;
-        E = 30 * T;
-        F = 20 * T;
-    }
-
+		if (q == 3) {
+			V = 2 * T + 2;
+			E = 6 * T;
+			F = 4 * T;
+		} else if (q == 4) {
+			V = 4 * T + 2;
+			E = 12 * T;
+			F = 8 * T;
+		} else {
+			V = 10 * T + 2;
+			E = 30 * T;
+			F = 20 * T;
+		}
+	}
+	
+	if (b==c){
+		if (q==3){
+			numV = 4;
+			numE = 6;
+			numF = 4;
+		}
+		if (q==4){
+			numV = 6;
+			numE = 12;
+			numF = 8;
+		}
+		if (q==5){
+			numV = 12;
+			numE = 30;
+			numF = 20;
+		}
+		v = numV + numE*(2*b-1)+numF*((3*b^2)/2 - (3*b)/2 +1);
+		E = numE*(2*b)+numF((9*b^2)/2 + (3*b)/2);
+		F = numF*(3*b^2 + 3*b);	
+	}	
+	
+	
     VEF[0] = V;  // V = vertici
     VEF[1] = E;  // E = spigoli
     VEF[2] = F;  // F = facce
 
     return VEF;  // Mi viene restituito il vettore con i valori di V, E, F
+	
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
