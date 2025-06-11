@@ -549,60 +549,67 @@ namespace PolyhedralTriangulation {
                 }
             }
 
-			//Creiamo le nuove facce dopo la triangolazione
-			for (size_t i=0; i<grid.size()-1; i++){
-				for (size_t j=0; j<=i; j++){
-					vector<unsigned int> v1 = {grid[i][j],grid[i+1][j],grid[i+1][j+1]};
+			// Creiamo le nuove facce triangolari
+			for (size_t i = 0; i < grid.size() - 1; ++i) {
+				for (size_t j = 0; j <= i; ++j) {
+					// Primo triangolo: (i,j), (i+1,j), (i+1,j+1)
+					vector<unsigned int> v1 = {grid[i][j], grid[i + 1][j], grid[i + 1][j + 1]};
 					vector<unsigned int> e1;
-					for(unsigned int v=0; v<3; v++){
-						unsigned int from=v1[v];
-						unsigned int to= v1[(v + 1) % 3];
-						for(unsigned int k=0; k< triMesh.Cell1DsId.size(); k++){
-							if((from==triMesh.Cell1DsExtrema(0, k) && to==triMesh.Cell1DsExtrema(1, k)) || (from==triMesh.Cell1DsExtrema(1, k) && to==triMesh.Cell1DsExtrema(0, k))){
-								e1.push_back(k);
+
+					for (int k = 0; k < 3; ++k) {
+						unsigned int from = v1[k];
+						unsigned int to = v1[(k + 1) % 3];
+						for (unsigned int eid = 0; eid < triMesh.Cell1DsId.size(); ++eid) {
+							if ((triMesh.Cell1DsExtrema(0, eid) == from && triMesh.Cell1DsExtrema(1, eid) == to) ||
+								(triMesh.Cell1DsExtrema(1, eid) == from && triMesh.Cell1DsExtrema(0, eid) == to)) {
+								e1.push_back(eid);
 								break;
 							}
 						}
 					}
+
 					triMesh.Cell2DsId.push_back(fCount);
 					triMesh.Cell2DsVertices.push_back(v1);
 					triMesh.Cell2DsEdges.push_back(e1);
 					fCount++;
-					
-					if(i>0 && j<=i-1){
-						vector<unsigned int> v2 = {grid[i][j],grid[i][j+1],grid[i+1][j+1]};
-						vector<unsigned int> e2;
-						for(unsigned int v=0; v<3; v++){
-							unsigned int from=v2[v];
-							unsigned int to=v2[(v+1)%3];
-							for(unsigned int k=0; k< triMesh.Cell1DsId.size(); k++){
-								if((from==triMesh.Cell1DsExtrema(0, k) && to==triMesh.Cell1DsExtrema(1, k)) || (from==triMesh.Cell1DsExtrema(1, k) && to==triMesh.Cell1DsExtrema(0, k))){
-									e2.push_back(k);
-									break;
-								}
-							}	
-						}
-						triMesh.Cell2DsId.push_back(fCount);
-						triMesh.Cell2DsVertices.push_back(v2);
-						triMesh.Cell2DsEdges.push_back(e2);
-						fCount++;
-					}		
-			    }
-		    }
-		}
-    
-		//Creiamo il poliedro triangolato
-	    triMesh.Cell3DsId = {0};
-		triMesh.Cell3DsVertices = triMesh.Cell0DsId;
-	    triMesh.Cell3DsEdges = triMesh.Cell1DsId;
-	    triMesh.Cell3DsFaces = triMesh.Cell2DsId;
-		
-		// Aggiorna i conteggi delle celle
-	    triMesh.NumCell0Ds = triMesh.Cell0DsId.size();
-	    triMesh.NumCell1Ds = triMesh.Cell1DsId.size();
-		triMesh.NumCell2Ds = triMesh.Cell2DsId.size();
-	    triMesh.NumCell3Ds = 1;
 
-		return true; 
+			// Secondo triangolo (se esiste): (i,j), (i,j+1), (i+1,j+1)
+			if (j < i) {
+				vector<unsigned int> v2 = {grid[i][j], grid[i][j + 1], grid[i + 1][j + 1]};
+				vector<unsigned int> e2;
+
+				for (int k = 0; k < 3; ++k) {
+					unsigned int from = v2[k];
+					unsigned int to = v2[(k + 1) % 3];
+					for (unsigned int eid = 0; eid < triMesh.Cell1DsId.size(); ++eid) {
+						if ((triMesh.Cell1DsExtrema(0, eid) == from && triMesh.Cell1DsExtrema(1, eid) == to) ||
+							(triMesh.Cell1DsExtrema(1, eid) == from && triMesh.Cell1DsExtrema(0, eid) == to)) {
+							e2.push_back(eid);
+							break;
+						}
+					}
+				}
+
+				triMesh.Cell2DsId.push_back(fCount);
+				triMesh.Cell2DsVertices.push_back(v2);
+				triMesh.Cell2DsEdges.push_back(e2);
+				fCount++;
+			}
+		}
+	}
+
+	// Assegna poliedro e aggiorna conteggi
+	triMesh.Cell3DsId = {0};
+	triMesh.Cell3DsVertices = triMesh.Cell0DsId;
+	triMesh.Cell3DsEdges = triMesh.Cell1DsId;
+	triMesh.Cell3DsFaces = triMesh.Cell2DsId;
+
+	triMesh.NumCell0Ds = triMesh.Cell0DsId.size();
+	triMesh.NumCell1Ds = triMesh.Cell1DsId.size();
+	triMesh.NumCell2Ds = triMesh.Cell2DsId.size();
+	triMesh.NumCell3Ds = 1;
+
+	return true; 
 	}   
+}
 }
