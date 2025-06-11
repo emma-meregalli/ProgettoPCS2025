@@ -74,7 +74,7 @@ int checkInput(const vector<int> vector_input){
 				cout<<"Fatto il duale!"<<endl;
                 CreateTxtFiles(dualMesh);
 				cout<<"Stampato!"<<endl;
-				ExportParaView(triMesh, false);
+				ExportParaView(dualMesh, false);
                 break;
             case 5 : //genera il tetraedro se p=5,q=3
                 ExportIcosahedron(mesh,triMesh,b,c);
@@ -83,7 +83,7 @@ int checkInput(const vector<int> vector_input){
 				cout<<"Fatto il duale!"<<endl;
                 CreateTxtFiles(dualMesh);
 				cout<<"Stampato!"<<endl;
-				ExportParaView(triMesh, false);
+				ExportParaView(dualMesh, false);
                 break;
         }
     }

@@ -26,6 +26,8 @@ struct PolyhedralMesh
     //Facce
     unsigned int NumCell2Ds = 0;    // number of Cell2D
     std::vector<unsigned int> Cell2DsId = {};   // Cell2D id
+	std::vector<unsigned int> Cell2DsNumVertices = {};
+	std::vector<unsigned int> Cell2DsNumEdges = {};
     std::vector<std::vector<unsigned int>> Cell2DsVertices; // Cell2D vertices id
     std::vector<std::vector<unsigned int>> Cell2DsEdges = {};   // Cell2D edges id
 
