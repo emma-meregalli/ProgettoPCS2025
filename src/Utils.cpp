@@ -526,7 +526,7 @@ bool ExportIcosahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int&
 	
 	/////////////////////////////////////////////////////////////////////////////////////////////
 	
-/*bool ShortestPath(PolyhedralMesh& mesh, unsigned int v1, unsigned int v2, unsigned int num_lati_iniziali) {
+/*bool ShortestPath(PolyhedralMesh& mesh, unsigned int id_vertice_1, unsigned int id_vertice_2, unsigned int num_lati_iniziali) {
     if (id_vertice_1 >= mesh.NumCell0Ds || id_vertice_2 >= mesh.NumCell0Ds) {
         cerr << "ID dei vertici non valido." << endl;
         return false;
@@ -625,13 +625,13 @@ bool ExportIcosahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int&
 	//Aggiungo i lati visitati, aggiorno il numero di lati e la distanza totale percorsa
     for (unsigned int i = 0; i < cammino.size() - 1; i++) {
         unsigned int u = cammino[i];
-        unsigned int v = cammino[i + 1];
+        unsigned int w = cammino[i + 1];
 
         
         for (unsigned int j = num_lati_iniziali; j < mesh.NumCell1Ds; j++) {
             unsigned int v1 = mesh.Cell1DsExtrema(0, j);
             unsigned int v2 = mesh.Cell1DsExtrema(1, j);
-            if ((v1 == u && v2 == v) || (v1 == v && v2 == u)) {
+            if ((v1 == u && v2 == w) || (v1 == w && v2 == u)) {
                 mesh.Cell1DsShortPath[j] = 1;
                 Eigen::Vector3d c1 = mesh.Cell0DsCoordinates.col(v1);
                 Eigen::Vector3d c2 = mesh.Cell0DsCoordinates.col(v2);
