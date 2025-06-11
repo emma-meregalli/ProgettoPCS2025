@@ -25,6 +25,6 @@ void ExportParaView(PolyhedralMesh& mesh, bool cammino);
 
 void OrderFaces(const vector<int>& unordered_faces, vector<int>& ordered_faces, const PolyhedralMesh& Mesh);
 
-//bool ShortestPath(PolyhedralMesh& mesh, unsigned int v1, unsigned int v2, unsigned int num_lati_iniziali);
+bool ShortestPath(PolyhedralMesh& mesh, unsigned int v1, unsigned int v2, unsigned int num_lati_iniziali);
 
 }

@@ -37,6 +37,11 @@ struct PolyhedralMesh
     std::vector<unsigned int> Cell3DsVertices = {};     // Cell3D vertices id
     std::vector<unsigned int> Cell3DsEdges = {};   // Cell3D edges id
     std::vector<unsigned int> Cell3DsFaces = {};    // Cell3D faces id
+	
+	//Cammini minimi
+	std::vector<unsigned int> Cell0DsShortPath;
+	std::vector<unsigned int> Cell1DsShortPath;
+	std::vector<unsigned int> Cell1DsEsistente;
 };
 
 }

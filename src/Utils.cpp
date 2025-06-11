@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <queue>
 #include "Utils.hpp"
 #include "PolyhedralMesh.hpp"
 #include "PolyhedralTriangulation.hpp"
@@ -641,7 +642,7 @@ bool ExportIcosahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int&
 	
 	/////////////////////////////////////////////////////////////////////////////////////////////
 	
-/**bool ShortestPath(PolyhedralMesh& mesh, unsigned int id_vertice_1, unsigned int id_vertice_2, unsigned int num_lati_iniziali) {
+bool ShortestPath(PolyhedralMesh& mesh, unsigned int id_vertice_1, unsigned int id_vertice_2, unsigned int num_lati_iniziali) {
     if (id_vertice_1 >= mesh.NumCell0Ds || id_vertice_2 >= mesh.NumCell0Ds) {
         cerr << "ID dei vertici non valido." << endl;
         return false;
@@ -764,7 +765,7 @@ bool ExportIcosahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int&
     cout << "Lunghezza totale: " << Lunghezza_tot << endl;
 	
 	return true;
-}*/
+}
 
 ////////////////////////////////////////////////////////////////////////
 
@@ -789,7 +790,7 @@ void ExportParaView(PolyhedralMesh& mesh, bool cammino){
                              mesh.Cell2DsVertices,
                              {});
 		}
-	} /* else{
+	} else{
 		
 			
 		Gedim::UCDUtilities utilities;
@@ -844,6 +845,5 @@ void ExportParaView(PolyhedralMesh& mesh, bool cammino){
 								cell1Ds_properties);
 		}
 	}
-}*/
 }
 }
