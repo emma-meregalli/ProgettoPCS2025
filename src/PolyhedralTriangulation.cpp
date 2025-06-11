@@ -89,6 +89,7 @@ namespace PolyhedralTriangulation {
             // Costruzione della griglia interplata sulla faccia
             for (unsigned int i = 0; i <= level; i++){
                 vector<unsigned int> row; //riga corrente dei vertici 
+                vector<unsigned int> bars; //riga corrente dei baricentri
 				unsigned int original_id;
                 // Calcolo il punto iniziale e finale della riga i-esima 
                 // Partiziono il lato in base al valore di b e c
@@ -97,12 +98,39 @@ namespace PolyhedralTriangulation {
                 for (unsigned int j = 0; j <= i; j++) { 
                     // Interpolo tra from e to per ottenere un punto interno
                     Vector3d pos;
+                    Vector3d bar;
                     if (i == 0) {
                         pos = A;
                     } else {
                         pos = ((double)j / i) * to + ((double)(i - j) / i) * from;
                     }
                     // pos = pos/pos.norm();
+                    if(i!=0){
+                    	if(j==0){
+                    		bar = (row[i-1][0]+pos)/2;
+						}
+						if(j==i){
+                    		bar = (row[i-1][i-1]+pos)/2;
+						}
+						
+						//Controllo duplicati dei baricentri dei nuovi lati
+						if(!VertexIsDupe(triMesh, bar, original_id)){
+						triMesh.Cell0DsId.push_back(vCount);           // Salva ID
+							for(unsigned int n=0; n<3; n++){
+								triMesh.Cell0DsCoordinates(n,vCount) = bar(n); // Salva posizione
+							}
+	                    	bars.push_back(vCount); // Aggiungi indice del vertice alla riga corrente
+	                    	vCount++; // Avanza contatore vertice
+						}
+						else{
+							bars.push_back(original_id);
+						}
+					}
+					
+					if(i==level){
+						
+					}
+					
 					if(!VertexIsDupe(triMesh, pos, original_id)){
 						triMesh.Cell0DsId.push_back(vCount);           // Salva ID
 						for(unsigned int n=0; n<3; n++){
@@ -115,8 +143,10 @@ namespace PolyhedralTriangulation {
 						row.push_back(original_id);
 					}
                 }
+                grid.push_back(bars); // Aggiungi riga alla griglia
                 grid.push_back(row); // Aggiungi riga alla griglia
-            }
+			}
+        }
 
             //Creiamo i nuovi lati dati dalla triangolazione e aggiorniamo la lista dei lati
             for(size_t i=0; i<grid.size(); i++){
@@ -220,7 +250,7 @@ namespace PolyhedralTriangulation {
         const unsigned int& b, const unsigned int& c, // Parametri della suddivisione
         const Vector3i& triDimensions) // Dimensione di (V,E,F) della mesh triangolata
     {
-        unsigned int level = b; // For Class II, level is typically 'b'
+        unsigned int level = b; // Numero di livelli della faccia triangolata
 
         // Inizializzazione della struttura dati della mesh triangolata (identica a GenerateTriangulatedMesh1)
         triMesh.Cell0DsCoordinates = MatrixXd::Zero(3,triDimensions[0]);
@@ -232,8 +262,6 @@ namespace PolyhedralTriangulation {
         triMesh.Cell2DsId.reserve(triDimensions[2]);
         triMesh.Cell2DsEdges.reserve(triDimensions[2]);
         triMesh.Cell2DsVertices.reserve(triDimensions[2]);
-
-        // Removed the problematic resize loops for triMesh.Cell2DsEdges/Vertices elements
         
         unsigned int vCount = 0;
         unsigned int eCount = 0;
@@ -253,7 +281,7 @@ namespace PolyhedralTriangulation {
             
             // Costruzione della griglia interpolata sulla faccia per Classe II
             // P_ij = (b-i-j)/b * A + i/b * B + j/b * C
-            for (unsigned int i = 0; i <= level; ++i){ // i goes from 0 to b
+            for (unsigned int i = 0; i <= level; i++){ // i goes from 0 to b
                 vector<unsigned int> row;
                 unsigned int original_id;
                 for (unsigned int j = 0; j <= level - i; ++j) { // j goes from 0 to b-i
