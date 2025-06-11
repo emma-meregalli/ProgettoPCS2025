@@ -102,7 +102,7 @@ namespace PolyhedralTriangulation {
                     } else {
                         pos = ((double)j / i) * to + ((double)(i - j) / i) * from;
                     }
-                    pos = pos/pos.norm();
+                    // pos = pos/pos.norm();
 					if(!VertexIsDupe(triMesh, pos, original_id)){
 						triMesh.Cell0DsId.push_back(vCount);           // Salva ID
 						for(unsigned int n=0; n<3; n++){
@@ -214,13 +214,133 @@ namespace PolyhedralTriangulation {
 	}
 	
 	// Funzione per triangolare le facce e popolare la mesh triangolata di classe II
-    bool GenerateTriangulatedMesh2(
-        PolyhedralMesh& baseMesh,     // Mesh di partenza (con facce non triangolate)
-        PolyhedralMesh& triMesh,      // Mesh di output triangolata
-        const unsigned int& b, const unsigned int& c, // Parametri della suddivisione
-        const Vector3i& triDimensions) // Dimensione di (V,E,F) della mesh triangolata (con duplicati)
-    {
-        
-		return true;  
-	}
+	bool GenerateTriangulatedMesh2(
+    PolyhedralMesh& baseMesh,
+    PolyhedralMesh& triMesh,
+    const unsigned int& b, const unsigned int& c,
+    const Vector3i& triDimensions)
+{
+    if (b != c) {
+        std::cerr << "Classe II richiede b = c" << std::endl;
+        return false;
+    }
+
+    triMesh.Cell0DsCoordinates = MatrixXd::Zero(3, triDimensions[0]);
+    triMesh.Cell0DsId.reserve(triDimensions[0]);
+    triMesh.Cell1DsId.reserve(triDimensions[1]);
+    triMesh.Cell1DsExtrema = MatrixXi::Zero(2, triDimensions[1]);
+    triMesh.Cell2DsId.reserve(triDimensions[2]);
+    triMesh.Cell2DsEdges.reserve(triDimensions[2]);
+    triMesh.Cell2DsVertices.reserve(triDimensions[2]);
+
+    unsigned int vCount = 0, eCount = 0, fCount = 0;
+
+    for (unsigned int faceIdx = 0; faceIdx < baseMesh.Cell2DsId.size(); faceIdx++) {
+        const auto& faceVerts = baseMesh.Cell2DsVertices[faceIdx];
+        Vector3d A = baseMesh.Cell0DsCoordinates.col(faceVerts[0]);
+        Vector3d B = baseMesh.Cell0DsCoordinates.col(faceVerts[1]);
+        Vector3d C = baseMesh.Cell0DsCoordinates.col(faceVerts[2]);
+
+        vector<vector<unsigned int>> grid;
+        for (unsigned int i = 0; i <= b; ++i) {
+            vector<unsigned int> row;
+            for (unsigned int j = 0; j <= b - i; ++j) {
+                Vector3d pos = ((double)i / b) * B + ((double)j / b) * C + ((double)(b - i - j) / b) * A;
+                // pos.normalize();  // Proiezione sulla sfera
+                unsigned int original_id;
+                if (!VertexIsDupe(triMesh, pos, original_id)) {
+                    triMesh.Cell0DsId.push_back(vCount);
+                    triMesh.Cell0DsCoordinates.col(vCount) = pos;
+                    row.push_back(vCount);
+                    vCount++;
+                } else {
+                    row.push_back(original_id);
+                }
+            }
+            grid.push_back(row);
+        }
+
+        for (unsigned int i = 0; i < b; ++i) {
+            for (unsigned int j = 0; j < b - i; ++j) {
+                unsigned int v0 = grid[i][j];
+                unsigned int v1 = grid[i + 1][j];
+                unsigned int v2 = grid[i][j + 1];
+                unsigned int v3 = grid[i + 1][j + 1];
+
+                // Triangolo 1: v0, v1, v2
+                if (!(i == 0 || j == 0 || (i + j == b - 1))) {
+                    vector<unsigned int> tri = {v0, v1, v2};
+                    vector<unsigned int> edges;
+
+                    for (int k = 0; k < 3; ++k) {
+                        Vector2i e(tri[k], tri[(k + 1) % 3]);
+                        if (!EdgeIsDupe(triMesh, e)) {
+                            triMesh.Cell1DsId.push_back(eCount);
+                            triMesh.Cell1DsExtrema.col(eCount) = e;
+                            edges.push_back(eCount);
+                            eCount++;
+                        } else {
+                            for (unsigned int m = 0; m < triMesh.Cell1DsId.size(); ++m) {
+                                if ((triMesh.Cell1DsExtrema(0, m) == e[0] && triMesh.Cell1DsExtrema(1, m) == e[1]) ||
+                                    (triMesh.Cell1DsExtrema(1, m) == e[0] && triMesh.Cell1DsExtrema(0, m) == e[1])) {
+                                    edges.push_back(m);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    triMesh.Cell2DsId.push_back(fCount);
+                    triMesh.Cell2DsVertices.push_back(tri);
+                    triMesh.Cell2DsEdges.push_back(edges);
+                    fCount++;
+                }
+
+                // Triangolo 2: v1, v3, v2
+                if ((j + 1) < grid[i + 1].size()) {
+                    if (!(j == 0 || (i + j == b - 2))) {
+                        vector<unsigned int> tri = {v1, v3, v2};
+                        vector<unsigned int> edges;
+
+                        for (int k = 0; k < 3; ++k) {
+                            Vector2i e(tri[k], tri[(k + 1) % 3]);
+                            if (!EdgeIsDupe(triMesh, e)) {
+                                triMesh.Cell1DsId.push_back(eCount);
+                                triMesh.Cell1DsExtrema.col(eCount) = e;
+                                edges.push_back(eCount);
+                                eCount++;
+                            } else {
+                                for (unsigned int m = 0; m < triMesh.Cell1DsId.size(); ++m) {
+                                    if ((triMesh.Cell1DsExtrema(0, m) == e[0] && triMesh.Cell1DsExtrema(1, m) == e[1]) ||
+                                        (triMesh.Cell1DsExtrema(1, m) == e[0] && triMesh.Cell1DsExtrema(0, m) == e[1])) {
+                                        edges.push_back(m);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+                        triMesh.Cell2DsId.push_back(fCount);
+                        triMesh.Cell2DsVertices.push_back(tri);
+                        triMesh.Cell2DsEdges.push_back(edges);
+                        fCount++;
+                    }
+                }
+            }
+        }
+    }
+
+    triMesh.Cell3DsId = {0};
+    triMesh.Cell3DsVertices = triMesh.Cell0DsId;
+    triMesh.Cell3DsEdges = triMesh.Cell1DsId;
+    triMesh.Cell3DsFaces = triMesh.Cell2DsId;
+    triMesh.NumCell0Ds = triMesh.Cell0DsId.size();
+    triMesh.NumCell1Ds = triMesh.Cell1DsId.size();
+    triMesh.NumCell2Ds = triMesh.Cell2DsId.size();
+    triMesh.NumCell3Ds = 1;
+
+    return true;
+}
+
+   
 }

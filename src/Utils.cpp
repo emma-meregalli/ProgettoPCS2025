@@ -516,8 +516,10 @@ bool ExportIcosahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int&
     Vector3i VEF = ComputeVEF(5,b,c);
     if(b!=c)
 		GenerateTriangulatedMesh1(mesh,triMesh,b,c,VEF);
-    else
+    else {
     	GenerateTriangulatedMesh2(mesh,triMesh,b,c,VEF);
+		cout << "Fatta triangolazione II" << endl; 
+		}
       
     return true;
 }
