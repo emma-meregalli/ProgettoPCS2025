@@ -54,7 +54,7 @@ Vector3i ComputeVEF(unsigned int q, int b, int c)
 			numF = 20;
 		}
 		V = numV + numE*(2*b-1)+numF*((3*b*b)/2 - (3*b)/2 +1);
-		E = numE*(2*b)+numF((9*b*b)/2 + (3*b)/2);
+		E = numE*(2*b)+numF*((9*b*b)/2 + (3*b)/2);
 		F = numF*(3*b*b + 3*b);	
 	}	
 	
@@ -136,7 +136,7 @@ void CreateTxtFiles(const PolyhedralMesh& mesh) {
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 bool GenerateDual(const PolyhedralMesh& mesh, PolyhedralMesh& dualMesh){
-	MatrixXd barycenters = MatriXd::Zeros(3,mesh.NumCell2Ds);
+	MatrixXd barycenters = MatrixXd::Zero(3,mesh.NumCell2Ds);
     for (unsigned int i=0; i<mesh.NumCell2Ds; i++){
     	Vector3d tmp = Vector3d::Zero();
         for (unsigned int v : mesh.Cell2DsVertices[i]){
@@ -148,7 +148,7 @@ bool GenerateDual(const PolyhedralMesh& mesh, PolyhedralMesh& dualMesh){
 
     // Riempie Cell0Ds del duale con i baricentri
     int numDualVertices = barycenters.cols();
-    dualMesh.Cell0DsCoordinates.reserve(3,numDualVertices);
+    dualMesh.Cell0DsCoordinates = MatrixXd::Zero(3,numDualVertices);
     dualMesh.Cell0DsId.reserve(numDualVertices);
     
     for (int i = 0; i < numDualVertices; i++) {
@@ -194,7 +194,7 @@ bool GenerateDual(const PolyhedralMesh& mesh, PolyhedralMesh& dualMesh){
                     for (int b : fv2)
                         if (a == b) 
 							common_count++;
-                if (common == 2) {
+                if (common_count == 2) {
                     next = *it;
                     rest.erase(it);
                     break;
@@ -241,7 +241,8 @@ bool GenerateDual(const PolyhedralMesh& mesh, PolyhedralMesh& dualMesh){
     
     dualMesh.NumCell2Ds = faceId; // Aggiorna il conteggio
     dualMesh.NumCell1Ds = edgeId; // Aggiorna il conteggio
-    dualMesh.Cell1DsExtrema.conservativeResize(NoChange, edgeId);
+	dualMesh.Cell1DsExtrema = MatrixXi::Zero(2, mesh.NumCell2Ds * 6);
+
 
     // Definisce il poliedro 3D che contiene tutto
     dualMesh.Cell3DsId = {0};
