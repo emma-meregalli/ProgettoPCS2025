@@ -260,7 +260,7 @@ namespace PolyhedralTriangulation {
                     unsigned int k = level - i - j; // k is the third barycentric coordinate
 
                     Vector3d pos = ((double)k / level) * A + ((double)i / level) * B + ((double)j / level) * C;
-                    pos = pos / pos.norm(); // Normalizza sul raggio unitario
+                    // pos = pos / pos.norm(); // Normalizza sul raggio unitario
 
                     if(!VertexIsDupe(triMesh, pos, original_id)){
                         triMesh.Cell0DsId.push_back(vCount);
