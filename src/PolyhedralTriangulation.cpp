@@ -102,7 +102,7 @@ namespace PolyhedralTriangulation {
                     } else {
                         pos = ((double)j / i) * to + ((double)(i - j) / i) * from;
                     }
-                    // pos = pos/pos.norm();
+                    pos = pos/pos.norm();
 					if(!VertexIsDupe(triMesh, pos, original_id)){
 						triMesh.Cell0DsId.push_back(vCount);           // Salva ID
 						for(unsigned int n=0; n<3; n++){
@@ -256,7 +256,7 @@ namespace PolyhedralTriangulation {
                     } else {
                         pos = ((double)j / i) * to + ((double)(i - j) / i) * from;
                     }
-                    
+                    pos = pos/pos.norm();
                     if(!VertexIsDupe(triMesh, pos, original_id)){
                         triMesh.Cell0DsId.push_back(vCount);
                         triMesh.Cell0DsCoordinates.col(vCount) = pos;
@@ -286,6 +286,10 @@ namespace PolyhedralTriangulation {
                     Vector3d mid23_pos = (p2_coord + p3_coord) / 2.0;
                     Vector3d mid31_pos = (p3_coord + p1_coord) / 2.0;
                     Vector3d barycenter_pos = (p1_coord + p2_coord + p3_coord) / 3.0;
+					mid12_pos =  mid12_pos/ mid12_pos.norm();
+					mid23_pos =  mid23_pos/ mid23_pos.norm();
+					mid31_pos =  mid31_pos/ mid31_pos.norm();
+					barycenter_pos = barycenter_pos/barycenter_pos.norm();
 
                     unsigned int mid12_id, mid23_id, mid31_id, barycenter_id;
                     unsigned int original_id;
