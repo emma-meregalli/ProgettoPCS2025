@@ -102,7 +102,7 @@ namespace PolyhedralTriangulation {
                     } else {
                         pos = ((double)j / i) * to + ((double)(i - j) / i) * from;
                     }
-                    pos = pos/pos.norm();
+                    // pos = pos/pos.norm();
 					if(!VertexIsDupe(triMesh, pos, original_id)){
 						triMesh.Cell0DsId.push_back(vCount);           // Salva ID
 						for(unsigned int n=0; n<3; n++){
@@ -273,7 +273,6 @@ namespace PolyhedralTriangulation {
             // e per ognuno di essi, applichiamo la raffinazione di Classe II.
             for (unsigned int i = 0; i < level; ++i) {
                 for (unsigned int j = 0; j <= i; ++j) {
-					cout<<vCount<<", "<<eCount<<", "<<fCount<<endl;
                     // Raffinazione per il Triangolo "verso il basso"
                     vector<unsigned int> current_triangle_verts_1 = {grid_base_verts[i][j], grid_base_verts[i+1][j], grid_base_verts[i+1][j+1]};
                     
@@ -393,6 +392,7 @@ namespace PolyhedralTriangulation {
                             mid31_id = vCount;
                             vCount++;
                         } else { mid31_id = original_id; }
+                        
                         if(!VertexIsDupe(triMesh, barycenter_pos, original_id)){
                             triMesh.Cell0DsId.push_back(vCount);
                             triMesh.Cell0DsCoordinates.col(vCount) = barycenter_pos;
@@ -443,7 +443,13 @@ namespace PolyhedralTriangulation {
         }
     
         // Aggiorna Cell3DsId, Cell3DsVertices, Cell3DsEdges, Cell3DsFaces
-        triMesh.Cell3DsId = {0}; 
+        // Queste liste dovrebbero contenere solo gli ID degli elementi che formano il "confine" (boundary)
+        // del poliedro risultante, non tutti gli elementi generati internamente.
+        // Per una singola faccia triangolata, questo potrebbe ancora essere l'insieme completo
+        // Se la tua mesh 3D è solo una faccia triangolata, le assegnazioni attuali potrebbero essere OK.
+        // Altrimenti, dovrai implementare una logica per identificare solo gli elementi di confine.
+        // Per ora, assumiamo che Cell3DsId = {0} e le altre siano tutte le celle generate.
+        triMesh.Cell3DsId = {0}; // Assuming one polyhedron is formed by all faces
         triMesh.Cell3DsVertices = triMesh.Cell0DsId; 
         triMesh.Cell3DsEdges = triMesh.Cell1DsId;     
         triMesh.Cell3DsFaces = triMesh.Cell2DsId;     
