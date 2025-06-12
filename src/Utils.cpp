@@ -655,7 +655,7 @@ bool ShortestPath(PolyhedralMesh& mesh, unsigned int id_vertice_1, unsigned int 
     vector<vector<pair<unsigned int, double>>> LA(N); 
 
 	//Riempio la lista di adiacenza
-    for (unsigned int i = num_lati_iniziali; i < mesh.NumCell1Ds; i++) {//Considero solo i nuovi lati, quelli prima della triangolazione "non esistono più"
+    for (unsigned int i = 0; i < mesh.NumCell1Ds; i++) {//Considero solo i nuovi lati, quelli prima della triangolazione "non esistono più"
 	
         unsigned int v1 = mesh.Cell1DsExtrema(0, i);
         unsigned int v2 = mesh.Cell1DsExtrema(1, i);
@@ -827,14 +827,14 @@ void ExportParaView(PolyhedralMesh& mesh, bool cammino){
 		
 		
 
-		cell1Ds_properties[1].Label = "Lati Esistenti";
+		/* cell1Ds_properties[1].Label = "Lati Esistenti";
 		cell1Ds_properties[1].UnitLabel = "-";
 		cell1Ds_properties[1].NumComponents = 1;
 
 		std::vector<double> LatiEsistenti(mesh.NumCell1Ds);
 		for (unsigned int i = 0; i < mesh.NumCell1Ds; ++i)
 			LatiEsistenti[i] = static_cast<double>(mesh.Cell1DsEsistente[i]);
-		cell1Ds_properties[1].Data = LatiEsistenti.data();
+		cell1Ds_properties[1].Data = LatiEsistenti.data(); */
 
 
 
@@ -843,6 +843,12 @@ void ExportParaView(PolyhedralMesh& mesh, bool cammino){
 								mesh.Cell1DsExtrema,
 								{},
 								cell1Ds_properties);
+		}
+		{
+		utilities.ExportPolygons("./Cell2Ds.inp",
+                             mesh.Cell0DsCoordinates,
+                             mesh.Cell2DsVertices,
+                             {});
 		}
 	}
 }

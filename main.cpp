@@ -13,10 +13,21 @@ int checkInput(const vector<int> vector_input){
     unsigned int q = vector_input[1];
     unsigned int b = vector_input[2];
     unsigned int c = vector_input[3];
+	
+	bool path = false;
+	
+	unsigned int id_v1 = 0;
+	unsigned int id_v2 = 0;
+	if (vector_input.size() == 6){
+		id_v1 = vector_input[4];
+		id_v2 = vector_input[5];
+		path = true;
+	}	
 
     PolyhedralMesh mesh;
     PolyhedralMesh triMesh;
     PolyhedralMesh dualMesh;
+	bool shortestPath;
     
 
 	if(p!=3 && p!=4 && p!=5) // controlla se p è 3, 4 o 5
@@ -47,21 +58,24 @@ int checkInput(const vector<int> vector_input){
                 cout<<"Triangolato!"<<endl;
                 CreateTxtFiles(triMesh);
                 cout<<"Stampato!"<<endl;
-				ExportParaView(triMesh, false); //per il momento falso perchè ancora no cammino minimo
+				shortestPath = ShortestPath(triMesh, id_v1, id_v2, mesh.Cell1DsId.size());
+				ExportParaView(triMesh, path);
                 break;
             case 4 : //genera l'ottaedro se p=3,q=4
                 ExportOctahedron(mesh,triMesh,b,c);
 				cout<<"Triangolato!"<<endl;
                 CreateTxtFiles(triMesh);
 				cout<<"Stampato!"<<endl;
-				ExportParaView(triMesh, false);
+				shortestPath = ShortestPath(triMesh, id_v1, id_v2, mesh.Cell1DsId.size());
+				ExportParaView(triMesh, path);
                 break;
             case 5 : //genera l'icosaedro se p=3,q=5
                 ExportIcosahedron(mesh,triMesh,b,c);
 				cout<<"Triangolato!"<<endl;
                 CreateTxtFiles(triMesh);
 				cout<<"Stampato!"<<endl;
-				ExportParaView(triMesh, false);
+				shortestPath = ShortestPath(triMesh, id_v1, id_v2, mesh.Cell1DsId.size());
+				ExportParaView(triMesh, path);
                 break;
         }
     }
@@ -74,7 +88,8 @@ int checkInput(const vector<int> vector_input){
 				cout<<"Fatto il duale!"<<endl;
                 CreateTxtFiles(dualMesh);
 				cout<<"Stampato!"<<endl;
-				ExportParaView(dualMesh, false);
+				shortestPath = ShortestPath(dualMesh, id_v1, id_v2, mesh.Cell1DsId.size());
+				ExportParaView(dualMesh, path);
                 break;
             case 5 : //genera il tetraedro se p=5,q=3
                 ExportIcosahedron(mesh,triMesh,b,c);
@@ -83,12 +98,13 @@ int checkInput(const vector<int> vector_input){
 				cout<<"Fatto il duale!"<<endl;
                 CreateTxtFiles(dualMesh);
 				cout<<"Stampato!"<<endl;
-				ExportParaView(dualMesh, false);
+				shortestPath = ShortestPath(dualMesh, id_v1, id_v2, mesh.Cell1DsId.size());
+				ExportParaView(dualMesh, path);
                 break;
         }
     }
-
 	return 0;
+	
 }
 
 int main()
@@ -123,17 +139,6 @@ int main()
         return 1;
     }
 
-    if (vector_input.size() == 4)
-        checkInput(vector_input);
-
-    if (vector_input.size() == 6) // controlla se il numero di elementi è 6
-    {
-        unsigned int id_vertex_2 = vector_input[5];
-        vector_input.pop_back();
-        unsigned int id_vertex_1 = vector_input[4];
-        vector_input.pop_back();
-
-        checkInput(vector_input);
-    }
+	checkInput(vector_input);
     return 0;
 }    
