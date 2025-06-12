@@ -646,7 +646,7 @@ bool ExportIcosahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int&
 	
 	/////////////////////////////////////////////////////////////////////////////////////////////
 	
-bool ShortestPath(PolyhedralMesh& mesh, unsigned int id_vertice_1, unsigned int id_vertice_2, unsigned int num_lati_iniziali, bool all_edges) {
+bool ShortestPath(PolyhedralMesh& mesh, unsigned int id_vertice_1, unsigned int id_vertice_2, unsigned int num_lati_iniziali, bool all_edges = true) {
     if (id_vertice_1 >= mesh.NumCell0Ds || id_vertice_2 >= mesh.NumCell0Ds) {
         cerr << "ID dei vertici non valido." << endl;
         return false;
@@ -654,17 +654,12 @@ bool ShortestPath(PolyhedralMesh& mesh, unsigned int id_vertice_1, unsigned int 
 
     unsigned int N = mesh.NumCell0Ds;
 	
-	unsigned int start = 0;
-	if (!all_edges){
-		start = num_lati_iniziali;
-	}
-
     //Inizializzo la lista di adiacenza
 	//Uso un vettore di vettori. L'i-esimo vettore corrisponde all'i-esimo vertice, ed è costituito da coppie vertice-peso, cioè contiene i vertici vicini e la relativa distanza
     vector<vector<pair<unsigned int, double>>> LA(N); 
 
 	//Riempio la lista di adiacenza
-    for (unsigned int i = start; i < mesh.NumCell1Ds; i++) {//Considero solo i nuovi lati, quelli prima della triangolazione "non esistono più"
+    for (unsigned int i = 0; i < mesh.NumCell1Ds; i++) {//Considero solo i nuovi lati, quelli prima della triangolazione "non esistono più"
 	
         unsigned int v1 = mesh.Cell1DsExtrema(0, i);
         unsigned int v2 = mesh.Cell1DsExtrema(1, i);
@@ -753,7 +748,7 @@ bool ShortestPath(PolyhedralMesh& mesh, unsigned int id_vertice_1, unsigned int 
         unsigned int w = cammino[i + 1];
 
         
-        for (unsigned int j = start; j < mesh.NumCell1Ds; j++) {
+        for (unsigned int j = 0; j < mesh.NumCell1Ds; j++) {
             unsigned int v1 = mesh.Cell1DsExtrema(0, j);
             unsigned int v2 = mesh.Cell1DsExtrema(1, j);
             if ((v1 == u && v2 == w) || (v1 == w && v2 == u)) {
