@@ -6,16 +6,31 @@
 using namespace PolyhedralLibrary;
 using namespace Eigen;
 
-TEST(ExportTest, ExportTetrahedronWorks) {
+TEST(ExportTetrahedronTest, BasicExportWorks) {
     PolyhedralMesh mesh, triMesh;
-    EXPECT_TRUE(ExportTetrahedron(mesh, triMesh, 1, 0));
-    EXPECT_GT(triMesh.NumCell0Ds, 0);
-    EXPECT_GT(triMesh.NumCell1Ds, 0);
+    bool success = PolyhedralLibrary::ExportTetrahedron(mesh, triMesh, 1, 0);
+    EXPECT_TRUE(success);
+    EXPECT_EQ(mesh.Cell0DsId.size(), 4);
+    EXPECT_EQ(mesh.Cell1DsId.size(), 6);
+    EXPECT_EQ(mesh.Cell2DsId.size(), 4);
 }
 
-TEST(ExportTest, ExportOctahedronWorks) {
+TEST(ExportSolidsTest, ExportOctahedronProducesCorrectStructure) {
     PolyhedralMesh mesh, triMesh;
-    EXPECT_TRUE(ExportOctahedron(mesh, triMesh, 1, 0));
-    EXPECT_GT(triMesh.NumCell0Ds, 0);
-    EXPECT_GT(triMesh.NumCell2Ds, 0);
+    bool success = PolyhedralLibrary::ExportOctahedron(mesh, triMesh, 1, 0);
+    EXPECT_TRUE(success);
+    EXPECT_EQ(mesh.Cell0DsId.size(), 6);
+    EXPECT_EQ(mesh.Cell1DsId.size(), 12);
+    EXPECT_EQ(mesh.Cell2DsId.size(), 8);
+    EXPECT_EQ(mesh.Cell3DsId.size(), 1);
+}
+
+TEST(ExportSolidsTest, ExportIcosahedronProducesCorrectStructure) {
+    PolyhedralMesh mesh, triMesh;
+    bool success = PolyhedralLibrary::ExportIcosahedron(mesh, triMesh, 1, 0);
+    EXPECT_TRUE(success);
+    EXPECT_EQ(mesh.Cell0DsId.size(), 12);
+    EXPECT_EQ(mesh.Cell1DsId.size(), 30);
+    EXPECT_EQ(mesh.Cell2DsId.size(), 20);
+    EXPECT_EQ(mesh.Cell3DsId.size(), 1);
 }

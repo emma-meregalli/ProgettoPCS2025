@@ -279,29 +279,33 @@ namespace PolyhedralTriangulation {
                     vector<unsigned int> triangleVertices1 = {grid_base_verts[i][j], grid_base_verts[i+1][j], grid_base_verts[i+1][j+1]};
                     
                     // Get coordinates of the base triangle vertices
-                    Vector3d p1_coord = triMesh.Cell0DsCoordinates.col(triangleVertices[0]);
-                    Vector3d p2_coord = triMesh.Cell0DsCoordinates.col(triangleVertices[1]);
-                    Vector3d p3_coord = triMesh.Cell0DsCoordinates.col(triangleVertices[2]);
+                    Vector3d p1_coord = triMesh.Cell0DsCoordinates.col(triangleVertices1[0]);
+                    Vector3d p2_coord = triMesh.Cell0DsCoordinates.col(triangleVertices1[1]);
+                    Vector3d p3_coord = triMesh.Cell0DsCoordinates.col(triangleVertices1[2]);
                     
                     bool exists12=false;
                     bool exists23=false;
                     bool exists31=false;
 
                     // Calculate midpoints and barycenter for this triangle
+					Vector3d mid12_pos;
+					Vector3d mid23_pos;
+					Vector3d mid31_pos;
+					
                     if(j==0 && i!=level-1){
-                    	Vector3d mid12_pos = (p1_coord + p2_coord) / 2.0;
+                    	mid12_pos = (p1_coord + p2_coord) / 2.0;
                     	mid12_pos =  mid12_pos/ mid12_pos.norm();
-                    	esists12=true;
+                    	exists12=true;
 					}
 					if(j==i && i!=level-1){
-						Vector3d mid31_pos = (p3_coord + p1_coord) / 2.0;
+						mid31_pos = (p3_coord + p1_coord) / 2.0;
 						mid31_pos =  mid31_pos/ mid31_pos.norm();
-						esists23=true;
+						exists23=true;
 					}
 					if(i==level-1){
-						Vector3d mid23_pos = (p2_coord + p3_coord) / 2.0;
+						mid23_pos = (p2_coord + p3_coord) / 2.0;
 						mid23_pos =  mid23_pos/ mid23_pos.norm();
-						esists31=true;
+						exists31=true;
 					}
                     
                     Vector3d barycenter_pos = (p1_coord + p2_coord + p3_coord) / 3.0;
@@ -355,19 +359,19 @@ namespace PolyhedralTriangulation {
                     vCount++;
                     
                     // Create the new 6 triangles for current_triangle_verts_1
-                    vector<vector<unsigned int>> new_sub_triangles_1 
+                    vector<vector<unsigned int>> new_sub_triangles_1;
 					
 					if(exists12){
-						new_sub_triangles_1.push_back({triangleVertices[0], mid12_id, barycenter_id});
-						new_sub_triangles_1.push_back({mid12_id, triangleVertices[1], barycenter_id});
+						new_sub_triangles_1.push_back(std::vector<unsigned int>{triangleVertices1[0], mid12_id, barycenter_id});
+						new_sub_triangles_1.push_back(std::vector<unsigned int>{mid12_id, triangleVertices1[1], barycenter_id});
 					}
 					if(exists23){
-						new_sub_triangles_1.push_back({triangleVertices[1], mid23_id, barycenter_id});
-						new_sub_triangles_1.push_back({mid23_id, triangleVertices[2], barycenter_id});
+						new_sub_triangles_1.push_back(std::vector<unsigned int>{triangleVertices1[1], mid23_id, barycenter_id});
+						new_sub_triangles_1.push_back(std::vector<unsigned int>{mid23_id, triangleVertices1[2], barycenter_id});
 					}
 					if(exists31){
-						new_sub_triangles_1.push_back({triangleVertices[2], mid31_id, barycenter_id});
-						new_sub_triangles_1.push_back({mid31_id, triangleVertices[0], barycenter_id});
+						new_sub_triangles_1.push_back(std::vector<unsigned int>{triangleVertices1[2], mid31_id, barycenter_id});
+						new_sub_triangles_1.push_back(std::vector<unsigned int>{mid31_id, triangleVertices1[0], barycenter_id});
 					}
 
                     for(const auto& new_verts : new_sub_triangles_1){
@@ -457,11 +461,11 @@ namespace PolyhedralTriangulation {
             //RIMANGONO DA AGGIUNGERE I LATI CHE COLLEGANO I BARICENTRI ADIACENTI E LE FACCE CHE SI CREANO COSI'
         }
         
-        for(size_t i=0; i<barycenters_grid.size(); i++){
+        /*for(size_t i=0; i<barycenters_grid.size(); i++){
         	for(size_t j=0; j<barycenters_grid[i].size(); j++){
         		if
 			}
-		}
+		}*/
     
         // Aggiorna Cell3DsId, Cell3DsVertices, Cell3DsEdges, Cell3DsFaces
         // Queste liste dovrebbero contenere solo gli ID degli elementi che formano il "confine" (boundary)

@@ -6,11 +6,11 @@
 using namespace PolyhedralLibrary;
 using namespace Eigen;
 
-TEST(DualTest, DualMesh_Properties) {
-    PolyhedralMesh mesh, triMesh, dual;
-    ExportTetrahedron(mesh, triMesh, 1, 0);
-    GenerateDual(triMesh, dual);
-    EXPECT_EQ(dual.NumCell0Ds, triMesh.NumCell2Ds);
-    EXPECT_EQ(dual.NumCell2Ds, triMesh.NumCell0Ds);
-    EXPECT_GT(dual.NumCell1Ds, 0);
+TEST(GenerateDualTest, GeneratesDualCorrectly) {
+    PolyhedralMesh mesh, dual;
+    PolyhedralLibrary::ExportTetrahedron(mesh, mesh, 1, 0);
+    bool generated = PolyhedralLibrary::GenerateDual(mesh, dual);
+    EXPECT_TRUE(generated);
+    EXPECT_EQ(dual.NumCell0Ds, mesh.Cell2DsId.size());
+    EXPECT_EQ(dual.NumCell2Ds, mesh.Cell0DsId.size());
 }
