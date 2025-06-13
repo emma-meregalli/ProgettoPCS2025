@@ -310,9 +310,7 @@ bool GenerateDual(const PolyhedralMesh& baseMesh, PolyhedralMesh& dualMesh) {
 				}
 				face_id++;
 			}
-			
-
-			
+				
 			dualMesh.Cell1DsExtrema.conservativeResize(2, dualMesh.NumCell1Ds);
 			dualMesh.Cell2DsNumVertices.resize(dualMesh.NumCell2Ds);
 			dualMesh.Cell2DsNumEdges.resize(dualMesh.NumCell2Ds);

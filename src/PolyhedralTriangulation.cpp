@@ -25,13 +25,15 @@ namespace PolyhedralTriangulation {
         return false;
     }
 
-    bool EdgeIsDupe(const PolyhedralMesh& mesh, const Vector2i& e){
+    bool EdgeIsDupe(const PolyhedralMesh& mesh, const Vector2i& e, unsigned int& original_id){
     	Vector2i v=e;
         for(size_t i=0; i<mesh.Cell1DsId.size(); i++){
             if(mesh.Cell1DsExtrema.col(i)==v)
+            	original_id=i;
                 return true;
             swap(v[0],v[1]);
             if(mesh.Cell1DsExtrema.col(i)==v)
+            	original_id=i;
                 return true;
         }
         return false;
@@ -119,6 +121,8 @@ namespace PolyhedralTriangulation {
             }
 
             //Creiamo i nuovi lati dati dalla triangolazione e aggiorniamo la lista dei lati
+            unsigned int original_id;
+            
             for(size_t i=0; i<grid.size(); i++){
                 Vector2i extrema;
                 for(size_t j=0; j<=i; j++){
@@ -126,7 +130,7 @@ namespace PolyhedralTriangulation {
                     	extrema[0] = grid[i][j];
 						extrema[1] = grid[i + 1][j];
                     	
-                    	if(!EdgeIsDupe(triMesh, extrema)){
+                    	if(!EdgeIsDupe(triMesh, extrema, original_id)){
                     		triMesh.Cell1DsId.push_back(eCount);
 	                        triMesh.Cell1DsExtrema(0, eCount) = grid[i][j];  //lato sotto a sinistra
 	                        triMesh.Cell1DsExtrema(1, eCount) = grid[i + 1][j];
@@ -135,7 +139,7 @@ namespace PolyhedralTriangulation {
 						
 						extrema[0] = grid[i][j];
 						extrema[1] = grid[i + 1][j+1];
-						if(!EdgeIsDupe(triMesh, extrema)){
+						if(!EdgeIsDupe(triMesh, extrema, original_id)){
 	                        triMesh.Cell1DsId.push_back(eCount);
 	                        triMesh.Cell1DsExtrema(0, eCount) = grid[i][j];  //lato sotto a destra
 	                        triMesh.Cell1DsExtrema(1, eCount) = grid[i + 1][j + 1];
@@ -146,7 +150,7 @@ namespace PolyhedralTriangulation {
                     if(i>0 && j<=i-1){
                     	extrema[0] = grid[i][j];
 						extrema[1] = grid[i][j+1];
-                    	if(!EdgeIsDupe(triMesh, extrema)){
+                    	if(!EdgeIsDupe(triMesh, extrema, original_id)){
 	                        triMesh.Cell1DsId.push_back(eCount);
 	                        triMesh.Cell1DsExtrema(0, eCount) = grid[i][j];  //lato accanto a destra
 	                        triMesh.Cell1DsExtrema(1, eCount) = grid[i][j + 1];
@@ -214,140 +218,265 @@ namespace PolyhedralTriangulation {
 	}
 	
 	// Funzione per triangolare le facce e popolare la mesh triangolata di classe II
-    // Funzione per triangolare le facce e popolare la mesh triangolata di classe II
-bool GenerateTriangulatedMesh2(
-    PolyhedralMesh& baseMesh,
-    PolyhedralMesh& triMesh,
-    const unsigned int& b, const unsigned int& c,
-    const Vector3i& triDimensions)
-	{
-	    unsigned int level = b + c;
-	    triMesh.Cell0DsCoordinates.resize(3, triDimensions[0]);
-	    triMesh.Cell0DsId.reserve(triDimensions[0]);
-	    triMesh.Cell1DsId.reserve(triDimensions[1]);
-	    triMesh.Cell1DsExtrema.resize(2, triDimensions[1]);
-	    triMesh.Cell2DsId.reserve(triDimensions[2]);
-	    triMesh.Cell2DsEdges.reserve(triDimensions[2]);
-	    triMesh.Cell2DsVertices.reserve(triDimensions[2]);
-	
-	    unsigned int vCount = 0, eCount = 0, fCount = 0;
-	
-	    std::map<std::pair<unsigned int, unsigned int>, unsigned int> barycenter_map;
-	
-	    for (unsigned int faceIdx = 0; faceIdx < baseMesh.Cell2DsId.size(); faceIdx++) {
-	        const auto& faceVerts = baseMesh.Cell2DsVertices[faceIdx];
-	        Vector3d A = baseMesh.Cell0DsCoordinates.col(faceVerts[0]);
-	        Vector3d B = baseMesh.Cell0DsCoordinates.col(faceVerts[1]);
-	        Vector3d C = baseMesh.Cell0DsCoordinates.col(faceVerts[2]);
-	
-	        vector<vector<unsigned int>> grid_base_verts;
-	        for (unsigned int i = 0; i <= level; i++) {
-	            vector<unsigned int> row;
-	            unsigned int original_id;
-	            Vector3d from = ((double)i / level) * B + ((double)(level - i) / level) * A;
-	            Vector3d to = ((double)i / level) * C + ((double)(level - i) / level) * A;
-	            for (unsigned int j = 0; j <= i; j++) {
-	                Vector3d pos = (i == 0) ? A : ((double)j / i) * to + ((double)(i - j) / i) * from;
-	                pos.normalize();
-	                if (!VertexIsDupe(triMesh, pos, original_id)) {
-	                    triMesh.Cell0DsId.push_back(vCount);
-	                    triMesh.Cell0DsCoordinates.col(vCount) = pos;
-	                    row.push_back(vCount);
-	                    vCount++;
-	                } else {
-	                    row.push_back(original_id);
-	                }
-	            }
-	            grid_base_verts.push_back(row);
-	        }
-	
-	        for (unsigned int i = 0; i < level; ++i) {
-	            for (unsigned int j = 0; j <= i; ++j) {
-	                vector<unsigned int> tri1 = {grid_base_verts[i][j], grid_base_verts[i+1][j], grid_base_verts[i+1][j+1]};
-	                vector<unsigned int> tri2;
-	                if (j < i) tri2 = {grid_base_verts[i][j], grid_base_verts[i][j+1], grid_base_verts[i+1][j+1]};
-	
-	                for (auto& tri : {tri1, tri2}) {
-	                    if (tri.empty()) continue;
-	                    Vector3d p1 = triMesh.Cell0DsCoordinates.col(tri[0]);
-	                    Vector3d p2 = triMesh.Cell0DsCoordinates.col(tri[1]);
-	                    Vector3d p3 = triMesh.Cell0DsCoordinates.col(tri[2]);
-	                    Vector3d barycenter = (p1 + p2 + p3) / 3.0;
-	                    barycenter.normalize();
-	
-	                    unsigned int bary_id;
-	                    unsigned int original_id;
-	                    if (!VertexIsDupe(triMesh, barycenter, original_id)) {
-	                        triMesh.Cell0DsId.push_back(vCount);
-	                        triMesh.Cell0DsCoordinates.col(vCount) = barycenter;
-	                        bary_id = vCount++;
-	                    } else {
-	                        bary_id = original_id;
-	                    }
-	
-	                    for (int e = 0; e < 3; ++e) {
-	                        vector<unsigned int> face = {tri[e], bary_id, tri[(e+1)%3]};
-	                        vector<unsigned int> edges;
-	                        for (int k = 0; k < 3; ++k) {
-	                            Vector2i ext(face[k], face[(k+1)%3]);
-	                            bool found = false;
-	                            for (unsigned int id = 0; id < triMesh.Cell1DsId.size(); ++id) {
-	                                if ((triMesh.Cell1DsExtrema(0, id) == ext[0] && triMesh.Cell1DsExtrema(1, id) == ext[1]) ||
-	                                    (triMesh.Cell1DsExtrema(0, id) == ext[1] && triMesh.Cell1DsExtrema(1, id) == ext[0])) {
-	                                    edges.push_back(id);
-	                                    found = true;
-	                                    break;
-	                                }
-	                            }
-	                            if (!found) {
-	                                triMesh.Cell1DsId.push_back(eCount);
-	                                triMesh.Cell1DsExtrema.col(eCount) = ext;
-	                                edges.push_back(eCount++);
-	                            }
-	                        }
-	                        triMesh.Cell2DsId.push_back(fCount);
-	                        triMesh.Cell2DsVertices.push_back(face);
-	                        triMesh.Cell2DsEdges.push_back(edges);
-	                        fCount++;
-	                    }
-	
-	                    for (int k = 0; k < 3; ++k) {
-	                        auto edge_key = std::minmax(tri[k], tri[(k+1)%3]);
-	                        auto it = barycenter_map.find(edge_key);
-	                        if (it != barycenter_map.end()) {
-	                            Vector2i conn_edge(it->second, bary_id);
-	                            bool found = false;
-	                            for (unsigned int id = 0; id < triMesh.Cell1DsId.size(); ++id) {
-	                                if ((triMesh.Cell1DsExtrema(0, id) == conn_edge[0] && triMesh.Cell1DsExtrema(1, id) == conn_edge[1]) ||
-	                                    (triMesh.Cell1DsExtrema(0, id) == conn_edge[1] && triMesh.Cell1DsExtrema(1, id) == conn_edge[0])) {
-	                                    found = true;
-	                                    break;
-	                                }
-	                            }
-	                            if (!found) {
-	                                triMesh.Cell1DsId.push_back(eCount);
-	                                triMesh.Cell1DsExtrema.col(eCount++) = conn_edge;
-	                            }
-	                        } else {
-	                            barycenter_map[edge_key] = bary_id;
-	                        }
-	                    }
-	                }
-	            }
-	        }
-	    }
-	
-	    triMesh.Cell3DsId = {0};
-	    triMesh.Cell3DsVertices = triMesh.Cell0DsId;
-	    triMesh.Cell3DsEdges = triMesh.Cell1DsId;
-	    triMesh.Cell3DsFaces = triMesh.Cell2DsId;
-	
-	    triMesh.NumCell0Ds = triMesh.Cell0DsId.size();
-	    triMesh.NumCell1Ds = triMesh.Cell1DsId.size();
-	    triMesh.NumCell2Ds = triMesh.Cell2DsId.size();
-	    triMesh.NumCell3Ds = 1;
-	
-	    return true;
-	}
+    bool GenerateTriangulatedMesh2(
+        PolyhedralMesh& baseMesh,
+        PolyhedralMesh& triMesh,
+        const unsigned int& b, const unsigned int& c, // Parametri della suddivisione
+        const Vector3i& triDimensions) // Dimensione di (V,E,F) della mesh triangolata
+    {
+        unsigned int level = b + c; // Numero di suddivisioni laterali per triangolo (per la griglia base)
 
+        // Inizializzazione della struttura dati della mesh triangolata
+        triMesh.Cell0DsCoordinates.resize(3, triDimensions[0]);
+        triMesh.Cell0DsId.reserve(triDimensions[0]);
+        triMesh.Cell1DsId.reserve(triDimensions[1]);
+        triMesh.Cell1DsExtrema.resize(2, triDimensions[1]);
+        triMesh.Cell2DsId.reserve(triDimensions[2]);
+        triMesh.Cell2DsEdges.reserve(triDimensions[2]);
+        triMesh.Cell2DsVertices.reserve(triDimensions[2]);
+        
+        unsigned int vCount = 0;
+        unsigned int eCount = 0;
+        unsigned int fCount = 0;
+        
+        for (unsigned int faceIdx = 0; faceIdx < baseMesh.Cell2DsId.size(); faceIdx++) 
+        {
+            const auto& faceVerts = baseMesh.Cell2DsVertices[faceIdx];
+            Vector3d A = baseMesh.Cell0DsCoordinates.col(faceVerts[0]);
+            Vector3d B = baseMesh.Cell0DsCoordinates.col(faceVerts[1]);
+            Vector3d C = baseMesh.Cell0DsCoordinates.col(faceVerts[2]);
+            
+            // Griglia di vertici base (come in GenerateTriangulatedMesh1)
+            vector<vector<unsigned int>> grid_base_verts; 
+            for (unsigned int i = 0; i <= level; i++){
+                vector<unsigned int> row;
+                unsigned int original_id;
+                Vector3d from = ((double)i / level) * B + ((double)(level - i) / level) * A;
+                Vector3d to = ((double)i / level) * C + ((double)(level - i) / level) * A;
+                for (unsigned int j = 0; j <= i; j++) { 
+                    Vector3d pos;
+                    if (i == 0) {
+                        pos = A;
+                    } else {
+                        pos = ((double)j / i) * to + ((double)(i - j) / i) * from;
+                    }
+                    pos = pos/pos.norm();
+                    if(!VertexIsDupe(triMesh, pos, original_id)){
+                        triMesh.Cell0DsId.push_back(vCount);
+                        triMesh.Cell0DsCoordinates.col(vCount) = pos;
+                        row.push_back(vCount);
+                        vCount++;
+                    } else {
+                        row.push_back(original_id);
+                    }
+                }
+                grid_base_verts.push_back(row);
+            }
+            
+            vector<unsigned int> barycenters;
+        	vector<vector<unsigned int>> barycenters_grid; //vettore per segnare i baricentri
+
+            // Ora per ogni triangolo creato con la triangolazione 1 applico la triangolazione 2
+            for (unsigned int i = 0; i < level; ++i) {
+                for (unsigned int j = 0; j <= i; ++j) {
+                    // Triangoli dritti
+                    vector<unsigned int> triangleVertices1 = {grid_base_verts[i][j], grid_base_verts[i+1][j], grid_base_verts[i+1][j+1]};
+                    
+                    // Get coordinates of the base triangle vertices
+                    Vector3d p1_coord = triMesh.Cell0DsCoordinates.col(triangleVertices1[0]);
+                    p1_coord=p1_coord/p1_coord.norm();
+                    Vector3d p2_coord = triMesh.Cell0DsCoordinates.col(triangleVertices1[1]);
+                    p2_coord=p2_coord/p1_coord.norm();
+                    Vector3d p3_coord = triMesh.Cell0DsCoordinates.col(triangleVertices1[2]);
+                    p3_coord=p3_coord/p1_coord.norm();
+                    
+                    bool exists12=false;
+                    bool exists23=false;
+                    bool exists31=false;
+
+                    // Calculate midpoints and barycenter for this triangle
+					Vector3d mid12_pos;
+					Vector3d mid23_pos;
+					Vector3d mid31_pos;
+					
+                    if(j==0 && i!=level-1){
+                    	mid12_pos = (p1_coord + p2_coord) / 2.0;
+                    	mid12_pos =  mid12_pos/ mid12_pos.norm();
+                    	exists12=true;
+					}
+					if(j==i && i!=level-1){
+						mid31_pos = (p3_coord + p1_coord) / 2.0;
+						mid31_pos =  mid31_pos/ mid31_pos.norm();
+						exists23=true;
+					}
+					if(i==level-1){
+						mid23_pos = (p2_coord + p3_coord) / 2.0;
+						mid23_pos =  mid23_pos/ mid23_pos.norm();
+						exists31=true;
+					}
+                    
+                    Vector3d barycenter_pos = (p1_coord + p2_coord + p3_coord) / 3.0;
+					barycenter_pos = barycenter_pos/barycenter_pos.norm();
+					
+                    unsigned int mid12_id, mid23_id, mid31_id, barycenter_id;
+                    unsigned int original_id;
+					
+                    // Add midpoints and barycenter to triMesh if not duplicates
+                    if(exists12){
+                    	if(!VertexIsDupe(triMesh, mid12_pos, original_id)){
+	                        triMesh.Cell0DsId.push_back(vCount);
+	                        triMesh.Cell0DsCoordinates.col(vCount) = mid12_pos;
+	                        mid12_id = vCount;
+	                        vCount++;
+                    	} 
+						else{ 
+							mid12_id = original_id; 
+						}
+					}
+					
+					if(exists23){
+	                    if(!VertexIsDupe(triMesh, mid23_pos, original_id)){
+	                        triMesh.Cell0DsId.push_back(vCount);
+	                        triMesh.Cell0DsCoordinates.col(vCount) = mid23_pos;
+	                        mid23_id = vCount;
+	                        vCount++;
+	                    } 
+						else{
+							mid23_id = original_id; 
+						}
+					}
+					
+					if(exists31){
+	                    if(!VertexIsDupe(triMesh, mid31_pos, original_id)){
+	                        triMesh.Cell0DsId.push_back(vCount);
+	                        triMesh.Cell0DsCoordinates.col(vCount) = mid31_pos;
+	                        mid31_id = vCount;
+	                        vCount++;
+	                    } 
+						else{ 
+							mid31_id = original_id; 
+						}
+					}
+                    
+                    
+                    triMesh.Cell0DsId.push_back(vCount);
+                    triMesh.Cell0DsCoordinates.col(vCount) = barycenter_pos;
+                    barycenter_id = vCount;
+                    barycenters.push_back(vCount);
+                    vCount++;
+                    
+                    // Creo i nuovi triangoli vertice-puntomedio-baricentro
+                    vector<vector<unsigned int>> new_sub_triangles_1;
+					
+					if(exists12){
+						new_sub_triangles_1.push_back(std::vector<unsigned int>{triangleVertices1[0], mid12_id, barycenter_id});
+						new_sub_triangles_1.push_back(std::vector<unsigned int>{mid12_id, triangleVertices1[1], barycenter_id});
+					}
+					if(exists23){
+						new_sub_triangles_1.push_back(std::vector<unsigned int>{triangleVertices1[1], mid23_id, barycenter_id});
+						new_sub_triangles_1.push_back(std::vector<unsigned int>{mid23_id, triangleVertices1[2], barycenter_id});
+					}
+					if(exists31){
+						new_sub_triangles_1.push_back(std::vector<unsigned int>{triangleVertices1[2], mid31_id, barycenter_id});
+						new_sub_triangles_1.push_back(std::vector<unsigned int>{mid31_id, triangleVertices1[0], barycenter_id});
+					}
+					
+					
+					//se il triangolo è l'ultimo dello strato, aggiungo i triangoli che si creano collegando il suo baricentro a quello adiacente a sinistra
+					if(j==i && i>0){
+						new_sub_triangles_1.push_back(std::vector<unsigned int>{barycenters[barycenters.size()-1], barycenter_id, grid_base_verts[i][j]});
+						new_sub_triangles_1.push_back(std::vector<unsigned int>{barycenters[barycenters.size()-1], barycenter_id, grid_base_verts[i+1][j]});
+					}
+
+					unsigned int original_id2;
+
+                    for(const auto& new_verts : new_sub_triangles_1){
+                        vector<unsigned int> current_edges;
+                        for(unsigned int k=0; k<3; k++){
+                            Vector2i edge_extrema;
+                            edge_extrema[0] = new_verts[k];
+                            edge_extrema[1] = new_verts[(k+1)%3];
+                            
+                            if(EdgeIsDupe(triMesh, edge_extrema, original_id2)){
+                            	current_edges.push_back(original_id2);
+							}
+                            else {
+                                triMesh.Cell1DsId.push_back(eCount);
+                                triMesh.Cell1DsExtrema.col(eCount) = edge_extrema;
+                                current_edges.push_back(eCount);
+                                eCount++;
+                            }
+                        }
+                        triMesh.Cell2DsId.push_back(fCount);
+                        triMesh.Cell2DsVertices.push_back(new_verts);
+                        triMesh.Cell2DsEdges.push_back(current_edges);
+                        fCount++;
+                    }
+                    
+                    // Triangoli al contrario
+                    if (j < i && i>0) {
+                        vector<unsigned int> triangleVertices2 = {grid_base_verts[i][j], grid_base_verts[i][j+1], grid_base_verts[i+1][j+1]};
+                        
+                        p1_coord = triMesh.Cell0DsCoordinates.col(triangleVertices2[0]);
+                        p2_coord = triMesh.Cell0DsCoordinates.col(triangleVertices2[1]);
+                        p3_coord = triMesh.Cell0DsCoordinates.col(triangleVertices2[2]);
+
+                        barycenter_pos = (p1_coord + p2_coord + p3_coord) / 3.0;
+
+                        // Aggiungo solo il baricentro
+                        triMesh.Cell0DsId.push_back(vCount);
+	                    triMesh.Cell0DsCoordinates.col(vCount) = barycenter_pos;
+	                    barycenter_id = vCount;
+	                    barycenters.push_back(vCount);
+	                    vCount++;
+
+						// Aggiungo i triangoli che si creano dal collegamento col baricentro del triangolo sopra
+                        vector<vector<unsigned int>> new_sub_triangles_2 = {
+                            {grid_base_verts[i][j], barycenters_grid[i-1][j], barycenter_id},
+                        	{grid_base_verts[i][j+1], barycenters_grid[i-1][j], barycenter_id},
+                        	{grid_base_verts[i][j], barycenters[barycenters.size()-1], barycenter_id},
+                        	{grid_base_verts[i+1][j+1], barycenters[barycenters.size()-1], barycenter_id}
+                        };
+                       
+                        for(const auto& new_verts : new_sub_triangles_2){
+                            vector<unsigned int> current_edges;
+                            for(unsigned int k=0; k<3; ++k){
+                                Vector2i edge_extrema;
+                                edge_extrema[0] = new_verts[k];
+                                edge_extrema[1] = new_verts[(k+1)%3];
+                                
+                                if(EdgeIsDupe(triMesh, edge_extrema, original_id2)){
+	                            	current_edges.push_back(original_id2);
+								}
+	                            else {
+	                                triMesh.Cell1DsId.push_back(eCount);
+	                                triMesh.Cell1DsExtrema.col(eCount) = edge_extrema;
+	                                current_edges.push_back(eCount);
+	                                eCount++;
+	                            }
+                            }
+
+                            triMesh.Cell2DsId.push_back(fCount);
+	                        triMesh.Cell2DsVertices.push_back(new_verts);
+	                        triMesh.Cell2DsEdges.push_back(current_edges);
+	                        fCount++;
+                        }  
+                    }
+                }
+                barycenters_grid.push_back(barycenters);
+            }
+    
+	        // Aggiorna Cell3DsId, Cell3DsVertices, Cell3DsEdges, Cell3DsFaces
+	        triMesh.Cell3DsId = {0}; 
+	        triMesh.Cell3DsVertices = triMesh.Cell0DsId; 
+	        triMesh.Cell3DsEdges = triMesh.Cell1DsId;     
+	        triMesh.Cell3DsFaces = triMesh.Cell2DsId;     
+	
+	        triMesh.NumCell0Ds = triMesh.Cell0DsId.size();
+	        triMesh.NumCell1Ds = triMesh.Cell1DsId.size();
+	        triMesh.NumCell2Ds = triMesh.Cell2DsId.size();
+	        triMesh.NumCell3Ds = 1;   
+    	} 
+    	return true;
+	}	
 }
