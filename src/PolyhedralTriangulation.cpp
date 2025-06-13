@@ -28,13 +28,16 @@ namespace PolyhedralTriangulation {
     bool EdgeIsDupe(const PolyhedralMesh& mesh, const Vector2i& e, unsigned int& original_id){
     	Vector2i v=e;
         for(size_t i=0; i<mesh.Cell1DsId.size(); i++){
-            if(mesh.Cell1DsExtrema.col(i)==v)
+            if(mesh.Cell1DsExtrema.col(i)==v){
             	original_id=i;
                 return true;
+			}
+            
             swap(v[0],v[1]);
-            if(mesh.Cell1DsExtrema.col(i)==v)
+            if(mesh.Cell1DsExtrema.col(i)==v){
             	original_id=i;
                 return true;
+        	}
         }
         return false;
     }
@@ -121,7 +124,7 @@ namespace PolyhedralTriangulation {
             }
 
             //Creiamo i nuovi lati dati dalla triangolazione e aggiorniamo la lista dei lati
-            unsigned int original_id;
+            unsigned int original_id=0;
             
             for(size_t i=0; i<grid.size(); i++){
                 Vector2i extrema;
@@ -476,7 +479,7 @@ namespace PolyhedralTriangulation {
 	        triMesh.NumCell1Ds = triMesh.Cell1DsId.size();
 	        triMesh.NumCell2Ds = triMesh.Cell2DsId.size();
 	        triMesh.NumCell3Ds = 1;   
-    	} 
-    	return true;
+    	}     	
+		return true;
 	}	
 }
