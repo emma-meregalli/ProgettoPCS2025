@@ -456,10 +456,10 @@ namespace PolyhedralTriangulation {
 	                    barycenters.push_back(vCount);
 	                    vCount++;
 
-						// Aggiunge i triangoli che si creano dal collegamento col baricentro del triangolo sopra
+						// Aggiunge i triangoli che si creano dal collegamento col baricentro del triangolo sopra di quello a sinistra
                         vector<vector<unsigned int>> new_sub_triangles_2 = {
-                            {grid_base_verts[i][j], barycenters_grid[i - 2][j], barycenter_id},
-                        	{grid_base_verts[i][j + 1], barycenters_grid[i - 2][j], barycenter_id},
+                            {grid_base_verts[i][j], barycenters_grid[i - 1][j], barycenter_id},
+                        	{grid_base_verts[i][j + 1], barycenters_grid[i - 1][j], barycenter_id},
                         	{grid_base_verts[i][j], barycenters[barycenters.size() - 2], barycenter_id},
                         	{grid_base_verts[i + 1][j + 1], barycenters[barycenters.size() - 2], barycenter_id}
                         };
