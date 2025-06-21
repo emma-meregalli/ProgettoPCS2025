@@ -294,8 +294,10 @@ namespace PolyhedralTriangulation {
                 grid_base_verts.push_back(row);
             }
             
-            vector<unsigned int> barycenters;  // Vettore per segnare i baricentri della riga corrente
+            vector<unsigned int> barycenters;  // Vettore per segnare i baricentri dei triangoli verso l'alto della riga corrente
+            vector<unsigned int> barycenters2;  // Vettore per segnare i baricentri dei triangoli verso il basso della riga corrente
         	vector<vector<unsigned int>> barycenters_grid; // Griglia dei baricentri
+        	vector<vector<unsigned int>> barycenters_grid2; // Griglia dei baricentri 2
 
             // Ora per ogni triangolo creato con la triangolazione 1 applico la triangolazione 2
             for (unsigned int i = 0; i < level; i++) {
@@ -318,14 +320,12 @@ namespace PolyhedralTriangulation {
 					Vector3d mid23_pos;
 					Vector3d mid31_pos;
 					
-                    //if(j == 0 && i != level - 1){
-					if(j == 0){
+                    if(j == 0 && i != level - 1){
                     	mid12_pos = (p1_coord + p2_coord) / 2.0;
                     	//mid12_pos =  mid12_pos / mid12_pos.norm();
                     	exists12 = true;
 					}
-					//if(j == i && i != level - 1){
-					if(j == i){
+					if(j == i && i != level - 1){
 						mid31_pos = (p3_coord + p1_coord) / 2.0;
 						//mid31_pos =  mid31_pos / mid31_pos.norm();
 						exists31 = true;
@@ -405,8 +405,8 @@ namespace PolyhedralTriangulation {
 					
 					// Se il triangolo è l'ultimo del rispettivo strato, aggiungo i triangoli che si creano collegando il suo baricentro a quello adiacente a sinistra
 					if(j == i && i > 0){
-						new_sub_triangles_1.push_back(std::vector<unsigned int>{barycenters[barycenters.size() - 2], barycenter_id, grid_base_verts[i][j]});
-						new_sub_triangles_1.push_back(std::vector<unsigned int>{barycenters[barycenters.size() - 2], barycenter_id, grid_base_verts[i + 1][j]});
+						new_sub_triangles_1.push_back(std::vector<unsigned int>{barycenters2.back(), barycenter_id, grid_base_verts[i][j]});
+						new_sub_triangles_1.push_back(std::vector<unsigned int>{barycenters2.back(), barycenter_id, grid_base_verts[i + 1][j]});
 					}
 
 					unsigned int original_id2;
@@ -453,15 +453,15 @@ namespace PolyhedralTriangulation {
                         triMesh.Cell0DsId.push_back(vCount);
 	                    triMesh.Cell0DsCoordinates.col(vCount) = barycenter_pos;
 	                    barycenter_id = vCount;
-	                    barycenters.push_back(vCount);
+	                    barycenters2.push_back(vCount);
 	                    vCount++;
 
 						// Aggiunge i triangoli che si creano dal collegamento col baricentro del triangolo sopra di quello a sinistra
                         vector<vector<unsigned int>> new_sub_triangles_2 = {
                             {grid_base_verts[i][j], barycenters_grid[i - 1][j], barycenter_id},
                         	{grid_base_verts[i][j + 1], barycenters_grid[i - 1][j], barycenter_id},
-                        	{grid_base_verts[i][j], barycenters[barycenters.size() - 2], barycenter_id},
-                        	{grid_base_verts[i + 1][j + 1], barycenters[barycenters.size() - 2], barycenter_id}
+                        	{grid_base_verts[i][j], barycenters.back(), barycenter_id},
+                        	{grid_base_verts[i + 1][j + 1], barycenters.back(), barycenter_id}
                         };
                        
                        // Controlla se i lati esistono già prima di aggiungerli
@@ -493,6 +493,7 @@ namespace PolyhedralTriangulation {
                 }
                 // Aggiorna la griglia dei baricentri, necessaria per creare gli spigoli tra di essi
                 barycenters_grid.push_back(barycenters);
+                barycenters_grid2.push_back(barycenters2);
             }
     
 	        // Aggiorna Cell3DsId, Cell3DsVertices, Cell3DsEdges, Cell3DsFaces
