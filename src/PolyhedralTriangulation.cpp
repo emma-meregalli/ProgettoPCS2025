@@ -325,7 +325,7 @@ namespace PolyhedralTriangulation {
                     	exists12 = true;
 					}
 					//if(j == i && i != level - 1){
-					if(j == 1){
+					if(j == i){
 						mid31_pos = (p3_coord + p1_coord) / 2.0;
 						//mid31_pos =  mid31_pos / mid31_pos.norm();
 						exists31 = true;
@@ -405,8 +405,8 @@ namespace PolyhedralTriangulation {
 					
 					// Se il triangolo è l'ultimo del rispettivo strato, aggiungo i triangoli che si creano collegando il suo baricentro a quello adiacente a sinistra
 					if(j == i && i > 0){
-						new_sub_triangles_1.push_back(std::vector<unsigned int>{barycenters[barycenters.size() - 1], barycenter_id, grid_base_verts[i][j]});
-						new_sub_triangles_1.push_back(std::vector<unsigned int>{barycenters[barycenters.size() - 1], barycenter_id, grid_base_verts[i + 1][j]});
+						new_sub_triangles_1.push_back(std::vector<unsigned int>{barycenters[barycenters.size() - 2], barycenter_id, grid_base_verts[i][j]});
+						new_sub_triangles_1.push_back(std::vector<unsigned int>{barycenters[barycenters.size() - 2], barycenter_id, grid_base_verts[i + 1][j]});
 					}
 
 					unsigned int original_id2;
@@ -458,10 +458,10 @@ namespace PolyhedralTriangulation {
 
 						// Aggiunge i triangoli che si creano dal collegamento col baricentro del triangolo sopra
                         vector<vector<unsigned int>> new_sub_triangles_2 = {
-                            {grid_base_verts[i][j], barycenters_grid[i - 1][j], barycenter_id},
-                        	{grid_base_verts[i][j + 1], barycenters_grid[i - 1][j], barycenter_id},
-                        	{grid_base_verts[i][j], barycenters[barycenters.size() - 1], barycenter_id},
-                        	{grid_base_verts[i + 1][j + 1], barycenters[barycenters.size() - 1], barycenter_id}
+                            {grid_base_verts[i][j], barycenters_grid[i - 2][j], barycenter_id},
+                        	{grid_base_verts[i][j + 1], barycenters_grid[i - 2][j], barycenter_id},
+                        	{grid_base_verts[i][j], barycenters[barycenters.size() - 2], barycenter_id},
+                        	{grid_base_verts[i + 1][j + 1], barycenters[barycenters.size() - 2], barycenter_id}
                         };
                        
                        // Controlla se i lati esistono già prima di aggiungerli
