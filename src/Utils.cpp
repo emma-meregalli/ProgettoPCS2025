@@ -14,7 +14,7 @@ using namespace PolyhedralTriangulation;
 
 namespace PolyhedralLibrary
 {
-Vector3i ComputeVEF(unsigned int q, int b, int c)
+Vector3i ComputeVEF(unsigned int q, unsigned int b, unsigned int c)
 {
     Vector3i VEF;  // inizializzo un vettore nullo di lunghezza 3
 	unsigned int V, E, F;
@@ -328,7 +328,7 @@ bool GenerateDual(const PolyhedralMesh& baseMesh, PolyhedralMesh& dualMesh) {
 }
 /////////////////////////////////////////////////////////////////////////////////////////////
 
-bool ExportTetrahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int& b, const int& c) {
+bool ExportTetrahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const unsigned int& b, const unsigned int& c) {
 	
 	// Vertici
     double r = sqrt(3.0) / 3.0;
@@ -404,7 +404,7 @@ bool ExportTetrahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int&
 	
 /////////////////////////////////////////////////////////////////////////////////////////////
 	
-bool ExportOctahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int& b, const int& c) {
+bool ExportOctahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const unsigned int& b, const unsigned int& c) {
 	
     // Vertici
     double r = 1.0; 
@@ -496,7 +496,7 @@ bool ExportOctahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int& 
 	
 /////////////////////////////////////////////////////////////////////////////////////////////
 
-bool ExportIcosahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int& b, const int& c) {
+bool ExportIcosahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const unsigned int& b, const unsigned int& c) {
 
     // Vertici
 	const double phi = (1.0 + sqrt(5.0)) / 2.0;
