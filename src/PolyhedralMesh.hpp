@@ -39,7 +39,6 @@ struct PolyhedralMesh
 	//Cammini minimi
 	std::vector<unsigned int> Cell0DsShortPath;    // Lista dei vertici del cammino minimo
 	std::vector<unsigned int> Cell1DsShortPath;    // Lista degli spigoli del cammino minimo
-	std::vector<unsigned int> Cell1DsEsistente;    // Lista
 };
 
 }

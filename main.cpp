@@ -42,31 +42,31 @@ int checkInput(const vector<int> vector_input){
 	bool shortestPath;
     
 	// Controlla se p è uguale 3, 4 o 5
-	if(p!=3 && p!=4 && p!=5){
+	if(p != 3 && p != 4 && p != 5){
         cerr << "p non valido!" << endl;
         return 1;
     }
     
     // Controlla se q è uguale 3, 4 o 5
-    if(q!=3 && q!=4 && q!=5){
+    if(q != 3 && q != 4 && q != 5){
         cerr << "q non valido!" << endl;
         return 1;
     }
     
     // Controlla se b!=c e b,c!=0, che sono input non validi
-    if(b!=c && b!=0 && c!=0){
+    if(b != c && b != 0 && c != 0){
     	cerr << "b e c non validi!" <<endl;
     	return 1;
 	}
 	
 	// Controlla se b=c=0, che sono input non validi
-	if(b==0 && c==0){
+	if(b == 0 && c == 0){
     	cerr << "b e c non validi!" <<endl;
     	return 1;
 	}
 
 	// Decide quale poliedro va generato in base all'input
-    if (p==3){
+    if (p == 3){
         switch (q){
            case 3 : // Genera il tetraedro se p=3,q=3
                 ExportTetrahedron(mesh, triMesh, b, c);
@@ -94,18 +94,18 @@ int checkInput(const vector<int> vector_input){
                 
             case 5 : //genera l'icosaedro se p=3,q=5
                 ExportIcosahedron(mesh, triMesh, b, c);
-				cout<<"Triangolato!"<<endl;
+				cout << "Triangolato!" << endl;
                 CreateTxtFiles(triMesh);
 				cout << "Stampato!" << endl;
 				if (path){
 					shortestPath = ShortestPath(triMesh, id_v1, id_v2, triMesh.NumCell1Ds ,all_edges);
-					cout << "Cammino minimo trovato!" <<endl;
+					cout << "Cammino minimo trovato!" << endl;
 				}	
 				ExportParaView(triMesh, path);
                 break;
         }
     }
-    if (q==3 && p!=3){
+    if (q == 3 && p != 3){
         switch (p){
             case 4 : // Genera il tetraedro se p=4,q=3
                 ExportOctahedron(mesh, triMesh, b, c);
@@ -116,7 +116,7 @@ int checkInput(const vector<int> vector_input){
 				cout << "Stampato!" << endl;
 				if (path){
 					shortestPath = ShortestPath(dualMesh, id_v1, id_v2, dualMesh.NumCell1Ds ,all_edges);
-					cout << "Cammino minimo trovato!" <<endl;
+					cout << "Cammino minimo trovato!" << endl;
 				}	
 				ExportParaView(dualMesh, path);
                 break;
@@ -130,7 +130,7 @@ int checkInput(const vector<int> vector_input){
 				cout << "Stampato!" << endl;
 				if (path){
 					shortestPath = ShortestPath(dualMesh, id_v1, id_v2, dualMesh.NumCell1Ds,all_edges);
-					cout << "Cammino minimo trovato!" <<endl;
+					cout << "Cammino minimo trovato!" << endl;
 				}	
 				ExportParaView(dualMesh, path);
                 break;

@@ -37,20 +37,20 @@ Vector3i ComputeVEF(unsigned int q, int b, int c)
 		}
 	}
 	
-	if (b==c){
+	if (b == c){
 		unsigned int numV, numE, numF;
-		unsigned int T=b+c;
-		if (q==3){
+		unsigned int T = b + c;
+		if (q == 3){
 			numV = 4;
 			numE = 6;
 			numF = 4;
 		}
-		if (q==4){
+		if (q == 4){
 			numV = 6;
 			numE = 12;
 			numF = 8;
 		}
-		if (q==5){
+		if (q == 5){
 			numV = 12;
 			numE = 30;
 			numF = 20;
@@ -58,9 +58,9 @@ Vector3i ComputeVEF(unsigned int q, int b, int c)
 		/*V = numV + numE*(2*b-1)+numF*((3*b*b)/2 - (3*b)/2 +1);
 		E = numE*(2*b)+numF*((9*b*b)/2 + (3*b)/2);
 		F = numF*(3*b*b + 3*b);	*/
-		F=6*T*T*numF;
-		E=9*T*T*numF;
-		V=3*T*T*numF+2;
+		F = 6 * T * T * numF;
+		E = 9 * T * T * numF;
+		V = 3 * T * T * numF + 2;
 	}	
 	
 	
@@ -115,7 +115,7 @@ void CreateTxtFiles(const PolyhedralMesh& mesh) {
     // Creazione Cell3Ds.txt
     ofstream Cell3Ds("Cell3Ds.txt");
     Cell3Ds << "ID;Vertices;Edges;Faces\n";
-    for (size_t i = 0; i < mesh.Cell3DsId.size(); ++i) {
+    for (size_t i = 0; i < mesh.Cell3DsId.size(); i++) {
 	    Cell3Ds << mesh.Cell3DsId[i];
 	
 	    // Vertici
@@ -140,12 +140,12 @@ void CreateTxtFiles(const PolyhedralMesh& mesh) {
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 bool EdgeIsDupe(const PolyhedralMesh& mesh, const Vector2i& e){
-    	Vector2i v=e;
-        for(size_t i=0; i<mesh.Cell1DsId.size(); i++){
-            if(mesh.Cell1DsExtrema.col(i)==v)
+    	Vector2i v = e;
+        for(size_t i = 0; i < mesh.Cell1DsId.size(); i++){
+            if(mesh.Cell1DsExtrema.col(i) == v)
                 return true;
             swap(v[0],v[1]);
-            if(mesh.Cell1DsExtrema.col(i)==v)
+            if(mesh.Cell1DsExtrema.col(i) == v)
                 return true;
         }
         return false;
@@ -235,8 +235,8 @@ bool GenerateDual(const PolyhedralMesh& baseMesh, PolyhedralMesh& dualMesh) {
 				Vector3d Vertex3 = baseMesh.Cell0DsCoordinates.col(baseMesh.Cell2DsVertices[id][2]);
 				
 				// salvo le coordinate del baricentro
-				baricenter = (1.0/3.0)*Vertex1 + (1.0/3.0)*Vertex2 + (1.0/3.0)*Vertex3;
-				baricenter = baricenter/baricenter.norm();
+				baricenter = (1.0 / 3.0) * Vertex1 + (1.0 / 3.0) * Vertex2 + (1.0 / 3.0) * Vertex3;
+				baricenter = baricenter / baricenter.norm();
 				dualMesh.Cell0DsId.push_back(baricenter_id);
 				// salvo le coordinate dentro alle Cell0DsCoordinates del poliedro Duale
 				dualMesh.Cell0DsCoordinates(0, id) = baricenter(0);
@@ -245,7 +245,7 @@ bool GenerateDual(const PolyhedralMesh& baseMesh, PolyhedralMesh& dualMesh) {
 				
 				//Associo all'id della faccia l'id del baricentro nella mappa, per ora ridondante ma poi sarà meglio
 				Faces_bar[id] = baricenter_id;
-				baricenter_id ++;
+				baricenter_id++;
 			}
 
 			for(const auto& vertex_id: baseMesh.Cell0DsId){
@@ -293,10 +293,10 @@ bool GenerateDual(const PolyhedralMesh& baseMesh, PolyhedralMesh& dualMesh) {
 				for (int k = 0; k < valence; k++) {
 					int originVertex = dualMesh.Cell2DsVertices[face_id][k];
 					int endVertex;
-					if ( k == valence-1 )
+					if ( k == valence - 1 )
 						endVertex = dualMesh.Cell2DsVertices[face_id][0];
 					else
-						endVertex = dualMesh.Cell2DsVertices[face_id][k+1];
+						endVertex = dualMesh.Cell2DsVertices[face_id][k + 1];
 					Vector2i extrema(originVertex,endVertex);
 					if(!EdgeIsDupe(dualMesh, extrema)){
 						dualMesh.Cell1DsId.push_back(edge_id);
@@ -500,7 +500,7 @@ bool ExportIcosahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const int&
 
     // Vertici
 	const double phi = (1.0 + sqrt(5.0)) / 2.0;
-    const double r = 1.0/(sqrt(1 + pow(phi,2)));
+    const double r = 1.0 / (sqrt(1 + pow(phi,2)));
 	const double s = phi / (sqrt(1 + pow(phi,2)));
 
     mesh.Cell0DsCoordinates = MatrixXd::Zero(3, 12);
@@ -804,7 +804,7 @@ void ExportParaView(PolyhedralMesh& mesh, bool cammino){
 		cell0Ds_properties[0].NumComponents = 1;
 
 		vector<double> ShortPath_v(mesh.NumCell0Ds, 0.0);
-		for (unsigned int i = 0; i < mesh.NumCell0Ds; ++i) {
+		for (unsigned int i = 0; i < mesh.NumCell0Ds; i++) {
 			ShortPath_v[i] = static_cast<double>(mesh.Cell0DsShortPath[i]);
 		}
 
@@ -823,22 +823,9 @@ void ExportParaView(PolyhedralMesh& mesh, bool cammino){
 		cell1Ds_properties[0].NumComponents = 1;
 
 		std::vector<double> ShortPath_e(mesh.NumCell1Ds);
-		for (unsigned int i = 0; i < mesh.NumCell1Ds; ++i)
+		for (unsigned int i = 0; i < mesh.NumCell1Ds; i++)
 			ShortPath_e[i] = static_cast<double>(mesh.Cell1DsShortPath[i]);
 		cell1Ds_properties[0].Data = ShortPath_e.data();
-		
-		
-
-		/* cell1Ds_properties[1].Label = "Lati Esistenti";
-		cell1Ds_properties[1].UnitLabel = "-";
-		cell1Ds_properties[1].NumComponents = 1;
-
-		std::vector<double> LatiEsistenti(mesh.NumCell1Ds);
-		for (unsigned int i = 0; i < mesh.NumCell1Ds; ++i)
-			LatiEsistenti[i] = static_cast<double>(mesh.Cell1DsEsistente[i]);
-		cell1Ds_properties[1].Data = LatiEsistenti.data(); */
-
-
 
 		utilities.ExportSegments("./Cell1Ds.inp",
 								mesh.Cell0DsCoordinates,
