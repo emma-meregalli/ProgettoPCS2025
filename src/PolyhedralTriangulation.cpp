@@ -55,7 +55,7 @@ namespace PolyhedralTriangulation {
         // Inizializzazione della struttura dati della mesh triangolata
 
         // Allocazione memoria per vertici (0D)
-		triMesh.Cell0DsCoordinates = MatrixXd::Zero(3,triDimensions[0]); 
+		triMesh.Cell0DsCoordinates = MatrixXd::Zero(3, triDimensions[0]); 
 		triMesh.Cell0DsId.reserve(triDimensions[0]);
 		
         // Allocazione memoria per lati (1D)
@@ -66,11 +66,11 @@ namespace PolyhedralTriangulation {
         triMesh.Cell2DsId.reserve(triDimensions[2]);
         triMesh.Cell2DsEdges.reserve(triDimensions[2]);
         triMesh.Cell2DsVertices.reserve(triDimensions[2]);
-        for (auto& edgeList : triMesh.Cell2DsEdges) {
+        for (auto& edgeList : triMesh.Cell2DsEdges){
             edgeList.resize(3); // Ogni faccia ha 3 spigoli
         }
-		for (auto& vertList : triMesh.Cell2DsVertices) {
-        vertList.resize(3); // Ogni faccia ha 3 vertici
+		for (auto& vertList : triMesh.Cell2DsVertices){
+        	vertList.resize(3); // Ogni faccia ha 3 vertici
 		}	
 		
         // Contatori per vertici, spigoli e facce
@@ -109,7 +109,7 @@ namespace PolyhedralTriangulation {
                     pos = pos/pos.norm();
 					if(!VertexIsDupe(triMesh, pos, original_id)){
 						triMesh.Cell0DsId.push_back(vCount); // Memorizza l'ID del vertice
-						for(unsigned int n=0; n<3; n++){
+						for(unsigned int n = 0; n < 3; n++){
 							triMesh.Cell0DsCoordinates(n,vCount) = pos(n); // Memorizza la posizione
 						}
                     	row.push_back(vCount); // Aggiunge l'indice del vertice alla riga corrente
@@ -123,12 +123,12 @@ namespace PolyhedralTriangulation {
             }
 
             //Crea i nuovi lati dati dalla triangolazione e aggiorna la lista dei lati
-            unsigned int original_id=0;
+            unsigned int original_id = 0;
             
-            for(size_t i=0; i<grid.size(); i++){
+            for(size_t i = 0; i < grid.size(); i++){
                 Vector2i extrema;
-                for(size_t j=0; j<=i; j++){
-                    if(i<grid.size()-1){
+                for(size_t j = 0; j <= i; j++){
+                    if(i < grid.size() - 1){
                     	// Lato sotto a sinistra
                     	extrema[0] = grid[i][j];
 						extrema[1] = grid[i + 1][j];
@@ -155,9 +155,9 @@ namespace PolyhedralTriangulation {
                     }
                     
                     // Lato accanto a destra
-                    if(i>0 && j<=i-1){
+                    if(i > 0 && j <= i - 1){
                     	extrema[0] = grid[i][j];
-						extrema[1] = grid[i][j+1];
+						extrema[1] = grid[i][j + 1];
 						
 						// Aggiorna la lista dei lati, se il vertice non esiste già
                     	if(!EdgeIsDupe(triMesh, extrema, original_id)){
@@ -171,18 +171,18 @@ namespace PolyhedralTriangulation {
             }
 
 			//Crea le nuove facce dopo la triangolazione
-			for (size_t i=0; i<grid.size()-1; i++){
-				for (size_t j=0; j<=i; j++){
+			for (size_t i = 0; i < grid.size() - 1; i++){
+				for (size_t j = 0; j <= i; j++){
 					
 					// Facce con la punta verso l'alto
-					vector<unsigned int> v1 = {grid[i][j],grid[i+1][j],grid[i+1][j+1]}; 
+					vector<unsigned int> v1 = {grid[i][j],grid[i + 1][j],grid[i + 1][j + 1]}; 
 					vector<unsigned int> e1;
 					// Memorizza i lati corrispodenti
-					for(unsigned int v=0; v<3; v++){
-						unsigned int from=v1[v];
-						unsigned int to= v1[(v + 1) % 3];
-						for(unsigned int k=0; k< triMesh.Cell1DsId.size(); k++){
-							if((from==triMesh.Cell1DsExtrema(0, k) && to==triMesh.Cell1DsExtrema(1, k)) || (from==triMesh.Cell1DsExtrema(1, k) && to==triMesh.Cell1DsExtrema(0, k))){
+					for(unsigned int v = 0; v < 3; v++){
+						unsigned int from = v1[v];
+						unsigned int to = v1[(v + 1) % 3];
+						for(unsigned int k = 0; k < triMesh.Cell1DsId.size(); k++){
+							if((from == triMesh.Cell1DsExtrema(0, k) && to == triMesh.Cell1DsExtrema(1, k)) || (from == triMesh.Cell1DsExtrema(1, k) && to == triMesh.Cell1DsExtrema(0, k))){
 								e1.push_back(k);
 								break;
 							}
@@ -195,15 +195,15 @@ namespace PolyhedralTriangulation {
 					fCount++;
 					
 					// Facce con la punta verso il basso
-					if(i>0 && j<=i-1){
-						vector<unsigned int> v2 = {grid[i][j],grid[i][j+1],grid[i+1][j+1]};
+					if(i > 0 && j <= i - 1){
+						vector<unsigned int> v2 = {grid[i][j],grid[i][j + 1],grid[i + 1][j + 1]};
 						vector<unsigned int> e2;
 						// Memorizza i lati corrispodenti
-						for(unsigned int v=0; v<3; v++){
-							unsigned int from=v2[v];
-							unsigned int to=v2[(v+1)%3];
-							for(unsigned int k=0; k< triMesh.Cell1DsId.size(); k++){
-								if((from==triMesh.Cell1DsExtrema(0, k) && to==triMesh.Cell1DsExtrema(1, k)) || (from==triMesh.Cell1DsExtrema(1, k) && to==triMesh.Cell1DsExtrema(0, k))){
+						for(unsigned int v = 0; v < 3; v++){
+							unsigned int from = v2[v];
+							unsigned int to = v2[(v + 1) % 3];
+							for(unsigned int k = 0; k < triMesh.Cell1DsId.size(); k++){
+								if((from == triMesh.Cell1DsExtrema(0, k) && to == triMesh.Cell1DsExtrema(1, k)) || (from == triMesh.Cell1DsExtrema(1, k) && to == triMesh.Cell1DsExtrema(0, k))){
 									e2.push_back(k);
 									break;
 								}
@@ -278,20 +278,22 @@ namespace PolyhedralTriangulation {
                 unsigned int original_id;
                 Vector3d from = ((double)i / level) * B + ((double)(level - i) / level) * A;
                 Vector3d to = ((double)i / level) * C + ((double)(level - i) / level) * A;
-                for (unsigned int j = 0; j <= i; j++) { 
+                for (unsigned int j = 0; j <= i; j++){ 
                     Vector3d pos;
-                    if (i == 0) {
+                    if (i == 0){
                         pos = A;
-                    } else {
+                    } 
+					else{
                         pos = ((double)j / i) * to + ((double)(i - j) / i) * from;
                     }
-                    pos = pos/pos.norm();
+                    pos = pos / pos.norm();
                     if(!VertexIsDupe(triMesh, pos, original_id)){
                         triMesh.Cell0DsId.push_back(vCount);
                         triMesh.Cell0DsCoordinates.col(vCount) = pos;
                         row.push_back(vCount);
                         vCount++;
-                    } else {
+                    } 
+					else{
                         row.push_back(original_id);
                     }
                 }
@@ -322,15 +324,15 @@ namespace PolyhedralTriangulation {
 					Vector3d mid23_pos;
 					Vector3d mid31_pos;
 					
-                    if(j==0 && i!=level-1){
+                    if(j == 0 && i != level - 1){
                     	mid12_pos = (p1_coord + p2_coord) / 2.0;
                     	mid12_pos =  mid12_pos/ mid12_pos.norm();
-                    	exists12=true;
+                    	exists12 = true;
 					}
-					if(j==i && i!=level-1){
+					if(j == i && i != level - 1){
 						mid31_pos = (p3_coord + p1_coord) / 2.0;
 						mid31_pos =  mid31_pos/ mid31_pos.norm();
-						exists23=true;
+						exists23 = true;
 					}
 					if(i==level-1){
 						mid23_pos = (p2_coord + p3_coord) / 2.0;
@@ -406,9 +408,9 @@ namespace PolyhedralTriangulation {
 					
 					
 					// Se il triangolo è l'ultimo del rispettivo strato, aggiungo i triangoli che si creano collegando il suo baricentro a quello adiacente a sinistra
-					if(j==i && i>0){
-						new_sub_triangles_1.push_back(std::vector<unsigned int>{barycenters[barycenters.size()-1], barycenter_id, grid_base_verts[i][j]});
-						new_sub_triangles_1.push_back(std::vector<unsigned int>{barycenters[barycenters.size()-1], barycenter_id, grid_base_verts[i+1][j]});
+					if(j == i && i > 0){
+						new_sub_triangles_1.push_back(std::vector<unsigned int>{barycenters[barycenters.size() - 1], barycenter_id, grid_base_verts[i][j]});
+						new_sub_triangles_1.push_back(std::vector<unsigned int>{barycenters[barycenters.size() - 1], barycenter_id, grid_base_verts[i + 1][j]});
 					}
 
 					unsigned int original_id2;
@@ -416,10 +418,10 @@ namespace PolyhedralTriangulation {
 					// Controlla se i lati esistono già prima di aggiungerli
                     for(const auto& new_verts : new_sub_triangles_1){
                         vector<unsigned int> current_edges;
-                        for(unsigned int k=0; k<3; k++){
+                        for(unsigned int k = 0; k < 3; k++){
                             Vector2i edge_extrema;
                             edge_extrema[0] = new_verts[k];
-                            edge_extrema[1] = new_verts[(k+1)%3];
+                            edge_extrema[1] = new_verts[(k + 1) % 3];
                             
                             if(EdgeIsDupe(triMesh, edge_extrema, original_id2)){
                             	current_edges.push_back(original_id2);
@@ -440,8 +442,8 @@ namespace PolyhedralTriangulation {
                     }
                     
                     // Triangoli con la punta verso il basso (si parte dal secondo strato)
-                    if (j < i && i>0) {
-                        vector<unsigned int> triangleVertices2 = {grid_base_verts[i][j], grid_base_verts[i][j+1], grid_base_verts[i+1][j+1]};
+                    if (j < i && i > 0) {
+                        vector<unsigned int> triangleVertices2 = {grid_base_verts[i][j], grid_base_verts[i][j + 1], grid_base_verts[i + 1][j + 1]};
                         
                         // Prende le coordinate della faccia corrente ottenuta dalla triangolazione 1
                         p1_coord = triMesh.Cell0DsCoordinates.col(triangleVertices2[0]);
@@ -450,7 +452,7 @@ namespace PolyhedralTriangulation {
 						
 						// In questo caso salva solo le coordinate del baricentro
                         barycenter_pos = (p1_coord + p2_coord + p3_coord) / 3.0;
-                        barycenter_pos = barycenter_pos/barycenter_pos.norm();
+                        barycenter_pos = barycenter_pos / barycenter_pos.norm();
 
                         triMesh.Cell0DsId.push_back(vCount);
 	                    triMesh.Cell0DsCoordinates.col(vCount) = barycenter_pos;
@@ -460,19 +462,19 @@ namespace PolyhedralTriangulation {
 
 						// Aggiunge i triangoli che si creano dal collegamento col baricentro del triangolo sopra
                         vector<vector<unsigned int>> new_sub_triangles_2 = {
-                            {grid_base_verts[i][j], barycenters_grid[i-1][j], barycenter_id},
-                        	{grid_base_verts[i][j+1], barycenters_grid[i-1][j], barycenter_id},
-                        	{grid_base_verts[i][j], barycenters[barycenters.size()-1], barycenter_id},
-                        	{grid_base_verts[i+1][j+1], barycenters[barycenters.size()-1], barycenter_id}
+                            {grid_base_verts[i][j], barycenters_grid[i - 1][j], barycenter_id},
+                        	{grid_base_verts[i][j + 1], barycenters_grid[i - 1][j], barycenter_id},
+                        	{grid_base_verts[i][j], barycenters[barycenters.size() - 1], barycenter_id},
+                        	{grid_base_verts[i + 1][j + 1], barycenters[barycenters.size() - 1], barycenter_id}
                         };
                        
                        // Controlla se i lati esistono già prima di aggiungerli
                         for(const auto& new_verts : new_sub_triangles_2){
                             vector<unsigned int> current_edges;
-                            for(unsigned int k=0; k<3; ++k){
+                            for(unsigned int k = 0; k < 3; k++){
                                 Vector2i edge_extrema;
                                 edge_extrema[0] = new_verts[k];
-                                edge_extrema[1] = new_verts[(k+1)%3];
+                                edge_extrema[1] = new_verts[(k + 1) % 3];
                                 
                                 if(EdgeIsDupe(triMesh, edge_extrema, original_id2)){
 	                            	current_edges.push_back(original_id2);
