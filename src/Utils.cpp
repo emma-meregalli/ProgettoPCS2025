@@ -645,124 +645,122 @@ bool ExportIcosahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const unsi
 	
 	/////////////////////////////////////////////////////////////////////////////////////////////
 	
+// Funzione che calcola il cammino minimo tra due vertici in una mesh triangolata utilizzando Dijkstra 
 bool ShortestPath(PolyhedralMesh& mesh, unsigned int id_vertice_1, unsigned int id_vertice_2, unsigned int num_lati_iniziali, bool all_edges = true) {
+	// controlla se gli ID dei vertici sono validi
     if (id_vertice_1 >= mesh.NumCell0Ds || id_vertice_2 >= mesh.NumCell0Ds) {
         cerr << "ID dei vertici non valido." << endl;
         return false;
     }
-
+	
+	// Inizializza il numero totale dei vertici della mesh
     unsigned int N = mesh.NumCell0Ds;
 	
-    //Inizializzo la lista di adiacenza
-	//Uso un vettore di vettori. L'i-esimo vettore corrisponde all'i-esimo vertice, ed è costituito da coppie vertice-peso, cioè contiene i vertici vicini e la relativa distanza
+    // Inizializza la lista di adiacenza come vettore di vettori di coppie (vertice adiacente, peso).
+	// L'i-esimo vettore corrisponde all'i-esimo vertice e contiene i vertici adiacenti e la relativa distanza
     vector<vector<pair<unsigned int, double>>> LA(N); 
 
-	//Riempio la lista di adiacenza
-    for (unsigned int i = 0; i < mesh.NumCell1Ds; i++) {//Considero solo i nuovi lati, quelli prima della triangolazione "non esistono più"
+	// Viene riempita la lista di adiacenza considerando solo i lati della mesh
+    for (unsigned int i = 0; i < mesh.NumCell1Ds; i++) {
 	
-        unsigned int v1 = mesh.Cell1DsExtrema(0, i);
-        unsigned int v2 = mesh.Cell1DsExtrema(1, i);
+        unsigned int v1 = mesh.Cell1DsExtrema(0, i);	// Estremo 1 del lato
+        unsigned int v2 = mesh.Cell1DsExtrema(1, i);	// estremo 2 del lato
 
+		// Coordinate dei due estremi
         Eigen::Vector3d c1 = mesh.Cell0DsCoordinates.col(v1);
         Eigen::Vector3d c2 = mesh.Cell0DsCoordinates.col(v2);
-        double peso = (c1 - c2).norm();
-
+		
+        double peso = (c1 - c2).norm();		// Distanza tra i due estremi normalizzata = peso dell'arco
+		
+		// vengono aggiunti entrambi i sensi perchè il grafo NON è orientato
         LA[v1].push_back({v2, peso});
         LA[v2].push_back({v1, peso});
     }
 
     // Inizializzazione Dijkstra
-    vector<double> distanze(N, numeric_limits<double>::infinity()); //Vettore delle distanze, inizializzate tutte ad un numero molto grande
-    vector<int> pred(N, -1); //Vettore dei predecessori, inizializzati tutti a -1
-    vector<bool> visitati(N, false); //Vettore dei vertici visitati, inizializzati a false
+    vector<double> distanze(N, numeric_limits<double>::infinity()); // Vettore delle distanze minime, inizializzate ad infinito
+    vector<int> pred(N, -1); // Vettore dei predecessori, inizializzati a -1
+    vector<bool> visitati(N, false); // Vettore dello stato dei vertici, inizializzati a non visitati
 
-    distanze[id_vertice_1] = 0.0; //La distanza del primo vertice da sè stesso è nulla
+    distanze[id_vertice_1] = 0.0; // La distanza del vertice inizilae da sè stesso è nulla
     
-    priority_queue<pair<double,unsigned int>, vector<pair<double, unsigned int>>, greater<pair<double, unsigned int>>> pq; //Inizializzo la coda di priorità
-	//La pq è costituita da una coppia (pair) dove salviamo la distanza e l'identificativo del vertice. Il greater ci permette di ordinare la coda in modo da prendere sempre 
-	//per primo il vertice con la distanza minore
-	//All'interno della pq c'è un altro contenitore, ovvero un vettore anch'esso costituito da coppie distanza, vertice, e che ci permette di memorizzare gli elementi
+	// Inizializzazione coda di priorità
+    priority_queue<pair<double,unsigned int>, vector<pair<double, unsigned int>>, greater<pair<double, unsigned int>>> pq; 
 	
-    pq.push({0.0, id_vertice_1}); //Aggiungo il primo vertice
+    pq.push({0.0, id_vertice_1}); //Inserisce il vertice iniziale
 	
 	
-	//Uso Dijkstra per il cammino minimo pesato
-	
+	// Algoritmo di Dijkstra per il cammino minimo pesato
     while (!pq.empty()) {
-		//Estraggo l'elemento dalla coda
+		//Estraggo vertice con distanza minima
         unsigned int u = pq.top().second; 
         pq.pop();
 
-
-        if (visitati[u]) continue;
-        visitati[u] = true;
-
-        for (auto& [v, peso] : LA[u]) { //Vado a prendere ogni vertice con il relativo peso nella lista di adiacenza
-            if (visitati[v]) continue; //Se l'ho già visitato non lo considero più
-
-            if (distanze[u] + peso < distanze[v]) { //Altrimenti, controllo se aggiungerlo alla coda
+        if (visitati[u]) continue;		// Se già visitato, viene saltato
+        visitati[u] = true;				// Viene marcato come viistato
+		
+		// Ciclo sui vertici adiacenti a u
+        for (auto& [v, peso] : LA[u]) { 
+            if (visitati[v]) continue; // I già visitati vengono saltati
+	
+			// se viene trovato un cammino più corto si aggiorna distanza e predecessore
+            if (distanze[u] + peso < distanze[v]) {
                 distanze[v] = distanze[u] + peso;
                 pred[v] = u;
-                pq.push({distanze[v], v});
+                pq.push({distanze[v], v});		// v viene inserito nella coda in modo tale da essere visitato dopo
             }
         }
     }
 
-    // Ricostruisco il cammino (controllo se esiste)
+    // Se il nodo finale non ha predecessore, il cammino minimo non esiste
     if (pred[id_vertice_2] == -1) {
         cerr << "Nessun cammino trovato da " << id_vertice_1 << " a " << id_vertice_2 << endl;
         return false;
     }
 
-
+	// Ricostruzione del cammino minimo da vertice finale a vertice iniziale
+	// Viene utilizzata la condizione sul predecessore(pari a -1) in modo tale che il ciclo possa terminare una volta arrivato al vertice iniziale
     vector<unsigned int> cammino;
 	int nodo_corrente = id_vertice_2;
 
-	//Costruisco il cammino partendo dall'ultimo vertice
-	//Faccio così perchè mi serve la condizione sul predecessore (pari a -1), in modo tale da fermarmi una volta arrivato al nodo iniziale
 	while (nodo_corrente != -1) {
 		cammino.push_back(nodo_corrente);
 		nodo_corrente = pred[nodo_corrente];  
 	}
 
-    reverse(cammino.begin(), cammino.end()); //Inverto l'ordine in modo da avere il cammino vero
+    reverse(cammino.begin(), cammino.end()); //Inverto l'ordine in modo da avere il cammino effettivo
 
-    //Inizializzo le proprietà della mesh
+    // Inizializzazione delle proprietà della mesh
     mesh.Cell0DsShortPath.resize(mesh.NumCell0Ds, 0);
     mesh.Cell1DsShortPath.resize(mesh.NumCell1Ds, 0);
 	
-	
-	//Aggiungo i vertici visitati
+	// Vengono marcati i vertici che appartengono al cammino
     for (int v : cammino) {
         mesh.Cell0DsShortPath[v] = 1;
     }
 
- 
-    double Lunghezza_tot = 0.0;
-    unsigned int Lunghezza_cammino = 0;
+    double Lunghezza_tot = 0.0;			// Somma totale delle distanze 
+    unsigned int Lunghezza_cammino = 0; // Numero totale di archi che compongono il cammino
 	
-	//Aggiungo i lati visitati, aggiorno il numero di lati e la distanza totale percorsa
+	// Vengono marcati i lati del cammino e ne viene calcolata la lunghezza
     for (unsigned int i = 0; i < cammino.size() - 1; i++) {
         unsigned int u = cammino[i];
         unsigned int w = cammino[i + 1];
-
         
         for (unsigned int j = 0; j < mesh.NumCell1Ds; j++) {
             unsigned int v1 = mesh.Cell1DsExtrema(0, j);
             unsigned int v2 = mesh.Cell1DsExtrema(1, j);
-            if ((v1 == u && v2 == w) || (v1 == w && v2 == u)) {
+            if ((v1 == u && v2 == w) || (v1 == w && v2 == u)) {		// Il grafo non è orientato
                 mesh.Cell1DsShortPath[j] = 1;
                 Eigen::Vector3d c1 = mesh.Cell0DsCoordinates.col(v1);
                 Eigen::Vector3d c2 = mesh.Cell0DsCoordinates.col(v2);
                 Lunghezza_tot += (c1 - c2).norm();
-                Lunghezza_cammino++;
+                Lunghezza_cammino++;	
                 break;
             }
         }
 		
     }
-	
-
 
     cout << "Numero di archi nel cammino: " << Lunghezza_cammino << endl;
     cout << "Lunghezza totale: " << Lunghezza_tot << endl;
