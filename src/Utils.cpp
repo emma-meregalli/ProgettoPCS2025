@@ -646,7 +646,7 @@ bool ExportIcosahedron(PolyhedralMesh& mesh, PolyhedralMesh& triMesh, const unsi
 	/////////////////////////////////////////////////////////////////////////////////////////////
 	
 // Funzione che calcola il cammino minimo tra due vertici in una mesh triangolata utilizzando Dijkstra 
-bool ShortestPath(PolyhedralMesh& mesh, unsigned int id_vertice_1, unsigned int id_vertice_2, unsigned int num_lati_iniziali, bool all_edges = true) {
+bool ShortestPath(PolyhedralMesh& mesh, unsigned int id_vertice_1, unsigned int id_vertice_2) {
 	// controlla se gli ID dei vertici sono validi
     if (id_vertice_1 >= mesh.NumCell0Ds || id_vertice_2 >= mesh.NumCell0Ds) {
         cerr << "ID dei vertici non valido." << endl;
@@ -664,13 +664,13 @@ bool ShortestPath(PolyhedralMesh& mesh, unsigned int id_vertice_1, unsigned int 
     for (unsigned int i = 0; i < mesh.NumCell1Ds; i++) {
 	
         unsigned int v1 = mesh.Cell1DsExtrema(0, i);	// Estremo 1 del lato
-        unsigned int v2 = mesh.Cell1DsExtrema(1, i);	// estremo 2 del lato
+        unsigned int v2 = mesh.Cell1DsExtrema(1, i);	// Estremo 2 del lato
 
 		// Coordinate dei due estremi
         Eigen::Vector3d c1 = mesh.Cell0DsCoordinates.col(v1);
         Eigen::Vector3d c2 = mesh.Cell0DsCoordinates.col(v2);
 		
-        double peso = (c1 - c2).norm();		// Distanza tra i due estremi normalizzata = peso dell'arco
+        double peso = (c1 - c2).norm();	//Distanza tra i due estremi normalizzata = peso dell'arco
 		
 		// vengono aggiunti entrambi i sensi perchè il grafo NON è orientato
         LA[v1].push_back({v2, peso});
@@ -719,7 +719,8 @@ bool ShortestPath(PolyhedralMesh& mesh, unsigned int id_vertice_1, unsigned int 
     }
 
 	// Ricostruzione del cammino minimo da vertice finale a vertice iniziale
-	// Viene utilizzata la condizione sul predecessore(pari a -1) in modo tale che il ciclo possa terminare una volta arrivato al vertice iniziale
+	// Viene utilizzata la condizione sul predecessore(pari a -1) 
+	// in modo tale che il ciclo possa terminare una volta arrivato al vertice iniziale
     vector<unsigned int> cammino;
 	int nodo_corrente = id_vertice_2;
 
@@ -728,7 +729,8 @@ bool ShortestPath(PolyhedralMesh& mesh, unsigned int id_vertice_1, unsigned int 
 		nodo_corrente = pred[nodo_corrente];  
 	}
 
-    reverse(cammino.begin(), cammino.end()); //Inverto l'ordine in modo da avere il cammino effettivo
+	//Inverto l'ordine in modo da avere il cammino effettivo
+    reverse(cammino.begin(), cammino.end());
 
     // Inizializzazione delle proprietà della mesh
     mesh.Cell0DsShortPath.resize(mesh.NumCell0Ds, 0);
@@ -750,7 +752,7 @@ bool ShortestPath(PolyhedralMesh& mesh, unsigned int id_vertice_1, unsigned int 
         for (unsigned int j = 0; j < mesh.NumCell1Ds; j++) {
             unsigned int v1 = mesh.Cell1DsExtrema(0, j);
             unsigned int v2 = mesh.Cell1DsExtrema(1, j);
-            if ((v1 == u && v2 == w) || (v1 == w && v2 == u)) {		// Il grafo non è orientato
+            if ((v1 == u && v2 == w) || (v1 == w && v2 == u)) { // Il grafo non è orientato
                 mesh.Cell1DsShortPath[j] = 1;
                 Eigen::Vector3d c1 = mesh.Cell0DsCoordinates.col(v1);
                 Eigen::Vector3d c2 = mesh.Cell0DsCoordinates.col(v2);

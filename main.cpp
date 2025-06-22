@@ -14,15 +14,7 @@ int checkInput(const vector<int> vector_input){
     unsigned int q = vector_input[1];
     unsigned int b = vector_input[2];
     unsigned int c = vector_input[3];
-	
-	// Per il cammino minimo, se il poliedro non viene triangolato (quindi se b+c==1) allora devo considerare i lati iniziali.
-	// In caso contrario, devo considerare tutti i lati che si formano dopo la triangolazione
-	
-	//Controlla se serve fare la triangolazione
-	bool all_edges = false;
-	if (b + c == 1){
-		all_edges = true;
-	}	
+		
 	
 	// Controlla se l'input prevede la ricerca del cammino minimo
 	bool path = false;
@@ -74,7 +66,7 @@ int checkInput(const vector<int> vector_input){
                 CreateTxtFiles(triMesh);
                 cout << "Stampato!" << endl;
 				if (path){
-					shortestPath = ShortestPath(triMesh, id_v1, id_v2, triMesh.NumCell1Ds, all_edges);
+					shortestPath = ShortestPath(triMesh, id_v1, id_v2);
 					cout << "Cammino minimo trovato!" <<endl;
 				}	
 				ExportParaView(triMesh, path);
@@ -86,7 +78,7 @@ int checkInput(const vector<int> vector_input){
                 CreateTxtFiles(triMesh);
 				cout << "Stampato!" << endl;
 				if (path){
-					shortestPath = ShortestPath(triMesh, id_v1, id_v2, triMesh.NumCell1Ds, all_edges);
+					shortestPath = ShortestPath(triMesh, id_v1, id_v2);
 					cout << "Cammino minimo trovato!" <<endl;
 				}	
 				ExportParaView(triMesh, path);
@@ -98,7 +90,7 @@ int checkInput(const vector<int> vector_input){
                 CreateTxtFiles(triMesh);
 				cout << "Stampato!" << endl;
 				if (path){
-					shortestPath = ShortestPath(triMesh, id_v1, id_v2, triMesh.NumCell1Ds ,all_edges);
+					shortestPath = ShortestPath(triMesh, id_v1, id_v2);
 					cout << "Cammino minimo trovato!" << endl;
 				}	
 				ExportParaView(triMesh, path);
@@ -115,7 +107,7 @@ int checkInput(const vector<int> vector_input){
                 CreateTxtFiles(dualMesh);
 				cout << "Stampato!" << endl;
 				if (path){
-					shortestPath = ShortestPath(dualMesh, id_v1, id_v2, dualMesh.NumCell1Ds ,all_edges);
+					shortestPath = ShortestPath(dualMesh, id_v1, id_v2);
 					cout << "Cammino minimo trovato!" << endl;
 				}	
 				ExportParaView(dualMesh, path);
@@ -129,7 +121,7 @@ int checkInput(const vector<int> vector_input){
                 CreateTxtFiles(dualMesh);
 				cout << "Stampato!" << endl;
 				if (path){
-					shortestPath = ShortestPath(dualMesh, id_v1, id_v2, dualMesh.NumCell1Ds,all_edges);
+					shortestPath = ShortestPath(dualMesh, id_v1, id_v2);
 					cout << "Cammino minimo trovato!" << endl;
 				}	
 				ExportParaView(dualMesh, path);
