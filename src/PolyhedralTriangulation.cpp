@@ -318,29 +318,28 @@ namespace PolyhedralTriangulation {
 	                    bool exists31 = false;
 	
 	                    // Calcola i punti medi di ogni lato (se vanno tenuti) e il baricentro del triangolo
+	                    Vector3d mid12_pos, mid31_pos, mid23_pos;
+	                    
 	                    if(j == 0) {
-	                    	Vector3d mid12_pos = (p1_coord + p2_coord) / 2.0;
+	                    	mid12_pos = (p1_coord + p2_coord) / 2.0;
 	                    	//mid12_pos =  mid12_pos / mid12_pos.norm();
 	                    	exists12 = true;
-	                    	unsigned int mid12_id;
 						}
 						if(j == i) {
-							Vector3d mid31_pos = (p3_coord + p1_coord) / 2.0;
+							mid31_pos = (p3_coord + p1_coord) / 2.0;
 							//mid31_pos =  mid31_pos / mid31_pos.norm();
 							exists31 = true;
-							unsigned int mid13_id;
 						}
 						if(i == level - 1){
-							Vector3d mid23_pos = (p2_coord + p3_coord) / 2.0;
+							mid23_pos = (p2_coord + p3_coord) / 2.0;
 							//mid23_pos =  mid23_pos / mid23_pos.norm();
 							exists23 = true;
-							unsigned int mid23_id;
 						}
 	                    
 	                    Vector3d barycenter_pos = (p1_coord + p2_coord + p3_coord) / 3.0;
 						//barycenter_pos = barycenter_pos / barycenter_pos.norm();
 						
-	                    unsigned int barycenter_id;
+	                    unsigned int mid12_id, mid23_id, mid31_id, barycenter_id;
 	                    unsigned int original_id;
 						
 	                    // Aggiunge i punti medi se non esistono già
@@ -444,17 +443,17 @@ namespace PolyhedralTriangulation {
                         vector<unsigned int> triangleVertices2 = {grid_base_verts[i][j], grid_base_verts[i][j + 1], grid_base_verts[i + 1][j + 1]};
                         
                         // Prende le coordinate della faccia corrente ottenuta dalla triangolazione 1
-                        p1_coord = triMesh.Cell0DsCoordinates.col(triangleVertices2[0]);
-                        p2_coord = triMesh.Cell0DsCoordinates.col(triangleVertices2[1]);
-                        p3_coord = triMesh.Cell0DsCoordinates.col(triangleVertices2[2]);
+                        Vector3d p1_coord = triMesh.Cell0DsCoordinates.col(triangleVertices2[0]);
+                        Vector3d p2_coord = triMesh.Cell0DsCoordinates.col(triangleVertices2[1]);
+                        Vector3d p3_coord = triMesh.Cell0DsCoordinates.col(triangleVertices2[2]);
 						
 						// In questo caso salva solo le coordinate del baricentro
-                        barycenter_pos = (p1_coord + p2_coord + p3_coord) / 3.0;
+                        Vector3d barycenter_pos = (p1_coord + p2_coord + p3_coord) / 3.0;
                         //barycenter_pos = barycenter_pos / barycenter_pos.norm();
 
                         triMesh.Cell0DsId.push_back(vCount);
 	                    triMesh.Cell0DsCoordinates.col(vCount) = barycenter_pos;
-	                    barycenter_id = vCount;
+	                    unsigned int barycenter_id = vCount;
 	                    barycenters2.push_back(vCount);
 	                    vCount++;
 
@@ -465,6 +464,8 @@ namespace PolyhedralTriangulation {
                         	{triangleVertices2[0], barycenters.back(), barycenter_id},
                         	{triangleVertices2[2], barycenters.back(), barycenter_id}
                         };
+                       
+                       unsigned int original_id2;
                        
                        // Controlla se i lati esistono già prima di aggiungerli
                         for(const auto& new_verts : new_sub_triangles_2){
