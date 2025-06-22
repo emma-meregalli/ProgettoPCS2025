@@ -670,19 +670,19 @@ bool ShortestPath(PolyhedralMesh& mesh, unsigned int id_vertice_1, unsigned int 
         Eigen::Vector3d c1 = mesh.Cell0DsCoordinates.col(v1);
         Eigen::Vector3d c2 = mesh.Cell0DsCoordinates.col(v2);
 		
-        double peso = (c1 - c2).norm();	//Distanza tra i due estremi normalizzata = peso dell'arco
+        double weight = (c1 - c2).norm();	//Distanza tra i due estremi normalizzata = peso dell'arco
 		
 		// vengono aggiunti entrambi i sensi perchè il grafo NON è orientato
-        LA[v1].push_back({v2, peso});
-        LA[v2].push_back({v1, peso});
+        LA[v1].push_back({v2, weight});
+        LA[v2].push_back({v1, weight});
     }
 
     // Inizializzazione Dijkstra
-    vector<double> distanze(N, numeric_limits<double>::infinity()); // Vettore delle distanze minime, inizializzate ad infinito
+    vector<double> distance(N, numeric_limits<double>::infinity()); // Vettore delle distanze inizializzate ad infinito
     vector<int> pred(N, -1); // Vettore dei predecessori, inizializzati a -1
-    vector<bool> visitati(N, false); // Vettore dello stato dei vertici, inizializzati a non visitati
+    vector<bool> visited(N, false); // Vettore dello stato dei vertici, inizializzati a non visitati
 
-    distanze[id_vertice_1] = 0.0; // La distanza del vertice inizilae da sè stesso è nulla
+    distance[id_vertice_1] = 0.0; // La distanza del vertice inizilae da sè stesso è nulla
     
 	// Inizializzazione coda di priorità
     priority_queue<pair<double,unsigned int>, vector<pair<double, unsigned int>>, greater<pair<double, unsigned int>>> pq; 
@@ -696,18 +696,18 @@ bool ShortestPath(PolyhedralMesh& mesh, unsigned int id_vertice_1, unsigned int 
         unsigned int u = pq.top().second; 
         pq.pop();
 
-        if (visitati[u]) continue;		// Se già visitato, viene saltato
-        visitati[u] = true;				// Viene marcato come viistato
+        if (visited[u]) continue;		// Se già visitato, viene saltato
+        visited[u] = true;				// Viene marcato come viistato
 		
 		// Ciclo sui vertici adiacenti a u
-        for (auto& [v, peso] : LA[u]) { 
-            if (visitati[v]) continue; // I già visitati vengono saltati
+        for (auto& [v, weight] : LA[u]) { 
+            if (visited[v]) continue; // I già visitati vengono saltati
 	
 			// se viene trovato un cammino più corto si aggiorna distanza e predecessore
-            if (distanze[u] + peso < distanze[v]) {
-                distanze[v] = distanze[u] + peso;
+            if (distance[u] + weight < distance[v]) {
+                distance[v] = distance[u] + weight;
                 pred[v] = u;
-                pq.push({distanze[v], v});		// v viene inserito nella coda in modo tale da essere visitato dopo
+                pq.push({distance[v], v});		// v viene inserito nella coda in modo tale da essere visitato dopo
             }
         }
     }
@@ -721,33 +721,33 @@ bool ShortestPath(PolyhedralMesh& mesh, unsigned int id_vertice_1, unsigned int 
 	// Ricostruzione del cammino minimo da vertice finale a vertice iniziale
 	// Viene utilizzata la condizione sul predecessore(pari a -1) 
 	// in modo tale che il ciclo possa terminare una volta arrivato al vertice iniziale
-    vector<unsigned int> cammino;
-	int nodo_corrente = id_vertice_2;
+    vector<unsigned int> path;
+	int current_vertex = id_vertice_2;
 
-	while (nodo_corrente != -1) {
-		cammino.push_back(nodo_corrente);
-		nodo_corrente = pred[nodo_corrente];  
+	while (current_vertex != -1) {
+		path.push_back(current_vertex);
+		current_vertex = pred[current_vertex];  
 	}
 
 	//Inverto l'ordine in modo da avere il cammino effettivo
-    reverse(cammino.begin(), cammino.end());
+    reverse(path.begin(), path.end());
 
     // Inizializzazione delle proprietà della mesh
     mesh.Cell0DsShortPath.resize(mesh.NumCell0Ds, 0);
     mesh.Cell1DsShortPath.resize(mesh.NumCell1Ds, 0);
 	
 	// Vengono marcati i vertici che appartengono al cammino
-    for (int v : cammino) {
+    for (int v : path) {
         mesh.Cell0DsShortPath[v] = 1;
     }
 
-    double Lunghezza_tot = 0.0;			// Somma totale delle distanze 
-    unsigned int Lunghezza_cammino = 0; // Numero totale di archi che compongono il cammino
+    double length_tot = 0.0; // Somma totale delle distanze 
+    unsigned int length_path = 0; // Numero totale di archi che compongono il cammino
 	
 	// Vengono marcati i lati del cammino e ne viene calcolata la lunghezza
-    for (unsigned int i = 0; i < cammino.size() - 1; i++) {
-        unsigned int u = cammino[i];
-        unsigned int w = cammino[i + 1];
+    for (unsigned int i = 0; i < path.size() - 1; i++) {
+        unsigned int u = path[i];
+        unsigned int w = path[i + 1];
         
         for (unsigned int j = 0; j < mesh.NumCell1Ds; j++) {
             unsigned int v1 = mesh.Cell1DsExtrema(0, j);
@@ -756,16 +756,16 @@ bool ShortestPath(PolyhedralMesh& mesh, unsigned int id_vertice_1, unsigned int 
                 mesh.Cell1DsShortPath[j] = 1;
                 Eigen::Vector3d c1 = mesh.Cell0DsCoordinates.col(v1);
                 Eigen::Vector3d c2 = mesh.Cell0DsCoordinates.col(v2);
-                Lunghezza_tot += (c1 - c2).norm();
-                Lunghezza_cammino++;	
+                length_tot += (c1 - c2).norm();
+                length_path++;	
                 break;
             }
         }
 		
     }
 
-    cout << "Numero di archi nel cammino: " << Lunghezza_cammino << endl;
-    cout << "Lunghezza totale: " << Lunghezza_tot << endl;
+    cout << "Numero di archi nel cammino: " << length_path << endl;
+    cout << "Lunghezza totale: " << length_tot << endl;
 	
 	return true;
 }
