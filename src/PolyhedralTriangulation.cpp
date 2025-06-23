@@ -15,7 +15,7 @@ namespace PolyhedralTriangulation {
 	// Funzione che controlla se un vertice è già nella lista
     bool VertexIsDupe(const PolyhedralMesh& mesh, const Vector3d& v, unsigned int& original_id){
         // Fisso una tolleranza per confrontare i vertici
-	    double tol = 1e-12;
+	    double tol = 1e-10;
 	    
         // Confronto con tutti i vertici già  inseriti nella lista
         for (size_t i = 0; i < mesh.Cell0DsId.size(); i++) {
@@ -476,8 +476,8 @@ namespace PolyhedralTriangulation {
 						{B, barycenters_grid[i][j], barycenters_grid2[i][j]},
 						{A, barycenters_grid[i + 1][j], barycenters_grid2[i][j]},
 						{C, barycenters_grid[i + 1][j], barycenters_grid2[i][j]},
-						{B, barycenters_grid[i + 1][j + 1], barycenters_grid2[i][j]},
-						{C, barycenters_grid[i + 1][j + 1], barycenters_grid2[i][j]}
+						{B, barycenters_grid[i][j + 1], barycenters_grid2[i][j]},
+						{C, barycenters_grid[i][j + 1], barycenters_grid2[i][j]}
 					};
 
 					unsigned int original_id;
