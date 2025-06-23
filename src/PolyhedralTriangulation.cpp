@@ -19,8 +19,8 @@ namespace PolyhedralTriangulation {
 	    
         // Confronto con tutti i vertici già  inseriti nella lista
         for (size_t i = 0; i < mesh.Cell0DsId.size(); i++) {
-            if ((mesh.Cell0DsCoordinates.col(i) - v).norm()/mesh.Cell0DsCoordinates.col(i).norm() < tol){    // Controlla l'errore relativo tra le norme dei vertici esistenti e quella del vertice nuovo
-				original_id = i;    //Se il vertice esiste, allora restituisco il suo ID 
+            if ((mesh.Cell0DsCoordinates.col(i) - v).norm() < tol){    // Controlla l'errore relativo tra le norme dei vertici esistenti e quella del vertice nuovo
+				original_id = mesh.Cell0DsId[i];    //Se il vertice esiste, allora restituisco il suo ID 
 				return true;  
             }
         }
@@ -425,7 +425,6 @@ namespace PolyhedralTriangulation {
                                 triMesh.Cell1DsExtrema.col(eCount) = edge_extrema;
                                 current_edges.push_back(eCount);
                                 eCount++;
-                                cout<<"ziopera"<<endl;
                             }
                         }
                         
