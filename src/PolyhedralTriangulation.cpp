@@ -15,7 +15,7 @@ namespace PolyhedralTriangulation {
 	// Funzione che controlla se un vertice è già nella lista
     bool VertexIsDupe(const PolyhedralMesh& mesh, const Vector3d& v, unsigned int& original_id){
         // Fisso una tolleranza per confrontare i vertici
-	    double tol = 1e-10;
+	    double tol = 1e-12;
 	    
         // Confronto con tutti i vertici già  inseriti nella lista
         for (size_t i = 0; i < mesh.Cell0DsId.size(); i++) {
@@ -294,15 +294,16 @@ namespace PolyhedralTriangulation {
                 grid_base_verts.push_back(row);
             }
             
-            vector<unsigned int> barycenters;  // Vettore per segnare i baricentri dei triangoli verso l'alto della riga corrente
-            vector<unsigned int> barycenters2;  // Vettore per segnare i baricentri dei triangoli verso il basso della riga corrente
 			vector<vector<unsigned int>> barycenters_grid; // Griglia dei baricentri
         	vector<vector<unsigned int>> barycenters_grid2; // Griglia dei baricentri 2
-			vector<vector<unsigned int>> verts_barycenters_row2;
 			vector<vector<vector<unsigned int>>> verts_barycenters_grid2; // Griglia coi vertici dei triangoli con la punta verso il basso
 
             // Ora per ogni triangolo creato con la triangolazione 1 applico la triangolazione 2
             for (unsigned int i = 0; i < level; i++) {
+            	vector<unsigned int> barycenters;  // Vettore per segnare i baricentri dei triangoli verso l'alto della riga corrente
+            	vector<unsigned int> barycenters2;  // Vettore per segnare i baricentri dei triangoli verso il basso della riga corrente
+            	vector<vector<unsigned int>> verts_barycenters_row2;
+            	
                 for (unsigned int j = 0; j <= i; j++) {
                 	
                     // Triangoli con la punto verso l'alto
@@ -476,8 +477,8 @@ namespace PolyhedralTriangulation {
 						{B, barycenters_grid[i][j], barycenters_grid2[i][j]},
 						{A, barycenters_grid[i + 1][j], barycenters_grid2[i][j]},
 						{C, barycenters_grid[i + 1][j], barycenters_grid2[i][j]},
-						{B, barycenters_grid[i][j + 1], barycenters_grid2[i][j]},
-						{C, barycenters_grid[i][j + 1], barycenters_grid2[i][j]}
+						{B, barycenters_grid[i + 1][j + 1], barycenters_grid2[i][j]},
+						{C, barycenters_grid[i + 1][j + 1], barycenters_grid2[i][j]}
 					};
 
 					unsigned int original_id;
@@ -511,19 +512,18 @@ namespace PolyhedralTriangulation {
 					}		
 				}
 			}
-    
-	        // Aggiorna Cell3DsId, Cell3DsVertices, Cell3DsEdges, Cell3DsFaces
-	        triMesh.Cell3DsId = {0}; 
-	        triMesh.Cell3DsVertices = triMesh.Cell0DsId; 
-	        triMesh.Cell3DsEdges = triMesh.Cell1DsId;     
-	        triMesh.Cell3DsFaces = triMesh.Cell2DsId;     
-	
-	        triMesh.NumCell0Ds = triMesh.Cell0DsId.size();
-	        triMesh.NumCell1Ds = triMesh.Cell1DsId.size();
-	        triMesh.NumCell2Ds = triMesh.Cell2DsId.size();
-	        triMesh.NumCell3Ds = 1; 
-			cout<<"fine faccia"<<endl;
-    	}     	
+    	} 
+		// Aggiorna Cell3DsId, Cell3DsVertices, Cell3DsEdges, Cell3DsFaces
+        triMesh.Cell3DsId = {0}; 
+        triMesh.Cell3DsVertices = triMesh.Cell0DsId; 
+        triMesh.Cell3DsEdges = triMesh.Cell1DsId;     
+        triMesh.Cell3DsFaces = triMesh.Cell2DsId;     
+
+        triMesh.NumCell0Ds = triMesh.Cell0DsId.size();
+        triMesh.NumCell1Ds = triMesh.Cell1DsId.size();
+        triMesh.NumCell2Ds = triMesh.Cell2DsId.size();
+        triMesh.NumCell3Ds = 1; 
+			    	
 		return true;
 	}	
 }
