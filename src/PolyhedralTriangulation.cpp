@@ -296,8 +296,10 @@ namespace PolyhedralTriangulation {
             
             vector<unsigned int> barycenters;  // Vettore per segnare i baricentri dei triangoli verso l'alto della riga corrente
             vector<unsigned int> barycenters2;  // Vettore per segnare i baricentri dei triangoli verso il basso della riga corrente
-        	vector<vector<unsigned int>> barycenters_grid; // Griglia dei baricentri
+			vector<vector<unsigned int>> barycenters_grid; // Griglia dei baricentri
         	vector<vector<unsigned int>> barycenters_grid2; // Griglia dei baricentri 2
+			vector<vector<unsigned int>> verts_barycenters_row2;
+			vector<vector<vector<unsigned int>>> verts_barycenters_grid2; // Griglia coi vertici dei triangoli con la punta verso il basso
 
             // Ora per ogni triangolo creato con la triangolazione 1 applico la triangolazione 2
             for (unsigned int i = 0; i < level; i++) {
@@ -432,6 +434,7 @@ namespace PolyhedralTriangulation {
                     // Triangoli con la punta verso il basso (si parte dal secondo strato)
                     if (i > 0 && j < i) {
                         vector<unsigned int> triangleVertices2 = {grid_base_verts[i][j], grid_base_verts[i][j + 1], grid_base_verts[i + 1][j + 1]};
+						verts_barycenters_row2.push_back(triangleVertices2);
                         
                         // Prende le coordinate della faccia corrente ottenuta dalla triangolazione 1
                         Vector3d p1_coord = triMesh.Cell0DsCoordinates.col(triangleVertices2[0]);
@@ -451,29 +454,32 @@ namespace PolyhedralTriangulation {
                 }
                 // Aggiorna la griglia dei baricentri, necessaria per creare gli spigoli tra di essi
                 barycenters_grid.push_back(barycenters);
-                barycenters_grid2.push_back(barycenters2);
+				if(barycenters2.size() != 0) {
+					barycenters_grid2.push_back(barycenters2);
+					verts_barycenters_grid2.push_back(verts_barycenters_row2);
+				}
+				
             }
 			
 			// Creo i collegamenti tra i baricentri (solo per i triangoli con la punta verso il basso)
 			for (unsigned int i = 0; i < barycenters_grid2.size(); i++) {
                 for (unsigned int j = 0; j < barycenters_grid2[i].size(); j++) {
-					vector<unsigned int> triangleVertices = {grid_base_verts[i + 1][j], grid_base_verts[i + 1][j + 1], grid_base_verts[i + 2][j + 1]};
-                        
-					// Prende le coordinate della faccia corrente ottenuta dalla triangolazione 1
-					Vector3d p1_coord = triMesh.Cell0DsCoordinates.col(triangleVertices[0]);
-					Vector3d p2_coord = triMesh.Cell0DsCoordinates.col(triangleVertices[1]);
-					Vector3d p3_coord = triMesh.Cell0DsCoordinates.col(triangleVertices[2]);
-					
+
+					// Prende gli id dei vertici della faccia a cui appartiene il baricentro
+					unsigned int A = verts_barycenters_grid2[i][j][0];
+					unsigned int B = verts_barycenters_grid2[i][j][1];
+					unsigned int C = verts_barycenters_grid2[i][j][2];
+
 					// Aggiunge i triangoli che si creano dal collegamento coi baricentro dei triangoli adiacenti
 					vector<vector<unsigned int>> new_sub_triangles = {
-						{triangleVertices[0], barycenters_grid[i][j], barycenters_grid2[i][j]},
-						{triangleVertices[1], barycenters_grid[i][j], barycenters_grid2[i][j]}/*,
-						{triangleVertices[0], barycenters_grid[i + 1][j], barycenters_grid2[i][j]},
-						{triangleVertices[2], barycenters_grid[i + 1][j], barycenters_grid2[i][j]},
-						{triangleVertices[1], barycenters_grid[i + 1][j + 1], barycenters_grid2[i][j]},
-						{triangleVertices[2], barycenters_grid[i + 1][j + 1], barycenters_grid2[i][j]}*/
+						{A, barycenters_grid[i][j], barycenters_grid2[i][j]},
+						{B, barycenters_grid[i][j], barycenters_grid2[i][j]},
+						{A, barycenters_grid[i + 1][j], barycenters_grid2[i][j]},
+						{C, barycenters_grid[i + 1][j], barycenters_grid2[i][j]},
+						{B, barycenters_grid[i + 1][j + 1], barycenters_grid2[i][j]},
+						{C, barycenters_grid[i + 1][j + 1], barycenters_grid2[i][j]}
 					};
-					
+
 					unsigned int original_id;
                        
 				    // Controlla se i lati esistono già prima di aggiungerli
@@ -486,12 +492,14 @@ namespace PolyhedralTriangulation {
 							
 							if(EdgeIsDupe(triMesh, edge_extrema, original_id)){
 								current_edges.push_back(original_id);
+								cout<<"eccomi falso"<<endl;
 							}
 							else {
 								triMesh.Cell1DsId.push_back(eCount);
 								triMesh.Cell1DsExtrema.col(eCount) = edge_extrema;
 								current_edges.push_back(eCount);
 								eCount++;
+								cout<<"eccomi vero"<<endl;
 							}
 						}
 						
@@ -513,7 +521,8 @@ namespace PolyhedralTriangulation {
 	        triMesh.NumCell0Ds = triMesh.Cell0DsId.size();
 	        triMesh.NumCell1Ds = triMesh.Cell1DsId.size();
 	        triMesh.NumCell2Ds = triMesh.Cell2DsId.size();
-	        triMesh.NumCell3Ds = 1;   
+	        triMesh.NumCell3Ds = 1; 
+			cout<<"fine faccia"<<endl;
     	}     	
 		return true;
 	}	
