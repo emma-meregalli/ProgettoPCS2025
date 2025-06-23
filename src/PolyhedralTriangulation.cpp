@@ -425,6 +425,7 @@ namespace PolyhedralTriangulation {
                                 triMesh.Cell1DsExtrema.col(eCount) = edge_extrema;
                                 current_edges.push_back(eCount);
                                 eCount++;
+                                cout<<"ziopera"<<endl;
                             }
                         }
                         
@@ -461,7 +462,6 @@ namespace PolyhedralTriangulation {
                         	{triangleVertices2[0], barycenters[j], barycenter_id},
                         	{triangleVertices2[2], barycenters[j], barycenter_id}
                         };
-                       
                         unsigned int original_id2;
                        
                        // Controlla se i lati esistono già prima di aggiungerli
