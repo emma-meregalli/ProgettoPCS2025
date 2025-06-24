@@ -280,7 +280,7 @@ namespace PolyhedralTriangulation {
 					else{
                         pos = ((double)j / i) * to + ((double)(i - j) / i) * from;
                     }
-                    //pos = pos / pos.norm();
+                    pos = pos / pos.norm();
                     if(!VertexIsDupe(triMesh, pos, original_id)){
                         triMesh.Cell0DsId.push_back(vCount);
                         triMesh.Cell0DsCoordinates.col(vCount) = pos;
