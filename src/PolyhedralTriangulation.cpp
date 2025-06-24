@@ -19,7 +19,7 @@ namespace PolyhedralTriangulation {
 	    
         // Confronto con tutti i vertici già  inseriti nella lista
         for (size_t i = 0; i < mesh.Cell0DsId.size(); i++) {
-            if ((mesh.Cell0DsCoordinates.col(i) - v).norm() < tol){    // Controlla l'errore relativo tra le norme dei vertici esistenti e quella del vertice nuovo
+            if ((mesh.Cell0DsCoordinates.col(i) - v).norm() / mesh.Cell0DsCoordinates.col(i).norm() < tol){    // Controlla l'errore relativo tra le norme dei vertici esistenti e quella del vertice nuovo
 				original_id = mesh.Cell0DsId[i];    //Se il vertice esiste, allora restituisco il suo ID 
 				return true;  
             }
@@ -324,22 +324,22 @@ namespace PolyhedralTriangulation {
                     
                     if(j == 0) {
                     	mid12_pos = (p1_coord + p2_coord) / 2.0;
-                    	//mid12_pos =  mid12_pos / mid12_pos.norm();
+                    	mid12_pos =  mid12_pos / mid12_pos.norm();
                     	exists12 = true;
 					}
 					if(j == i) {
 						mid31_pos = (p3_coord + p1_coord) / 2.0;
-						//mid31_pos =  mid31_pos / mid31_pos.norm();
+						mid31_pos =  mid31_pos / mid31_pos.norm();
 						exists31 = true;
 					}
 					if(i == level - 1){
 						mid23_pos = (p2_coord + p3_coord) / 2.0;
-						//mid23_pos =  mid23_pos / mid23_pos.norm();
+						mid23_pos =  mid23_pos / mid23_pos.norm();
 						exists23 = true;
 					}
                     
                     Vector3d barycenter_pos = (p1_coord + p2_coord + p3_coord) / 3.0;
-					//barycenter_pos = barycenter_pos / barycenter_pos.norm();
+					barycenter_pos = barycenter_pos / barycenter_pos.norm();
 					
                     unsigned int mid12_id, mid23_id, mid31_id, barycenter_id;
                     unsigned int original_id;
@@ -444,7 +444,7 @@ namespace PolyhedralTriangulation {
 						
 						// In questo caso salva solo le coordinate del baricentro
                         Vector3d barycenter_pos = (p1_coord + p2_coord + p3_coord) / 3.0;
-                        //barycenter_pos = barycenter_pos / barycenter_pos.norm();
+                        barycenter_pos = barycenter_pos / barycenter_pos.norm();
 
                         triMesh.Cell0DsId.push_back(vCount);
 	                    triMesh.Cell0DsCoordinates.col(vCount) = barycenter_pos;
