@@ -493,14 +493,12 @@ namespace PolyhedralTriangulation {
 							
 							if(EdgeIsDupe(triMesh, edge_extrema, original_id)){
 								current_edges.push_back(original_id);
-								cout<<"eccomi falso"<<endl;
 							}
 							else {
 								triMesh.Cell1DsId.push_back(eCount);
 								triMesh.Cell1DsExtrema.col(eCount) = edge_extrema;
 								current_edges.push_back(eCount);
 								eCount++;
-								cout<<"eccomi vero"<<endl;
 							}
 						}
 						
